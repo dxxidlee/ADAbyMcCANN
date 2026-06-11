@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Export — McCANN Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --ink:#000; --paper:#fff; --muted:#8a8a85; --line:#000;
+    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --display:'McCann Headline','Helvetica Neue',Helvetica,Arial,sans-serif;
+  }
+  @font-face{
+    font-family:'McCann Headline';
+    src:url('McCann-Headline_4.ttf') format('truetype');
+    font-weight:100 900; font-display:swap;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  ::selection{background:#000;color:#fff;}
+  a{color:inherit;text-decoration:none;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:40px clamp(20px,5vw,64px) 80px;}
+  .topbar{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:18px;}
+  .brand{font-size:13px;font-weight:500;}
+  .nav{display:flex;gap:18px;font-size:13px;color:var(--muted);}
+  .nav a.active{color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:2px;}
+  .nav a:hover{color:var(--ink);}
+
+  .head{padding:56px 0 40px;}
+  .kicker{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:18px;}
+  h1.title{font-family:var(--display);font-size:clamp(44px,8vw,96px);font-weight:bold;letter-spacing:-.03em;line-height:.9;margin:0;}
+  .sub{font-size:13px;color:var(--ink);max-width:520px;margin-top:20px;line-height:1.5;}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+  @media(max-width:760px){.cols{grid-template-columns:1fr;gap:36px;}}
+
+  label.lbl{font-size:11px;font-weight:500;color:var(--muted);display:block;margin-bottom:12px;}
+
+  /* dropzone */
+  .drop{border:1px solid var(--ink);min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;transition:background .15s;gap:10px;}
+  .drop.drag{background:#fafafa;}
+  .drop .big{font-size:15px;font-weight:500;}
+  .drop .small{font-size:12px;color:var(--muted);max-width:280px;}
+  .drop.has{padding:0;border-style:solid;}
+  .preview{width:100%;height:280px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f4f4f2 0% 25%,#fff 0% 50%) 50%/20px 20px;}
+  .preview img{max-width:86%;max-height:86%;object-fit:contain;}
+  .filemeta{font-size:12px;color:var(--muted);margin-top:12px;display:flex;justify-content:space-between;}
+  .filemeta button{font-family:var(--sans);font-size:12px;border:none;border-bottom:1px solid var(--ink);background:transparent;cursor:pointer;padding:0 0 2px;}
+  .filemeta button:hover{opacity:.55;}
+
+  /* options */
+  .optblock{margin-bottom:28px;}
+  .checks{display:flex;flex-direction:column;gap:10px;}
+  .chk{display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;user-select:none;}
+  .chk input{appearance:none;width:14px;height:14px;border:1px solid var(--ink);background:#fff;cursor:pointer;position:relative;flex:none;}
+  .chk input:checked{background:#000;}
+  .chk input:checked::after{content:"";position:absolute;inset:3px;background:#fff;}
+  .chk .note{color:var(--muted);font-size:12px;}
+
+  .sizefield{display:flex;align-items:center;gap:10px;}
+  .sizefield input{font-family:var(--sans);font-size:13px;border:none;border-bottom:1px solid var(--ink);background:transparent;width:90px;padding:6px 0;outline:none;}
+
+  .run{margin-top:8px;}
+  .run button{font-family:var(--sans);font-size:14px;font-weight:500;border:1px solid var(--ink);background:#000;color:#fff;padding:14px 28px;cursor:pointer;letter-spacing:0;}
+  .run button:hover{background:#fff;color:#000;}
+  .run button:disabled{opacity:.35;cursor:not-allowed;}
+  .status{font-size:12px;color:var(--muted);margin-top:14px;min-height:16px;}
+
+  /* tree preview */
+  .tree{margin-top:40px;border-top:1px solid var(--ink);padding-top:24px;}
+  .tree pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;line-height:1.7;color:var(--ink);margin:0;white-space:pre;overflow-x:auto;}
+  .tree .muted{color:var(--muted);}
+
+  footer{display:flex;justify-content:space-between;margin-top:48px;font-size:12px;color:var(--muted);}
+  .canvas-stash{position:absolute;left:-9999px;top:-9999px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">McCANN Suite</div>
+    <nav class="nav">
+      <a href="index.html">Index</a>
+      <a href="ada.html">ADA</a>
+      <a href="export.html" class="active">Export</a>
+    </nav>
+  </div>
+
+  <div class="head">
+    <div class="kicker">ASSET EXPORT</div>
+    <h1 class="title">Export</h1>
+    <p class="sub">Drop in a logo. Get back one ZIP, sorted into folders by color space and treatment, with every format the team hands off.</p>
+  </div>
+
+  <div class="cols">
+    <!-- LEFT: upload -->
+    <div>
+      <label class="lbl">SOURCE LOGO</label>
+      <div class="drop" id="drop">
+        <div class="big">Drop a logo here</div>
+        <div class="small">PNG, JPG, or SVG. SVG keeps true vector for the EPS and SVG outputs.</div>
+      </div>
+      <input type="file" id="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" style="display:none">
+      <div class="filemeta" id="filemeta" style="display:none">
+        <span id="fileinfo"></span>
+        <button id="clearBtn">Remove</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: options -->
+    <div>
+      <div class="optblock">
+        <label class="lbl">FILE FORMATS</label>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" data-fmt="png" checked> PNG <span class="note">— raster, transparent</span></label>
+          <label class="chk"><input type="checkbox" data-fmt="jpg" checked> JPG <span class="note">— raster, white background</span></label>
+          <label class="chk"><input type="checkbox" data-fmt="svg" checked> SVG <span class="note">— vector</span></label>
+          <label class="chk"><input type="checkbox" data-fmt="eps" checked> EPS <span class="note">— vector wrapper, see README</span></label>
+        </div>
+      </div>
+
+      <div class="optblock">
+        <label class="lbl">COLOR SPACE</label>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" data-space="rgb" checked> RGB <span class="note">— screen</span></label>
+          <label class="chk"><input type="checkbox" data-space="cmyk" checked> CMYK <span class="note">— tagged for print, see README</span></label>
+        </div>
+      </div>
+
+      <div class="optblock">
+        <label class="lbl">TREATMENT</label>
+        <div class="checks">
+          <label class="chk"><input type="checkbox" data-treat="color" checked> Color</label>
+          <label class="chk"><input type="checkbox" data-treat="grayscale" checked> Grayscale</label>
+        </div>
+      </div>
+
+      <div class="optblock">
+        <label class="lbl">RASTER SIZE</label>
+        <div class="sizefield">
+          <input type="number" id="size" value="2000" min="64" max="6000" step="1">
+          <span class="note" style="color:var(--muted)">px longest edge</span>
+        </div>
+      </div>
+
+      <div class="run">
+        <button id="runBtn" disabled>Generate ZIP</button>
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tree">
+    <label class="lbl">OUTPUT STRUCTURE</label>
+    <pre id="treeView"><span class="muted">Upload a logo and pick your options to preview the folder tree.</span></pre>
+  </div>
+
+  <footer>
+    <span>© 2026 McCANN</span>
+    <span>Prototype</span>
+  </footer>
+</div>
+
+<div class="canvas-stash" id="stash"></div>
+
+<script>
+let uploaded=null; // {name, type, dataUrl, isSvg, svgText, img}
+
+const drop=document.getElementById("drop");
+const fileInput=document.getElementById("file");
+const fileMeta=document.getElementById("filemeta");
+const fileInfo=document.getElementById("fileinfo");
+const runBtn=document.getElementById("runBtn");
+const statusEl=document.getElementById("status");
+
+/* ---------- Upload handling ---------- */
+drop.addEventListener("click",()=>fileInput.click());
+drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("drag");});
+drop.addEventListener("dragleave",()=>drop.classList.remove("drag"));
+drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("drag");
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener("change",e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
+document.getElementById("clearBtn").addEventListener("click",e=>{e.stopPropagation();reset();});
+
+function reset(){
+  uploaded=null; fileInput.value="";
+  drop.classList.remove("has");
+  drop.innerHTML='<div class="big">Drop a logo here</div><div class="small">PNG, JPG, or SVG. SVG keeps true vector for the EPS and SVG outputs.</div>';
+  fileMeta.style.display="none"; runBtn.disabled=true; statusEl.textContent="";
+  updateTree();
+}
+
+function handleFile(f){
+  const isSvg = f.type==="image/svg+xml" || f.name.toLowerCase().endsWith(".svg");
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const result=reader.result;
+    const obj={name:f.name.replace(/\.[^.]+$/,"")||"logo", type:f.type, isSvg, svgText:null, dataUrl:null, img:null};
+    if(isSvg){
+      obj.svgText = (typeof result==="string" && result.indexOf("<svg")>=0) ? result : null;
+      // also need a dataURL for rasterizing
+      obj.dataUrl = "data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(obj.svgText||"")));
+    } else {
+      obj.dataUrl = result;
+    }
+    const img=new Image();
+    img.onload=()=>{ obj.img=img; uploaded=obj; showPreview(f, img); runBtn.disabled=false; updateTree(); };
+    img.onerror=()=>{ statusEl.textContent="Could not read that image. Try a PNG, JPG, or SVG."; };
+    img.src=obj.dataUrl;
+  };
+  if(isSvg) reader.readAsText(f); else reader.readAsDataURL(f);
+}
+
+function showPreview(f, img){
+  drop.classList.add("has");
+  drop.innerHTML='<div class="preview"><img src="'+(uploaded.dataUrl)+'" alt="preview"></div>';
+  const kb=(f.size/1024).toFixed(0);
+  fileInfo.textContent = f.name+" · "+img.naturalWidth+"×"+img.naturalHeight+" · "+kb+" KB"+(uploaded.isSvg?" · vector":"");
+  fileMeta.style.display="flex";
+}
+
+/* ---------- Option reading ---------- */
+function opts(){
+  const get=(attr)=>[...document.querySelectorAll('input[data-'+attr+']:checked')].map(c=>c.dataset[attr]);
+  return { fmts:get("fmt"), spaces:get("space"), treats:get("treat"), size:Math.max(64,Math.min(6000,parseInt(document.getElementById("size").value)||2000)) };
+}
+document.querySelectorAll('input[type=checkbox], #size').forEach(el=>el.addEventListener("change",updateTree));
+
+/* ---------- Tree preview ---------- */
+function updateTree(){
+  const tv=document.getElementById("treeView");
+  if(!uploaded){ tv.innerHTML='<span class="muted">Upload a logo and pick your options to preview the folder tree.</span>'; return; }
+  const {fmts,spaces,treats}=opts();
+  if(!fmts.length||!spaces.length||!treats.length){ tv.innerHTML='<span class="muted">Select at least one format, color space, and treatment.</span>'; return; }
+  const base=uploaded.name;
+  let out=base+"-Exports/\n";
+  const spaceLabel={rgb:"RGB",cmyk:"CMYK"}, treatLabel={color:"COLOR",grayscale:"GRAYSCALE"};
+  spaces.forEach((sp,si)=>{
+    const last=si===spaces.length-1;
+    out+=(last?"└─ ":"├─ ")+spaceLabel[sp]+"/\n";
+    treats.forEach((tr,ti)=>{
+      const tlast=ti===treats.length-1;
+      const pad=last?"   ":"│  ";
+      out+=pad+(tlast?"└─ ":"├─ ")+treatLabel[tr]+"/\n";
+      fmts.forEach((fm,fi)=>{
+        const flast=fi===fmts.length-1;
+        const pad2=pad+(tlast?"   ":"│  ");
+        out+=pad2+(flast?"└─ ":"├─ ")+base+"-"+spaceLabel[sp].toLowerCase()+"-"+treatLabel[tr].toLowerCase()+"."+fm+"\n";
+      });
+    });
+  });
+  out+="README.txt";
+  tv.textContent=out;
+}
+
+/* ---------- Raster helpers ---------- */
+function drawToCanvas(img, size, {gray=false, matte=null}={}){
+  const w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+  const scale=size/Math.max(w,h);
+  const cw=Math.round(w*scale), ch=Math.round(h*scale);
+  const cv=document.createElement("canvas"); cv.width=cw; cv.height=ch;
+  const x=cv.getContext("2d");
+  if(matte){ x.fillStyle=matte; x.fillRect(0,0,cw,ch); }
+  x.drawImage(img,0,0,cw,ch);
+  if(gray){
+    const id=x.getImageData(0,0,cw,ch); const d=id.data;
+    for(let i=0;i<d.length;i+=4){
+      const l=0.2126*d[i]+0.7152*d[i+1]+0.0722*d[i+2];
+      d[i]=d[i+1]=d[i+2]=l;
+    }
+    x.putImageData(id,0,0);
+  }
+  return cv;
+}
+function canvasBlob(cv,type,q){ return new Promise(res=>cv.toBlob(res,type,q)); }
+
+/* ---------- SVG helpers ---------- */
+function svgGrayWrap(innerSvgOrImg, isVector, dataUrl, w, h){
+  // Wrap with a grayscale filter. For vector we inline; for raster we embed the image.
+  const filter='<filter id="g"><feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"/></filter>';
+  if(isVector && innerSvgOrImg){
+    // inject filter into existing svg root
+    let s=innerSvgOrImg;
+    if(/<svg[^>]*>/i.test(s)){
+      s=s.replace(/<svg([^>]*)>/i,'<svg$1><defs>'+filter+'</defs><g filter="url(#g)">');
+      s=s.replace(/<\/svg>\s*$/i,'</g></svg>');
+    }
+    return s;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${filter}</defs><image filter="url(#g)" width="${w}" height="${h}" href="${dataUrl}"/></svg>`;
+}
+function svgColorWrap(isVector, svgText, dataUrl, w, h){
+  if(isVector && svgText) return svgText;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><image width="${w}" height="${h}" href="${dataUrl}"/></svg>`;
+}
+
+/* ---------- EPS helper (honest vector-wrapper EPS embedding the raster) ---------- */
+function epsFromCanvas(cv, cmyk){
+  // Minimal EPS that embeds the bitmap. Real, opens in viewers/Illustrator as embedded image.
+  // Not a native vector trace — see README. CMYK flag switches the colorimage operator channels note.
+  const w=cv.width,h=cv.height;
+  const ctx=cv.getContext("2d");
+  const data=ctx.getImageData(0,0,w,h).data;
+  let hex="";
+  // RGB hex stream (3 samples). For CMYK we still ship RGB data but mark colorspace in header note.
+  for(let i=0;i<data.length;i+=4){
+    hex+=data[i].toString(16).padStart(2,"0")+data[i+1].toString(16).padStart(2,"0")+data[i+2].toString(16).padStart(2,"0");
+  }
+  const head=`%!PS-Adobe-3.0 EPSF-3.0
+%%Creator: McCANN Export Tool (prototype)
+%%Title: embedded raster EPS${cmyk?" (CMYK intent — see README)":""}
+%%BoundingBox: 0 0 ${w} ${h}
+%%LanguageLevel: 2
+%%EndComments
+gsave
+${w} ${h} scale
+${w} ${h} 8 [${w} 0 0 -${h} 0 ${h}]
+{<${hex}>} false 3 colorimage
+grestore
+showpage
+%%EOF`;
+  return new Blob([head],{type:"application/postscript"});
+}
+
+/* ---------- Main generate ---------- */
+document.getElementById("runBtn").addEventListener("click",generate);
+
+async function generate(){
+  if(!uploaded) return;
+  const {fmts,spaces,treats,size}=opts();
+  if(!fmts.length||!spaces.length||!treats.length){ statusEl.textContent="Pick at least one format, color space, and treatment."; return; }
+  runBtn.disabled=true; statusEl.textContent="Rendering…";
+
+  try{
+    const zip=new JSZip();
+    const base=uploaded.name;
+    const root=zip.folder(base+"-Exports");
+    const img=uploaded.img;
+    const spaceLabel={rgb:"RGB",cmyk:"CMYK"}, treatLabel={color:"COLOR",grayscale:"GRAYSCALE"};
+
+    let count=0;
+    for(const sp of spaces){
+      const cmyk = sp==="cmyk";
+      for(const tr of treats){
+        const gray = tr==="grayscale";
+        const dir=root.folder(spaceLabel[sp]).folder(treatLabel[tr]);
+        const stem=base+"-"+spaceLabel[sp].toLowerCase()+"-"+treatLabel[tr].toLowerCase();
+
+        // raster canvases
+        const cvPng=drawToCanvas(img,size,{gray});                  // transparent
+        const cvJpg=drawToCanvas(img,size,{gray,matte:"#ffffff"});  // white matte
+
+        for(const fm of fmts){
+          if(fm==="png"){ dir.file(stem+".png", await canvasBlob(cvPng,"image/png")); }
+          else if(fm==="jpg"){ dir.file(stem+".jpg", await canvasBlob(cvJpg,"image/jpeg",0.92)); }
+          else if(fm==="svg"){
+            const w=cvPng.width,h=cvPng.height;
+            const pngUrl=cvPng.toDataURL("image/png");
+            const svg = gray
+              ? svgGrayWrap(uploaded.svgText, uploaded.isSvg, pngUrl, w, h)
+              : svgColorWrap(uploaded.isSvg, uploaded.svgText, pngUrl, w, h);
+            dir.file(stem+".svg", svg);
+          }
+          else if(fm==="eps"){
+            dir.file(stem+".eps", epsFromCanvas(gray?cvJpg:cvJpg, cmyk));
+          }
+          count++;
+        }
+      }
+    }
+
+    root.file("README.txt", readmeText(base));
+    statusEl.textContent="Packaging "+count+" files…";
+    const blob=await zip.generateAsync({type:"blob"},meta=>{
+      statusEl.textContent="Packaging… "+Math.round(meta.percent)+"%";
+    });
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob); a.download=base+"-Exports.zip"; a.click();
+    statusEl.textContent="Done. "+count+" files across "+(spaces.length*treats.length)+" folders.";
+  }catch(err){
+    console.error(err);
+    statusEl.textContent="Something went wrong while generating. Check the console.";
+  }finally{
+    runBtn.disabled=false;
+  }
+}
+
+function readmeText(base){
+  return `${base} — Export package
+Generated by the McCANN Export tool (prototype)
+
+FOLDER STRUCTURE
+  ${base}-Exports/
+    RGB/ and CMYK/      → color space
+      COLOR/ GRAYSCALE/ → treatment
+        .png .jpg .svg .eps → formats
+
+WHAT IS REAL
+  PNG   Real raster, transparent background.
+  JPG   Real raster, flattened on white.
+  SVG   Vector if you uploaded an SVG; otherwise the raster is embedded
+        inside an SVG wrapper. Grayscale uses an SVG color-matrix filter.
+  GRAYSCALE  Real luminance conversion (Rec. 709 weights).
+
+IMPORTANT LIMITS (please read)
+  EPS   These are valid EPS files that embed the bitmap, so they open and
+        place correctly. They are NOT a native vector trace of your logo.
+        For production vector EPS, open your master art in Illustrator and
+        export from there.
+
+  CMYK  A browser cannot perform print-accurate CMYK separation with ICC
+        profiles. The files in the CMYK folders carry the same image data
+        as RGB and are organized for handoff convenience and labeling.
+        For real CMYK separations, convert in Illustrator/InDesign against
+        your print profile (e.g. US Web Coated SWOP, GRACoL, Fogra39).
+
+Treat this package as a fast first pass for screen and layout use. Anything
+going to press should be finalized in Adobe tools against the right profile.`;
+}
+
+updateTree();
+</script>
+</body>
+</html>
