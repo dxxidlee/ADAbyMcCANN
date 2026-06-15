@@ -24,12 +24,10 @@
   ::selection{background:#000;color:#fff;}
   a{color:inherit;text-decoration:none;}
 
-  .wrap{max-width:1180px;margin:0 auto;padding:40px clamp(20px,5vw,64px) 80px;}
-  .topbar{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:18px;}
-  .brand{font-size:13px;font-weight:500;}
-  .nav{display:flex;gap:18px;font-size:13px;color:var(--muted);}
-  .nav a.active{color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:2px;}
-  .nav a:hover{color:var(--ink);}
+  .wrap{max-width:1180px;margin:0 auto;padding:30px 20px 80px;}
+  .home-mark{display:block;width:50px;height:26px;line-height:0;margin-bottom:56px;}
+  .home-mark svg{display:block;width:100%;height:auto;}
+  .home-mark:hover{opacity:.55;}
 
   .head{padding:56px 0 40px;}
   .kicker{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:18px;}
@@ -82,14 +80,12 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar">
-    <div class="brand">McCANN Suite</div>
-    <nav class="nav">
-      <a href="index.html">Index</a>
-      <a href="ada.html">ADA</a>
-      <a href="export.html" class="active">Export</a>
-    </nav>
-  </div>
+  <a href="index.html" class="home-mark" aria-label="Back to McCANN Design Suite">
+    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
+      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
+      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
+    </svg>
+  </a>
 
   <div class="head">
     <div class="kicker">ASSET EXPORT</div>

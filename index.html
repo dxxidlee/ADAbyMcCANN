@@ -3,101 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>McCANN Suite</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>McCANN Design Suite</title>
 <style>
-  :root{
-    --ink:#000; --paper:#fff; --muted:#8a8a85; --line:#000;
-    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
-    --display:'McCann Headline','Helvetica Neue',Helvetica,Arial,sans-serif;
-  }
-  @font-face{
-    font-family:'McCann Headline';
-    src:url('McCann-Headline_4.ttf') format('truetype');
-    font-weight:100 900; font-display:swap;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;}
-  ::selection{background:#000;color:#fff;}
-  a{color:inherit;text-decoration:none;}
-
-  .wrap{max-width:1180px;margin:0 auto;padding:40px clamp(20px,5vw,64px) 80px;}
-
-  /* top nav row, Neubau-style */
-  .topbar{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:18px;}
-  .brand{font-family:var(--sans);font-size:13px;font-weight:500;}
-  .nav{display:flex;gap:18px;font-size:13px;color:var(--muted);}
-  .nav a.active{color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:2px;}
-  .nav a:hover{color:var(--ink);}
-
-  /* hero */
-  .hero{padding:72px 0 56px;border-bottom:1px solid var(--ink);}
-  .kicker{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:20px;}
-  h1.title{font-family:var(--display);font-size:clamp(52px,11vw,128px);font-weight:bold;letter-spacing:-.03em;line-height:.86;margin:0;}
-  .lede{font-size:13px;color:var(--ink);max-width:480px;margin-top:24px;line-height:1.5;}
-
-  /* index list of tools */
-  .index{margin-top:8px;}
-  .row{display:grid;grid-template-columns:90px 1fr auto;gap:24px;align-items:start;padding:28px 0;border-bottom:1px solid #e2e2dc;transition:background .15s;}
-  .row:hover{background:#fafafa;}
-  .row .no{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
-  .row .name{font-size:clamp(20px,3vw,30px);font-weight:500;letter-spacing:-.01em;line-height:1.1;}
-  .row .desc{font-size:13px;color:var(--muted);margin-top:8px;max-width:520px;}
-  .row .tags{font-size:12px;color:var(--muted);margin-top:10px;}
-  .row .go{font-size:13px;white-space:nowrap;border-bottom:1px solid var(--ink);padding-bottom:2px;align-self:center;}
-  .row:hover .go{opacity:.55;}
-  @media(max-width:680px){
-    .row{grid-template-columns:1fr;gap:8px;}
-    .row .go{justify-self:start;margin-top:8px;}
+  @font-face {
+    font-family: 'McCann Headline';
+    src: url('McCann-Headline_4.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
   }
 
-  footer{display:flex;justify-content:space-between;margin-top:48px;font-size:12px;color:var(--muted);}
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: #fff;
+    color: #000;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: #000; color: #fff; }
+  a { color: inherit; text-decoration: none; }
+
+  .page {
+    height: 100vh;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .home-mark {
+    display: block;
+    width: 50px;
+    height: 26px;
+    line-height: 0;
+  }
+  .home-mark svg { display: block; width: 100%; height: auto; }
+
+  .type {
+    font-family: 'McCann Headline', sans-serif;
+    font-size: min(11.6vw, 16.5vh);
+    font-weight: normal;
+    font-style: normal;
+    letter-spacing: -3px;
+    line-height: 0.82;
+    white-space: nowrap;
+  }
+
+  .title {
+    margin-top: auto;
+  }
+  .title span { display: block; }
+
+  .links {
+    margin-top: 0;
+  }
+  .links a {
+    display: block;
+    width: fit-content;
+    transition: transform .25s cubic-bezier(.16,1,.3,1);
+  }
+  .links a:hover { transform: translateX(0.12em); }
+
+  @media (max-width: 900px) {
+    .type { letter-spacing: -2px; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">McCANN Suite</div>
-    <nav class="nav">
-      <a href="index.html" class="active">Index</a>
-      <a href="ada.html">ADA</a>
-      <a href="export.html">Export</a>
-    </nav>
+<div class="page">
+  <div class="home-mark">
+    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
+      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
+      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
+    </svg>
   </div>
 
-  <section class="hero">
-    <div class="kicker">INTERNAL DESIGN TOOLS</div>
-    <h1 class="title">McCANN<br>Suite</h1>
-    <p class="lede">A small set of tools that take the tedious, repeatable parts of the design process off the team's plate. Built in-house, kept away from the creative work itself.</p>
-  </section>
+  <h1 class="title type">
+    <span>McCANN</span>
+    <span>design</span>
+    <span>suite</span>
+  </h1>
 
-  <section class="index">
-    <a class="row" href="ada.html">
-      <div class="no">01</div>
-      <div>
-        <div class="name">ADA</div>
-        <div class="desc">Color contrast auditing. Paste a full palette and grade every pairing against WCAG and APCA at once, flag failures, and auto-repair to the nearest passing color.</div>
-        <div class="tags">Accessibility, WCAG, APCA, Export</div>
-      </div>
-      <div class="go">Open →</div>
-    </a>
-    <a class="row" href="export.html">
-      <div class="no">02</div>
-      <div>
-        <div class="name">Export</div>
-        <div class="desc">Drop in a logo and get back a sorted ZIP of every format and color treatment the team hands off: EPS, SVG, PNG, JPG across RGB, CMYK, color, and grayscale.</div>
-        <div class="tags">Assets, Formats, Color space, Handoff</div>
-      </div>
-      <div class="go">Open →</div>
-    </a>
-  </section>
-
-  <footer>
-    <span>© 2026 McCANN</span>
-    <span>Prototype</span>
-  </footer>
+  <nav class="links type" aria-label="Tools">
+    <a href="ada.html">lumen→</a>
+    <a href="export.html">fanout→</a>
+  </nav>
 </div>
 </body>
 </html>
