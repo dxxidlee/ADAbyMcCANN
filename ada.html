@@ -12,7 +12,7 @@
     --ink: #000000;
     --paper: #FFFFFF;
     --line: #000000;
-    --muted: #8a8a85;
+    --muted: #000000;
     --mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
     --display: 'McCann Headline', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -24,13 +24,18 @@
     font-display: swap;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 18pt; font-weight: 400; line-height: 1.05; -webkit-font-smoothing: antialiased; }
   ::selection { background: #000; color: #fff; }
 
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 30px 20px 80px; }
+  .wrap { margin: 0; padding: 30px 20px 80px; }
   .home-mark{display:block;width:50px;height:26px;line-height:0;margin-bottom:56px;}
   .home-mark svg{display:block;width:100%;height:auto;}
-  .home-mark:hover{opacity:.55;}
+
+  /* Slide-down nav overlay */
+  .navOverlay{position:fixed;inset:0;z-index:1000;background:var(--paper);transform:translateY(-100%);transition:transform .55s cubic-bezier(.16,1,.3,1);will-change:transform;box-shadow:0 24px 60px rgba(0,0,0,0);pointer-events:none;}
+  .navOverlay.open{transform:translateY(0);box-shadow:0 24px 60px rgba(0,0,0,.18);pointer-events:auto;}
+  .navOverlay .navFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+  .navOverlay .navClose{position:absolute;top:30px;left:20px;z-index:2;width:50px;height:26px;margin:0;padding:0;border:0;background:transparent;cursor:pointer;}
 
   /* Header — title is the only large type */
   .kicker { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .04em; color: var(--muted); margin-bottom: 20px; text-transform: none; }
@@ -38,51 +43,52 @@
   .sub { font-size: 13px; color: var(--ink); max-width: 520px; margin-top: 20px; line-height: 1.5; }
 
   /* Controls — no boxes, grid of labelled rows */
-  .controls { display: grid; grid-template-columns: minmax(280px,1fr) minmax(320px,1.2fr); gap: 48px; align-items: start; margin: 56px 0 40px; }
+  .controls { display: grid; grid-template-columns: minmax(280px,1fr) minmax(320px,1.2fr); gap: 48px; align-items: stretch; margin: 56px 0 40px; }
+  .pasteCol { display: flex; flex-direction: column; }
   @media (max-width: 760px){ .controls { grid-template-columns: 1fr; gap: 36px; } }
-  label.lbl { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0; color: var(--muted); display: block; margin-bottom: 10px; text-transform: none; }
+  label.lbl { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0; color: var(--muted); display: block; margin-bottom: 8px; text-transform: none; }
   textarea {
     font-family: var(--sans); font-size: 13px; line-height: 1.7; padding: 0; width: 100%;
-    border: none; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); resize: vertical; min-height: 170px; outline: none; padding: 12px 0;
+    border: 1px solid var(--ink); background: transparent; color: var(--ink); resize: none; flex: 1; min-height: 170px; outline: none; padding: 12px;
   }
-  .count { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-top: 10px; }
-  .switchCol { display: flex; flex-direction: column; gap: 28px; }
-  .hint { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.45; max-width: 420px; }
+  .count { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-top: 16px; }
+  .switchCol { display: flex; flex-direction: column; gap: 16px; }
+  .hint { font-size: 12px; color: var(--muted); margin: 8px 0 0; line-height: 1.45; }
 
   /* Segmented controls become inline text toggles */
   .seg { display: inline-flex; gap: 18px; border: none; overflow: visible; }
-  .seg button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-bottom: 1px solid transparent; letter-spacing: 0; }
+  .seg button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; background: transparent; color: var(--muted); cursor: pointer; letter-spacing: 0; text-decoration: none; }
   .seg button:last-child { border-right: none; }
-  .seg button.active { background: transparent; color: var(--ink); border-bottom: 1px solid var(--ink); }
-  .seg button:hover { color: var(--ink); }
+  .seg button.active { background: transparent; color: var(--ink); text-decoration: underline; }
+  .seg button:hover { color: var(--ink); text-decoration: underline; }
 
   /* Legend — inline signals, dot + label, no fill */
-  .legend { display: flex; flex-wrap: wrap; gap: 18px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 8px; }
   .pill { font-family: var(--sans); font-size: 12px; padding: 0; border-radius: 0; display: inline-flex; align-items: center; gap: 7px; font-weight: 400; letter-spacing: 0; background: transparent !important; color: var(--ink) !important; }
   .pillDot { width: 8px; height: 8px; border-radius: 50%; }
 
   /* Export actions become text links with arrows */
-  .actions { display: flex; gap: 22px; flex-wrap: wrap; }
-  .actions button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; }
+  .actions { display: flex; gap: 18px; flex-wrap: wrap; }
+  .actions button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; text-decoration: none; }
   .actions button.ghost { background: transparent; color: var(--ink); }
-  .actions button:hover { opacity: .55; }
+  .actions button:hover { text-decoration: underline; }
 
   /* Font picker — minimal underlined inputs */
   .fontRow { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
   .fontSelect, .fontText { font-family: var(--sans); font-size: 13px; padding: 6px 0; border: none; border-bottom: 1px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); outline: none; }
   .fontText { min-width: 190px; }
   .fontBtn { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; }
-  .fontBtn:hover { opacity: .55; background: transparent; color: var(--ink); }
+  .fontBtn:hover { background: var(--ink); color: var(--paper); }
 
   /* Scoreboard — hairline-ruled columns, one type size, color as signal only */
-  .score { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; background: transparent; border: none; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); border-radius: 0; overflow: visible; margin-bottom: 48px; }
-  .stat { background: transparent; padding: 18px 24px 18px 0; border-right: 1px solid #e2e2dc; }
+  .score { display: flex; flex-wrap: wrap; gap: 18px; background: transparent; border: none; border-radius: 0; overflow: visible; margin: 0; }
+  .stat { background: transparent; padding: 0; border: none; display: flex; align-items: baseline; gap: 6px; }
   .stat:last-child { border-right: none; }
   .statN { font-family: var(--sans); font-size: 28px; font-weight: 500; line-height: 1; letter-spacing: -.02em; }
-  .statL { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0; color: var(--muted); margin-top: 8px; text-transform: none; }
+  .statL { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0; color: var(--muted); margin-top: 0; text-transform: none; }
 
   /* Matrix — keeps color fills (it's the instrument), but hairline chrome */
-  .matrixWrap { overflow-x: auto; border: none; border-top: 1px solid var(--ink); border-radius: 0; background: #fff; }
+  .matrixWrap { overflow-x: auto; border: 1px solid var(--ink); border-radius: 0; background: #fff; }
   table { border-collapse: collapse; width: 100%; }
   th.corner { position: sticky; left: 0; z-index: 3; background: #fff; color: var(--muted); padding: 10px 12px 10px 0; min-width: 78px; text-align: left; }
   .corner small { display: block; font-family: var(--sans); font-size: 11px; font-weight: 400; opacity: 1; }
@@ -91,7 +97,7 @@
   .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 0; border: 1px solid rgba(0,0,0,.18); vertical-align: middle; box-shadow: none; }
   .headHex { font-family: var(--sans); font-size: 11px; margin-left: 7px; letter-spacing: 0; color: var(--ink); }
   td.cell { padding: 12px 6px; text-align: center; border-left: 1px solid rgba(255,255,255,.35); border-top: 1px solid rgba(255,255,255,.35); transition: opacity .2s; min-width: 76px; vertical-align: middle; }
-  .cellVal { display: block; font-family: var(--mono); font-size: 14px; font-weight: 500; line-height: 1; }
+  .cellVal { display: block; font-family: var(--sans); font-size: 14px; font-weight: 500; line-height: 1; }
   .cellGrade { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 500; padding: 1px 0; border-radius: 0; margin-top: 5px; letter-spacing: .02em; background: transparent !important; opacity: .9; }
   td.diag { background: #f6f6f4; border-left: 1px solid #ececec; border-top: 1px solid #ececec; }
   .diagDot { display: block; width: 5px; height: 5px; border-radius: 50%; background: #cfcfc9; margin: 0 auto; }
@@ -111,32 +117,43 @@
   .repairHex { display: block; font-family: var(--mono); font-size: 13px; font-weight: 500; margin-top: 10px; }
   .repairRatio { display: block; font-family: var(--sans); font-size: 12px; color: #1f7a3d; margin-top: 3px; }
   .repairOpt button { margin-top: 12px; width: auto; font-family: var(--sans); font-size: 12px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; }
-  .repairOpt button:hover { background: transparent; color: var(--ink); opacity: .55; }
+  .repairOpt button:hover { background: var(--ink); color: var(--paper); }
+
+  /* Swiss type system — one size, one weight, hard left, no gray */
+  body, label.lbl, .count, .hint, .seg button, .pill, .actions button,
+  .fontSelect, .fontText, .fontBtn, .statN, .statL, th.corner, .corner small,
+  .headHex, .empty, footer, .panelTitle, .repairLabel, .repairHex, .repairRatio,
+  .repairOpt button, textarea, select, input {
+    font-family: var(--sans);
+    font-size: 18pt;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.05;
+  }
+  /* keep the matrix instrument legible at functional sizes */
+  .cellVal { font-size: 14px; font-weight: 400; }
+  .cellGrade { font-size: 9px; font-weight: 400; }
 </style>
 </head>
 <body>
 
 <!-- APP -->
 <div class="wrap" id="app">
-  <a href="index.html" class="home-mark" aria-label="Back to McCANN Design Suite">
+  <a href="index.html" id="navOpen" class="home-mark" aria-label="Open McCANN Design Suite">
     <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
       <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
       <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
     </svg>
   </a>
-  <div class="kicker">ACCESSIBILITY · INSTRUMENT</div>
-  <h1 class="title">ADA by McCANN</h1>
-  <p class="sub">Every pairing, every standard, at once. Foreground reads down the rows, background across the columns.</p>
 
   <div class="controls">
-    <div>
-      <label class="lbl">PASTE HEX VALUES</label>
+    <div class="pasteCol">
+      <label class="lbl">Paste Hex Values (<span id="count"></span>)</label>
       <textarea id="input" spellcheck="false"></textarea>
-      <div class="count" id="count"></div>
     </div>
     <div class="switchCol">
       <div>
-        <label class="lbl">STANDARD</label>
+        <label class="lbl">Standard</label>
         <div class="seg" id="segStandard">
           <button data-v="wcag" class="active">WCAG 2.2</button>
           <button data-v="apca">APCA · WCAG 3</button>
@@ -144,22 +161,22 @@
         <p class="hint" id="stdHint"></p>
       </div>
       <div>
-        <label class="lbl">SHOW ONLY</label>
+        <label class="lbl">Show Only</label>
         <div class="seg" id="segThreshold">
           <button data-v="all" class="active">All</button>
           <button data-v="AALarge">AA Lg+</button>
           <button data-v="AA">AA+</button>
           <button data-v="AAA">AAA</button>
         </div>
+        <div class="legend" id="legend"></div>
       </div>
-      <div class="legend" id="legend"></div>
       <div>
-        <label class="lbl">CHART FONT (data cells only)</label>
+        <label class="lbl">Chart Font</label>
         <div class="fontRow">
           <select id="fontSelect" class="fontSelect">
-            <option value="__mono">Default mono</option>
+            <option value="__mono">Default</option>
             <option value="__display">McCann Headline</option>
-            <option value="__upload">Uploaded font…</option>
+            <option value="__upload">Uploaded Font</option>
             <option value="__google">Google Font…</option>
           </select>
           <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" style="display:none" />
@@ -170,23 +187,84 @@
         <p class="hint" id="fontHint">Controls only the text inside the color cells. Adobe Fonts can't be embedded by external sites — use a downloaded OTF/TTF instead.</p>
       </div>
       <div>
-        <label class="lbl">EXPORT</label>
+        <label class="lbl">Export</label>
         <div class="actions">
-          <button id="expSvg">⬇ Editable SVG</button>
-          <button id="expPng" class="ghost">⬇ Matrix PNG</button>
-          <button id="expReport" class="ghost">⬇ HTML Report</button>
+          <button id="expSvg">Editable SVG</button>
+          <button id="expPng" class="ghost">Matrix PNG</button>
+          <button id="expReport" class="ghost">HTML Report</button>
         </div>
       </div>
+      <div class="score" id="score"></div>
     </div>
   </div>
 
-  <div class="score" id="score"></div>
   <div class="matrixWrap" id="matrixWrap"></div>
-
-  <footer>Click any failing cell to auto-repair it. Repairs hold hue and chroma in OKLCH and shift only lightness — the smallest perceptual move that clears AA.</footer>
 </div>
 
 <div id="modalMount"></div>
+
+<!-- Slide-down navigation overlay -->
+<div class="navOverlay" id="navOverlay" aria-hidden="true">
+  <button class="home-mark navClose" id="navClose" type="button" aria-label="Close McCANN Design Suite">
+    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
+      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
+      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
+    </svg>
+  </button>
+  <iframe class="navFrame" id="navFrame" title="McCANN Design Suite" src="about:blank"></iframe>
+</div>
+
+<script>
+/* ---------- Slide-down nav overlay ---------- */
+(function(){
+  const overlay = document.getElementById('navOverlay');
+  const frame = document.getElementById('navFrame');
+  const openBtn = document.getElementById('navOpen');
+  const closeBtn = document.getElementById('navClose');
+  const SRC = 'index.html';
+
+  function showsIndex(){
+    try {
+      const p = frame.contentWindow.location.pathname || '';
+      return /(^|\/)index\.html?$/.test(p);
+    } catch(e){ return false; }
+  }
+  function ensureSuite(){
+    if(showsIndex()) return;
+    try { frame.contentWindow.location.replace(SRC); }
+    catch(e){ frame.src = SRC; }
+  }
+
+  // Force the suite's links to drive the whole tab, not the iframe — robust even if a
+  // cached index.html is missing <base target="_top">.
+  frame.addEventListener('load', function(){
+    try {
+      frame.contentDocument.querySelectorAll('a[href]').forEach(function(a){ a.setAttribute('target','_top'); });
+    } catch(e){}
+  });
+
+  // Preload immediately so the drawer opens instantly (no lag) and always shows the suite.
+  ensureSuite();
+
+  function openNav(e){
+    if(e) e.preventDefault();
+    ensureSuite();
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNav(){
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+  if(openBtn) openBtn.addEventListener('click', openNav);
+  if(closeBtn) closeBtn.addEventListener('click', closeNav);
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && overlay.classList.contains('open')) closeNav();
+  });
+})();
+</script>
 
 <script>
 /* ---------- Color math ---------- */
@@ -239,7 +317,7 @@ let fontDataUrl = null; // {family, dataUrl, format} for uploaded fonts
 let googleHref = null;  // stylesheet href for google fonts (for reference)
 
 function chartFontStack(){
-  if(state.chartFont==="__mono") return "'SF Mono', ui-monospace, Menlo, monospace";
+  if(state.chartFont==="__mono") return "'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif";
   if(state.chartFont==="__display") return "'McCann Headline', Helvetica, Arial, sans-serif";
   return "'"+state.chartFont+"', Helvetica, Arial, sans-serif";
 }
@@ -272,8 +350,8 @@ function render(){
   const large=total-pass-fail;
   const stat=(n,l,tone)=>`<div class="stat"><div class="statN" style="color:${tone}">${n}</div><div class="statL">${l}</div></div>`;
   document.getElementById("score").innerHTML =
-    stat(pass,"PASS (AA+)","#1f7a3d")+stat(large,"LARGE ONLY","#b88600")+stat(fail,"FAIL","#c0392b")+
-    stat(total?Math.round(pass/total*100)+"%":"—","USABLE","#000000");
+    stat(pass,"Pass (AA+)","#1f7a3d")+stat(large,"Large Only","#b88600")+stat(fail,"Fail","#c0392b")+
+    stat(total?Math.round(pass/total*100)+"%":"—","Usable","#000000");
 
   // matrix
   const wrap=document.getElementById("matrixWrap");
@@ -390,7 +468,7 @@ ${g}
 
 /* ---------- Export: PNG (canvas, no deps) ---------- */
 function pngCellFont(){
-  if(state.chartFont==="__mono") return "monospace";
+  if(state.chartFont==="__mono") return "'Inter', Helvetica, Arial";
   if(state.chartFont==="__display") return "'McCann Headline', Helvetica, Arial";
   return "'"+state.chartFont+"', Helvetica, Arial";
 }

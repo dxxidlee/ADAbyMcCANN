@@ -10,7 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
   :root{
-    --ink:#000; --paper:#fff; --muted:#8a8a85; --line:#000;
+    --ink:#000; --paper:#fff; --muted:#000; --line:#000;
     --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
     --display:'McCann Headline','Helvetica Neue',Helvetica,Arial,sans-serif;
   }
@@ -20,90 +20,81 @@
     font-weight:100 900; font-display:swap;
   }
   *{box-sizing:border-box;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:18pt;font-weight:400;line-height:1.05;-webkit-font-smoothing:antialiased;}
   ::selection{background:#000;color:#fff;}
   a{color:inherit;text-decoration:none;}
 
-  .wrap{max-width:1180px;margin:0 auto;padding:40px clamp(20px,5vw,64px) 80px;}
-  .topbar{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink);padding-bottom:18px;}
-  .brand{font-size:13px;font-weight:500;}
-  .nav{display:flex;gap:18px;font-size:13px;color:var(--muted);}
-  .nav a.active{color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:2px;}
-  .nav a:hover{color:var(--ink);}
+  .wrap{margin:0;padding:30px 20px 80px;}
+  .home-mark{display:block;width:50px;height:26px;line-height:0;margin-bottom:0;}
+  .home-mark svg{display:block;width:100%;height:auto;}
 
-  .head{padding:56px 0 40px;}
-  .kicker{font-size:11px;font-weight:500;color:var(--muted);margin-bottom:18px;}
-  h1.title{font-family:var(--display);font-size:clamp(44px,8vw,96px);font-weight:bold;letter-spacing:-.03em;line-height:.9;margin:0;}
-  .sub{font-size:13px;color:var(--ink);max-width:520px;margin-top:20px;line-height:1.5;}
+  /* Slide-down nav overlay */
+  .navOverlay{position:fixed;inset:0;z-index:1000;background:var(--paper);transform:translateY(-100%);transition:transform .55s cubic-bezier(.16,1,.3,1);will-change:transform;box-shadow:0 24px 60px rgba(0,0,0,0);pointer-events:none;}
+  .navOverlay.open{transform:translateY(0);box-shadow:0 24px 60px rgba(0,0,0,.18);pointer-events:auto;}
+  .navOverlay .navFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
+  .navOverlay .navClose{position:absolute;top:30px;left:20px;z-index:2;width:50px;height:26px;margin:0;padding:0;border:0;background:transparent;cursor:pointer;}
 
-  .cols{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}
+  .cols{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.2fr);gap:48px;align-items:stretch;margin-top:56px;}
   @media(max-width:760px){.cols{grid-template-columns:1fr;gap:36px;}}
+  .uploadCol{display:flex;flex-direction:column;}
 
-  label.lbl{font-size:11px;font-weight:500;color:var(--muted);display:block;margin-bottom:12px;}
+  label.lbl{font-weight:400;color:var(--ink);display:block;margin-bottom:8px;}
 
   /* dropzone */
-  .drop{border:1px solid var(--ink);min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;transition:background .15s;gap:10px;}
+  .drop{border:1px solid var(--ink);flex:1;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;transition:background .15s;gap:10px;}
   .drop.drag{background:#fafafa;}
-  .drop .big{font-size:15px;font-weight:500;}
-  .drop .small{font-size:12px;color:var(--muted);max-width:280px;}
+  .drop .big{font-weight:400;}
   .drop.has{padding:0;border-style:solid;}
-  .preview{width:100%;height:280px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f4f4f2 0% 25%,#fff 0% 50%) 50%/20px 20px;}
+  .preview{width:100%;flex:1;min-height:280px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f4f4f2 0% 25%,#fff 0% 50%) 50%/20px 20px;}
   .preview img{max-width:86%;max-height:86%;object-fit:contain;}
-  .filemeta{font-size:12px;color:var(--muted);margin-top:12px;display:flex;justify-content:space-between;}
-  .filemeta button{font-family:var(--sans);font-size:12px;border:none;border-bottom:1px solid var(--ink);background:transparent;cursor:pointer;padding:0 0 2px;}
-  .filemeta button:hover{opacity:.55;}
+  .filemeta{margin-top:12px;display:flex;justify-content:space-between;gap:18px;}
+  .filemeta button{font-family:var(--sans);border:none;background:transparent;color:var(--ink);cursor:pointer;padding:0;text-decoration:none;}
+  .filemeta button:hover{text-decoration:underline;}
 
   /* options */
   .optblock{margin-bottom:28px;}
-  .checks{display:flex;flex-direction:column;gap:10px;}
-  .chk{display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer;user-select:none;}
-  .chk input{appearance:none;width:14px;height:14px;border:1px solid var(--ink);background:#fff;cursor:pointer;position:relative;flex:none;}
+  .checks{display:flex;flex-direction:column;gap:8px;}
+  .chk{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;}
+  .chk input{appearance:none;width:18px;height:18px;border:1px solid var(--ink);background:#fff;cursor:pointer;position:relative;flex:none;}
   .chk input:checked{background:#000;}
-  .chk input:checked::after{content:"";position:absolute;inset:3px;background:#fff;}
-  .chk .note{color:var(--muted);font-size:12px;}
 
-  .sizefield{display:flex;align-items:center;gap:10px;}
-  .sizefield input{font-family:var(--sans);font-size:13px;border:none;border-bottom:1px solid var(--ink);background:transparent;width:90px;padding:6px 0;outline:none;}
+  .sizefield{display:flex;align-items:center;gap:12px;}
+  .sizefield input{font-family:var(--sans);border:none;border-bottom:1px solid var(--ink);background:transparent;color:var(--ink);width:110px;padding:4px 0;outline:none;}
 
   .run{margin-top:8px;}
-  .run button{font-family:var(--sans);font-size:14px;font-weight:500;border:1px solid var(--ink);background:#000;color:#fff;padding:14px 28px;cursor:pointer;letter-spacing:0;}
-  .run button:hover{background:#fff;color:#000;}
-  .run button:disabled{opacity:.35;cursor:not-allowed;}
-  .status{font-size:12px;color:var(--muted);margin-top:14px;min-height:16px;}
+  .run button{font-family:var(--sans);border:none;background:transparent;color:var(--ink);padding:0;cursor:pointer;letter-spacing:0;text-decoration:none;}
+  .run button:hover{text-decoration:underline;}
+  .run button:disabled{opacity:.35;cursor:not-allowed;text-decoration:none;}
+  .status{margin-top:14px;min-height:16px;}
 
-  /* tree preview */
-  .tree{margin-top:40px;border-top:1px solid var(--ink);padding-top:24px;}
-  .tree pre{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:12px;line-height:1.7;color:var(--ink);margin:0;white-space:pre;overflow-x:auto;}
-  .tree .muted{color:var(--muted);}
-
-  footer{display:flex;justify-content:space-between;margin-top:48px;font-size:12px;color:var(--muted);}
   .canvas-stash{position:absolute;left:-9999px;top:-9999px;}
+
+  /* Swiss type system — one size, one weight, hard left, no gray */
+  body, label.lbl, .drop .big, .drop .small, .filemeta, .filemeta button, .chk,
+  .sizefield input, .sizefield .note, .run button, .status {
+    font-family: var(--sans);
+    font-size: 18pt;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.05;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="topbar">
-    <div class="brand">McCANN Suite</div>
-    <nav class="nav">
-      <a href="index.html">Index</a>
-      <a href="ada.html">ADA</a>
-      <a href="export.html" class="active">Export</a>
-    </nav>
-  </div>
-
-  <div class="head">
-    <div class="kicker">ASSET EXPORT</div>
-    <h1 class="title">Export</h1>
-    <p class="sub">Drop in a logo. Get back one ZIP, sorted into folders by color space and treatment, with every format the team hands off.</p>
-  </div>
+  <a href="index.html" id="navOpen" class="home-mark" aria-label="Open McCANN Design Suite">
+    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
+      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
+      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
+    </svg>
+  </a>
 
   <div class="cols">
     <!-- LEFT: upload -->
-    <div>
-      <label class="lbl">SOURCE LOGO</label>
+    <div class="uploadCol">
+      <label class="lbl">Source Logo</label>
       <div class="drop" id="drop">
         <div class="big">Drop a logo here</div>
-        <div class="small">PNG, JPG, or SVG. SVG keeps true vector for the EPS and SVG outputs.</div>
       </div>
       <input type="file" id="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" style="display:none">
       <div class="filemeta" id="filemeta" style="display:none">
@@ -115,25 +106,25 @@
     <!-- RIGHT: options -->
     <div>
       <div class="optblock">
-        <label class="lbl">FILE FORMATS</label>
+        <label class="lbl">File Formats</label>
         <div class="checks">
-          <label class="chk"><input type="checkbox" data-fmt="png" checked> PNG <span class="note">— raster, transparent</span></label>
-          <label class="chk"><input type="checkbox" data-fmt="jpg" checked> JPG <span class="note">— raster, white background</span></label>
-          <label class="chk"><input type="checkbox" data-fmt="svg" checked> SVG <span class="note">— vector</span></label>
-          <label class="chk"><input type="checkbox" data-fmt="eps" checked> EPS <span class="note">— true vector from SVG uploads</span></label>
+          <label class="chk"><input type="checkbox" data-fmt="png" checked> PNG</label>
+          <label class="chk"><input type="checkbox" data-fmt="jpg" checked> JPG</label>
+          <label class="chk"><input type="checkbox" data-fmt="svg" checked> SVG</label>
+          <label class="chk"><input type="checkbox" data-fmt="eps" checked> EPS</label>
         </div>
       </div>
 
       <div class="optblock">
-        <label class="lbl">COLOR SPACE</label>
+        <label class="lbl">Color Space</label>
         <div class="checks">
-          <label class="chk"><input type="checkbox" data-space="rgb" checked> RGB <span class="note">— screen</span></label>
-          <label class="chk"><input type="checkbox" data-space="cmyk" checked> CMYK <span class="note">— real ink values in vector EPS, see README</span></label>
+          <label class="chk"><input type="checkbox" data-space="rgb" checked> RGB</label>
+          <label class="chk"><input type="checkbox" data-space="cmyk" checked> CMYK</label>
         </div>
       </div>
 
       <div class="optblock">
-        <label class="lbl">TREATMENT</label>
+        <label class="lbl">Treatment</label>
         <div class="checks">
           <label class="chk"><input type="checkbox" data-treat="color" checked> Color</label>
           <label class="chk"><input type="checkbox" data-treat="grayscale" checked> Grayscale</label>
@@ -141,10 +132,10 @@
       </div>
 
       <div class="optblock">
-        <label class="lbl">RASTER SIZE</label>
+        <label class="lbl">Raster Size</label>
         <div class="sizefield">
           <input type="number" id="size" value="2000" min="64" max="6000" step="1">
-          <span class="note" style="color:var(--muted)">px longest edge</span>
+          <span class="note">px longest edge</span>
         </div>
       </div>
 
@@ -155,18 +146,72 @@
     </div>
   </div>
 
-  <div class="tree">
-    <label class="lbl">OUTPUT STRUCTURE</label>
-    <pre id="treeView"><span class="muted">Upload a logo and pick your options to preview the folder tree.</span></pre>
-  </div>
-
-  <footer>
-    <span>© 2026 McCANN</span>
-    <span>Prototype</span>
-  </footer>
 </div>
 
 <div class="canvas-stash" id="stash"></div>
+
+<!-- Slide-down navigation overlay -->
+<div class="navOverlay" id="navOverlay" aria-hidden="true">
+  <button class="home-mark navClose" id="navClose" type="button" aria-label="Close McCANN Design Suite">
+    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
+      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
+      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
+    </svg>
+  </button>
+  <iframe class="navFrame" id="navFrame" title="McCANN Design Suite" src="about:blank"></iframe>
+</div>
+
+<script>
+/* ---------- Slide-down nav overlay ---------- */
+(function(){
+  const overlay = document.getElementById('navOverlay');
+  const frame = document.getElementById('navFrame');
+  const openBtn = document.getElementById('navOpen');
+  const closeBtn = document.getElementById('navClose');
+  const SRC = 'index.html';
+
+  function showsIndex(){
+    try {
+      const p = frame.contentWindow.location.pathname || '';
+      return /(^|\/)index\.html?$/.test(p);
+    } catch(e){ return false; }
+  }
+  function ensureSuite(){
+    if(showsIndex()) return;
+    try { frame.contentWindow.location.replace(SRC); }
+    catch(e){ frame.src = SRC; }
+  }
+
+  // Force the suite's links to drive the whole tab, not the iframe — robust even if a
+  // cached index.html is missing <base target="_top">.
+  frame.addEventListener('load', function(){
+    try {
+      frame.contentDocument.querySelectorAll('a[href]').forEach(function(a){ a.setAttribute('target','_top'); });
+    } catch(e){}
+  });
+
+  // Preload immediately so the drawer opens instantly (no lag) and always shows the suite.
+  ensureSuite();
+
+  function openNav(e){
+    if(e) e.preventDefault();
+    ensureSuite();
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNav(){
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden','true');
+    document.body.style.overflow = '';
+  }
+  if(openBtn) openBtn.addEventListener('click', openNav);
+  if(closeBtn) closeBtn.addEventListener('click', closeNav);
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && overlay.classList.contains('open')) closeNav();
+  });
+})();
+</script>
 
 <script>
 let uploaded=null; // {name, type, dataUrl, isSvg, svgText, img}
@@ -190,7 +235,7 @@ document.getElementById("clearBtn").addEventListener("click",e=>{e.stopPropagati
 function reset(){
   uploaded=null; fileInput.value="";
   drop.classList.remove("has");
-  drop.innerHTML='<div class="big">Drop a logo here</div><div class="small">PNG, JPG, or SVG. SVG keeps true vector for the EPS and SVG outputs.</div>';
+  drop.innerHTML='<div class="big">Drop a logo here</div>';
   fileMeta.style.display="none"; runBtn.disabled=true; statusEl.textContent="";
   updateTree();
 }
@@ -234,6 +279,7 @@ document.querySelectorAll('input[type=checkbox], #size').forEach(el=>el.addEvent
 /* ---------- Tree preview ---------- */
 function updateTree(){
   const tv=document.getElementById("treeView");
+  if(!tv) return;
   if(!uploaded){ tv.innerHTML='<span class="muted">Upload a logo and pick your options to preview the folder tree.</span>'; return; }
   const {fmts,spaces,treats}=opts();
   if(!fmts.length||!spaces.length||!treats.length){ tv.innerHTML='<span class="muted">Select at least one format, color space, and treatment.</span>'; return; }
