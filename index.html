@@ -5,72 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <base target="_top">
 <title>McCANN Design Suite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
 <style>
-  @font-face {
-    font-family: 'McCann Headline';
-    src: url('McCann-Headline_4.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
+  html, body { height: 100%; }
+  body { overflow: hidden; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; overflow: hidden; }
-  body {
-    background: #fff;
-    color: #000;
-    -webkit-font-smoothing: antialiased;
+  /* Keep an accessible page heading without competing with the menu */
+  .visually-hidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0; border: 0;
+    clip: rect(0 0 0 0); clip-path: inset(50%);
+    overflow: hidden; white-space: nowrap;
   }
-  ::selection { background: #000; color: #fff; }
-  a { color: inherit; text-decoration: none; }
-
-  .page {
-    height: 100vh;
-    padding: 30px 20px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .type {
-    font-family: 'McCann Headline', sans-serif;
-    font-size: min(11.6vw, 16.5vh);
-    font-weight: normal;
-    font-style: normal;
-    letter-spacing: -2px;
-    line-height: 0.75;
-    white-space: nowrap;
-  }
-
-  .title {
-    margin-top: auto;
-  }
-  .title span { display: block; }
-
-  .links {
-    margin-top: 0;
-  }
-  .links a {
-    display: block;
-    width: fit-content;
-    transition: transform .25s cubic-bezier(.16,1,.3,1);
-  }
-  .links a:hover { transform: translateX(0.12em); }
-
 </style>
 </head>
 <body>
-<div class="page">
-  <h1 class="title type">
-    <span>McCANN</span>
-    <span>design</span>
-    <span>suite</span>
-  </h1>
+  <h1 class="visually-hidden">McCANN Design Suite</h1>
 
-  <nav class="links type" aria-label="Tools">
-    <a href="ada.html">ada→</a>
-    <a href="export.html">export→</a>
-  </nav>
-</div>
+  <!-- The centered bento menu is injected here by assets/nav.js -->
+  <script src="assets/nav.js"></script>
 </body>
 </html>

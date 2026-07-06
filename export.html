@@ -8,86 +8,66 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="stylesheet" href="assets/design.css">
 <style>
-  :root{
-    --ink:#000; --paper:#fff; --muted:#000; --line:#000;
-    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
-    --display:'McCann Headline','Helvetica Neue',Helvetica,Arial,sans-serif;
-  }
   @font-face{
     font-family:'McCann Headline';
     src:url('McCann-Headline_4.ttf') format('truetype');
     font-weight:100 900; font-display:swap;
   }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:18pt;font-weight:400;line-height:1.05;-webkit-font-smoothing:antialiased;}
-  ::selection{background:#000;color:#fff;}
-  a{color:inherit;text-decoration:none;}
 
-  .wrap{margin:0;padding:30px 20px 80px;}
-  .home-mark{display:block;width:50px;height:26px;line-height:0;margin-bottom:0;}
-  .home-mark svg{display:block;width:100%;height:auto;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:clamp(104px,14vh,140px) var(--gutter) 120px;}
 
-  /* Slide-down nav overlay */
-  .navOverlay{position:fixed;inset:0;z-index:1000;background:var(--paper);transform:translateY(-100%);transition:transform .55s cubic-bezier(.16,1,.3,1);will-change:transform;box-shadow:0 24px 60px rgba(0,0,0,0);pointer-events:none;}
-  .navOverlay.open{transform:translateY(0);box-shadow:0 24px 60px rgba(0,0,0,.18);pointer-events:auto;}
-  .navOverlay .navFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
-  .navOverlay .navClose{position:absolute;top:30px;left:20px;z-index:2;width:50px;height:26px;margin:0;padding:0;border:0;background:transparent;cursor:pointer;}
-
-  .cols{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.2fr);gap:48px;align-items:stretch;margin-top:56px;}
+  .cols{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.2fr);gap:48px;align-items:stretch;margin-top:8px;}
   @media(max-width:760px){.cols{grid-template-columns:1fr;gap:36px;}}
   .uploadCol{display:flex;flex-direction:column;}
 
-  label.lbl{font-weight:400;color:var(--ink);display:block;margin-bottom:8px;}
+  label.lbl{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:12px;}
 
   /* dropzone */
-  .drop{border:1px solid var(--ink);flex:1;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;transition:background .15s;gap:10px;}
-  .drop.drag{background:#fafafa;}
-  .drop .big{font-weight:400;}
-  .drop.has{padding:0;border-style:solid;}
+  .drop{border:1px dashed var(--hairline);border-radius:12px;background:var(--paper-2);flex:1;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;transition:background .25s var(--ease),border-color .25s var(--ease);gap:10px;}
+  .drop:hover{border-color:var(--accent-line);}
+  .drop.drag{background:var(--accent-soft);border-color:var(--accent-line);}
+  .drop .big{font-weight:450;font-size:18px;letter-spacing:-.01em;}
+  .drop.has{padding:0;border-style:solid;overflow:hidden;}
   .preview{width:100%;flex:1;min-height:280px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f4f4f2 0% 25%,#fff 0% 50%) 50%/20px 20px;}
   .preview img{max-width:86%;max-height:86%;object-fit:contain;}
   .filemeta{margin-top:12px;display:flex;justify-content:space-between;gap:18px;}
-  .filemeta button{font-family:var(--sans);border:none;background:transparent;color:var(--ink);cursor:pointer;padding:0;text-decoration:none;}
-  .filemeta button:hover{text-decoration:underline;}
+  .filemeta button{font-family:var(--sans);font-size:13px;border:none;background:transparent;color:var(--muted);cursor:pointer;padding:0;text-decoration:none;transition:color .3s var(--ease);}
+  .filemeta button:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px;}
+  #fileinfo{font-size:13px;color:var(--muted);}
 
   /* options */
   .optblock{margin-bottom:28px;}
-  .checks{display:flex;flex-direction:column;gap:8px;}
-  .chk{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;}
-  .chk input{appearance:none;width:18px;height:18px;border:1px solid var(--ink);background:#fff;cursor:pointer;position:relative;flex:none;}
-  .chk input:checked{background:#000;}
+  .checks{display:flex;flex-direction:column;gap:10px;}
+  .chk{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;font-size:15px;}
+  .chk input{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1px solid var(--hairline);border-radius:5px;background:var(--paper-2);cursor:pointer;position:relative;flex:none;transition:background .2s var(--ease),border-color .2s var(--ease);}
+  .chk input:checked{background:var(--accent);border-color:var(--accent);}
+  .chk input:checked::after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
 
   .sizefield{display:flex;align-items:center;gap:12px;}
-  .sizefield input{font-family:var(--sans);border:none;border-bottom:1px solid var(--ink);background:transparent;color:var(--ink);width:110px;padding:4px 0;outline:none;}
+  .sizefield input{font-family:var(--mono);font-size:15px;border:none;border-bottom:1px solid var(--hairline);background:transparent;color:var(--ink);width:110px;padding:4px 0;outline:none;transition:border-color .3s var(--ease);}
+  .sizefield input:focus{border-color:var(--accent-line);}
+  .sizefield .note{font-size:13px;color:var(--muted);}
 
   .run{margin-top:8px;}
-  .run button{font-family:var(--sans);border:none;background:transparent;color:var(--ink);padding:0;cursor:pointer;letter-spacing:0;text-decoration:none;}
-  .run button:hover{text-decoration:underline;}
-  .run button:disabled{opacity:.35;cursor:not-allowed;text-decoration:none;}
-  .status{margin-top:14px;min-height:16px;}
+  .run button{font-family:var(--sans);font-size:15px;font-weight:500;border:1px solid var(--ink);border-radius:999px;background:var(--ink);color:var(--paper-2);padding:12px 26px;cursor:pointer;letter-spacing:.01em;transition:background .3s var(--ease),border-color .3s var(--ease),color .3s var(--ease),transform .3s var(--ease);}
+  .run button:hover{background:var(--accent);border-color:var(--accent);transform:translateY(-1px);}
+  .run button:disabled{opacity:.3;cursor:not-allowed;background:transparent;color:var(--ink);transform:none;}
+  .status{margin-top:14px;min-height:16px;font-size:13px;color:var(--muted);}
 
   .canvas-stash{position:absolute;left:-9999px;top:-9999px;}
 
-  /* Swiss type system — one size, one weight, hard left, no gray */
-  body, label.lbl, .drop .big, .drop .small, .filemeta, .filemeta button, .chk,
-  .sizefield input, .sizefield .note, .run button, .status {
-    font-family: var(--sans);
-    font-size: 18pt;
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.05;
-  }
+  @media(max-width:760px){.wrap{padding-left:20px;padding-right:20px;}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <a href="index.html" id="navOpen" class="home-mark" aria-label="Open McCANN Design Suite">
-    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
-      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
-      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
-    </svg>
-  </a>
+  <header class="page-head">
+    <p class="eyebrow">Export <span class="dot">·</span> by McCANN</p>
+    <h1 class="page-title">Logo<br>packager<span class="accent">.</span></h1>
+    <p class="page-lede">Drop one logo, get a tidy bundle — every format, colour space and treatment, organised and ready for handoff.</p>
+  </header>
 
   <div class="cols">
     <!-- LEFT: upload -->
@@ -150,68 +130,7 @@
 
 <div class="canvas-stash" id="stash"></div>
 
-<!-- Slide-down navigation overlay -->
-<div class="navOverlay" id="navOverlay" aria-hidden="true">
-  <button class="home-mark navClose" id="navClose" type="button" aria-label="Close McCANN Design Suite">
-    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
-      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
-      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
-    </svg>
-  </button>
-  <iframe class="navFrame" id="navFrame" title="McCANN Design Suite" src="about:blank"></iframe>
-</div>
-
-<script>
-/* ---------- Slide-down nav overlay ---------- */
-(function(){
-  const overlay = document.getElementById('navOverlay');
-  const frame = document.getElementById('navFrame');
-  const openBtn = document.getElementById('navOpen');
-  const closeBtn = document.getElementById('navClose');
-  const SRC = 'index.html';
-
-  function showsIndex(){
-    try {
-      const p = frame.contentWindow.location.pathname || '';
-      return /(^|\/)index\.html?$/.test(p);
-    } catch(e){ return false; }
-  }
-  function ensureSuite(){
-    if(showsIndex()) return;
-    try { frame.contentWindow.location.replace(SRC); }
-    catch(e){ frame.src = SRC; }
-  }
-
-  // Force the suite's links to drive the whole tab, not the iframe — robust even if a
-  // cached index.html is missing <base target="_top">.
-  frame.addEventListener('load', function(){
-    try {
-      frame.contentDocument.querySelectorAll('a[href]').forEach(function(a){ a.setAttribute('target','_top'); });
-    } catch(e){}
-  });
-
-  // Preload immediately so the drawer opens instantly (no lag) and always shows the suite.
-  ensureSuite();
-
-  function openNav(e){
-    if(e) e.preventDefault();
-    ensureSuite();
-    overlay.classList.add('open');
-    overlay.setAttribute('aria-hidden','false');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeNav(){
-    overlay.classList.remove('open');
-    overlay.setAttribute('aria-hidden','true');
-    document.body.style.overflow = '';
-  }
-  if(openBtn) openBtn.addEventListener('click', openNav);
-  if(closeBtn) closeBtn.addEventListener('click', closeNav);
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && overlay.classList.contains('open')) closeNav();
-  });
-})();
-</script>
+<script src="assets/nav.js"></script>
 
 <script>
 let uploaded=null; // {name, type, dataUrl, isSvg, svgText, img}

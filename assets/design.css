@@ -1,0 +1,237 @@
+/* ==========================================================================
+   McCANN Design Suite — shared design system
+   Clean · futuristic · minimal · editorial
+   ========================================================================== */
+
+:root{
+  /* Surface + ink */
+  --paper:#FBFBFA;
+  --paper-2:#FFFFFF;
+  --ink:#0E0E10;
+  --muted:#6C6C74;
+  --faint:#9A9AA1;
+
+  /* Hairlines */
+  --hairline:rgba(14,14,16,.12);
+  --hairline-soft:rgba(14,14,16,.07);
+
+  /* Restrained purple accent — used sparingly */
+  --accent:#5B47E0;
+  --accent-ink:#4B39C7;
+  --accent-soft:rgba(91,71,224,.10);
+  --accent-line:rgba(91,71,224,.28);
+
+  /* Type */
+  --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,monospace;
+  --display:'McCann Headline','Helvetica Neue',Helvetica,Arial,sans-serif;
+
+  /* Motion */
+  --ease:cubic-bezier(.16,1,.3,1);
+  --speed:.5s;
+
+  /* Layout */
+  --gutter:6vw;
+  --maxw:1240px;
+}
+
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;
+  line-height:1.55;
+  font-weight:400;
+  letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+
+::selection{ background:var(--ink); color:var(--paper-2); }
+a{ color:inherit; text-decoration:none; }
+
+:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+  border-radius:2px;
+}
+
+/* Menu display face (from the Figma mockup) */
+@font-face{
+  font-family:'PP Neue Montreal';
+  src:url('../PPNeueMontreal-Book.otf') format('opentype');
+  font-weight:400 600;
+  font-style:normal;
+  font-display:swap;
+}
+
+/* --------------------------------------------------------------------------
+   Typographic system — the design's primary feature
+   -------------------------------------------------------------------------- */
+.eyebrow{
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0;
+}
+.eyebrow .dot{ color:var(--accent); }
+
+.container{
+  max-width:var(--maxw);
+  margin:0 auto;
+}
+
+.page-head{
+  max-width:760px;
+  margin:0 0 clamp(48px,7vw,88px);
+}
+.page-title{
+  font-family:var(--sans);
+  font-size:clamp(38px,7vw,84px);
+  font-weight:600;
+  letter-spacing:-.035em;
+  line-height:.94;
+  margin:18px 0 0;
+}
+.page-title .accent{ color:var(--accent); }
+.page-lede{
+  font-size:clamp(15px,1.6vw,18px);
+  line-height:1.55;
+  color:var(--muted);
+  margin:24px 0 0;
+  max-width:56ch;
+}
+
+/* --------------------------------------------------------------------------
+   Menu screen — centered bento menu (from Figma: McCANN Design Suite)
+   Doubles as the site navigation. On the landing page it is the content;
+   on tool pages it recedes and reappears whenever the user scrolls.
+   -------------------------------------------------------------------------- */
+.menu-screen{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(251,251,250,.66);
+  -webkit-backdrop-filter:blur(10px) saturate(1.1);
+  backdrop-filter:blur(10px) saturate(1.1);
+  transition:opacity var(--speed) var(--ease),
+             -webkit-backdrop-filter var(--speed) var(--ease),
+             backdrop-filter var(--speed) var(--ease);
+}
+.menu-screen.is-hidden,
+.menu-screen.is-exiting{
+  opacity:0;
+  pointer-events:none;
+  -webkit-backdrop-filter:blur(0) saturate(1);
+  backdrop-filter:blur(0) saturate(1);
+}
+/* On the landing page the menu is the page — no scrim behind it */
+.menu-screen.is-home{
+  background:transparent;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+
+/* card layer handles the enter/exit transform so it never fights the float */
+.menu-card{
+  transition:transform .55s var(--ease), opacity .45s var(--ease);
+}
+.menu-screen.is-hidden .menu-card,
+.menu-screen.is-exiting .menu-card{
+  transform:scale(.965) translateY(10px);
+  opacity:0;
+}
+
+.bento{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:min(374px, calc(100vw - 48px));
+  animation:bento-float 9s ease-in-out infinite;
+}
+@keyframes bento-float{
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-5px); }
+}
+
+.bento__row{ display:flex; gap:6px; }
+
+.tile{
+  position:relative;
+  height:98px;
+  display:flex;
+  align-items:center;
+  padding:0 28px;
+  border-radius:32px;
+  background:rgba(217,217,217,.5);
+  color:#000;
+  font-family:'PP Neue Montreal', var(--sans);
+  font-size:clamp(23px, 5.2vw, 30px);
+  font-weight:500;
+  letter-spacing:-.01em;
+  line-height:1;
+  white-space:nowrap;
+  cursor:pointer;
+  transition:background-color .35s var(--ease), transform .35s var(--ease);
+}
+a.tile:hover{ background:rgba(195,195,197,.62); transform:translateY(-2px); }
+a.tile:active{ transform:translateY(0); }
+
+.tile--suite  { width:100%; }
+.tile--ada    { flex:0 0 41.5%; }
+.tile--export { flex:1 1 auto; }
+.tile--brand  { flex:1 1 auto; }
+.tile--m      { flex:0 0 27.3%; border-radius:49px; justify-content:center; padding:0 12px; }
+
+/* current page marker — a small, restrained purple dot */
+.tile.is-active{ background:rgba(198,198,200,.68); }
+.tile.is-active::after{
+  content:"";
+  width:7px; height:7px;
+  border-radius:50%;
+  background:var(--accent);
+  margin-left:auto;
+}
+.tile--m.is-active::after{ position:absolute; right:14px; margin:0; }
+/* the title tile never needs an active marker */
+.tile--suite.is-active{ background:rgba(217,217,217,.5); }
+.tile--suite.is-active::after{ display:none; }
+
+/* tiles for pages that don't exist yet */
+.tile--soon{ cursor:default; color:rgba(0,0,0,.85); }
+.tile--soon:hover{ background:rgba(217,217,217,.5); transform:none; }
+
+@media (max-width:440px){
+  .tile{ height:80px; padding:0 22px; border-radius:26px; }
+  .tile--m{ border-radius:40px; }
+}
+
+/* --------------------------------------------------------------------------
+   Reusable primitives
+   -------------------------------------------------------------------------- */
+.textlink{
+  display:inline-flex;
+  align-items:center;
+  gap:.4em;
+  color:var(--ink);
+  transition:color .3s var(--ease), transform .3s var(--ease);
+}
+.textlink:hover{ color:var(--accent); }
+
+hr.rule{ border:0; border-top:1px solid var(--hairline-soft); margin:0; }
+
+@media (prefers-reduced-motion: reduce){
+  .bento{ animation:none; }
+  *{ scroll-behavior:auto !important; }
+}

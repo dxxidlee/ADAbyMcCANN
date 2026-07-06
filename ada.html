@@ -7,15 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/design.css">
 <style>
   :root {
-    --ink: #000000;
-    --paper: #FFFFFF;
-    --line: #000000;
-    --muted: #000000;
-    --mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
-    --display: 'McCann Headline', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    --sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --line: var(--hairline);
   }
   @font-face {
     font-family: 'McCann Headline';
@@ -23,34 +18,21 @@
     font-weight: 100 900;
     font-display: swap;
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 18pt; font-weight: 400; line-height: 1.05; -webkit-font-smoothing: antialiased; }
-  ::selection { background: #000; color: #fff; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: clamp(104px,14vh,140px) var(--gutter) 120px; }
 
-  .wrap { margin: 0; padding: 30px 20px 80px; }
-  .home-mark{display:block;width:50px;height:26px;line-height:0;margin-bottom:56px;}
-  .home-mark svg{display:block;width:100%;height:auto;}
-
-  /* Slide-down nav overlay */
-  .navOverlay{position:fixed;inset:0;z-index:1000;background:var(--paper);transform:translateY(-100%);transition:transform .55s cubic-bezier(.16,1,.3,1);will-change:transform;box-shadow:0 24px 60px rgba(0,0,0,0);pointer-events:none;}
-  .navOverlay.open{transform:translateY(0);box-shadow:0 24px 60px rgba(0,0,0,.18);pointer-events:auto;}
-  .navOverlay .navFrame{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;}
-  .navOverlay .navClose{position:absolute;top:30px;left:20px;z-index:2;width:50px;height:26px;margin:0;padding:0;border:0;background:transparent;cursor:pointer;}
-
-  /* Header — title is the only large type */
-  .kicker { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .04em; color: var(--muted); margin-bottom: 20px; text-transform: none; }
-  h1.title { font-family: 'McCann Headline', var(--sans); font-size: clamp(44px,8vw,96px); font-weight: bold; letter-spacing: -.03em; line-height: .9; margin: 0; }
-  .sub { font-size: 13px; color: var(--ink); max-width: 520px; margin-top: 20px; line-height: 1.5; }
+  .kicker { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 
   /* Controls — no boxes, grid of labelled rows */
-  .controls { display: grid; grid-template-columns: minmax(280px,1fr) minmax(320px,1.2fr); gap: 48px; align-items: stretch; margin: 56px 0 40px; }
+  .controls { display: grid; grid-template-columns: minmax(280px,1fr) minmax(320px,1.2fr); gap: 48px; align-items: stretch; margin: 8px 0 40px; }
   .pasteCol { display: flex; flex-direction: column; }
   @media (max-width: 760px){ .controls { grid-template-columns: 1fr; gap: 36px; } }
   label.lbl { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0; color: var(--muted); display: block; margin-bottom: 8px; text-transform: none; }
   textarea {
-    font-family: var(--sans); font-size: 13px; line-height: 1.7; padding: 0; width: 100%;
-    border: 1px solid var(--ink); background: transparent; color: var(--ink); resize: none; flex: 1; min-height: 170px; outline: none; padding: 12px;
+    font-family: var(--mono); font-size: 13px; line-height: 1.7; width: 100%;
+    border: 1px solid var(--hairline); border-radius: 10px; background: var(--paper-2); color: var(--ink); resize: none; flex: 1; min-height: 170px; outline: none; padding: 14px 16px;
+    transition: border-color .3s var(--ease), box-shadow .3s var(--ease);
   }
+  textarea:focus { border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-soft); }
   .count { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-top: 16px; }
   .switchCol { display: flex; flex-direction: column; gap: 16px; }
   .hint { font-size: 12px; color: var(--muted); margin: 8px 0 0; line-height: 1.45; }
@@ -59,8 +41,8 @@
   .seg { display: inline-flex; gap: 18px; border: none; overflow: visible; }
   .seg button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; background: transparent; color: var(--muted); cursor: pointer; letter-spacing: 0; text-decoration: none; }
   .seg button:last-child { border-right: none; }
-  .seg button.active { background: transparent; color: var(--ink); text-decoration: underline; }
-  .seg button:hover { color: var(--ink); text-decoration: underline; }
+  .seg button.active { background: transparent; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-line); }
+  .seg button:hover { color: var(--accent); }
 
   /* Legend — inline signals, dot + label, no fill */
   .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 8px; }
@@ -71,14 +53,16 @@
   .actions { display: flex; gap: 18px; flex-wrap: wrap; }
   .actions button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; text-decoration: none; }
   .actions button.ghost { background: transparent; color: var(--ink); }
-  .actions button:hover { text-decoration: underline; }
+  .actions button { transition: color .3s var(--ease); }
+  .actions button:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
 
   /* Font picker — minimal underlined inputs */
   .fontRow { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
-  .fontSelect, .fontText { font-family: var(--sans); font-size: 13px; padding: 6px 0; border: none; border-bottom: 1px solid var(--ink); border-radius: 0; background: transparent; color: var(--ink); outline: none; }
+  .fontSelect, .fontText { font-family: var(--sans); font-size: 13px; padding: 6px 0; border: none; border-bottom: 1px solid var(--hairline); border-radius: 0; background: transparent; color: var(--ink); outline: none; transition: border-color .3s var(--ease); }
+  .fontSelect:focus, .fontText:focus { border-color: var(--accent-line); }
   .fontText { min-width: 190px; }
-  .fontBtn { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; }
-  .fontBtn:hover { background: var(--ink); color: var(--paper); }
+  .fontBtn { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; transition: color .3s var(--ease), border-color .3s var(--ease); }
+  .fontBtn:hover { color: var(--accent); border-color: var(--accent-line); }
 
   /* Scoreboard — hairline-ruled columns, one type size, color as signal only */
   .score { display: flex; flex-wrap: wrap; gap: 18px; background: transparent; border: none; border-radius: 0; overflow: visible; margin: 0; }
@@ -88,7 +72,7 @@
   .statL { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0; color: var(--muted); margin-top: 0; text-transform: none; }
 
   /* Matrix — keeps color fills (it's the instrument), but hairline chrome */
-  .matrixWrap { overflow-x: auto; border: 1px solid var(--ink); border-radius: 0; background: #fff; }
+  .matrixWrap { overflow-x: auto; border: 1px solid var(--hairline); border-radius: 12px; background: var(--paper-2); }
   table { border-collapse: collapse; width: 100%; }
   th.corner { position: sticky; left: 0; z-index: 3; background: #fff; color: var(--muted); padding: 10px 12px 10px 0; min-width: 78px; text-align: left; }
   .corner small { display: block; font-family: var(--sans); font-size: 11px; font-weight: 400; opacity: 1; }
@@ -105,46 +89,35 @@
   footer { margin-top: 28px; font-size: 12px; color: var(--muted); line-height: 1.5; font-family: var(--sans); max-width: 620px; }
 
   /* Repair modal — minimal */
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.18); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
-  .panel { background: #fff; border-radius: 0; padding: 32px; width: min(460px,100%); border: 1px solid var(--ink); }
+  .overlay { position: fixed; inset: 0; background: rgba(14,14,16,.28); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1200; }
+  .panel { background: var(--paper-2); border-radius: 16px; padding: 32px; width: min(460px,100%); border: 1px solid var(--hairline); box-shadow: 0 30px 80px rgba(14,14,16,.22); }
   .panelHead { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
   .panelTitle { font-family: var(--sans); font-size: 18px; font-weight: 500; margin-top: 6px; letter-spacing: -.01em; }
   .close { border: none; background: transparent; width: 28px; height: 28px; border-radius: 0; cursor: pointer; font-size: 16px; color: var(--ink); }
   .repairPreview { border-radius: 0; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 20px; height: 52px; font-family: var(--mono); }
   .repairGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
-  .repairOpt { border: none; border-top: 1px solid var(--ink); border-radius: 0; padding: 14px 0 0; }
+  .repairOpt { border: none; border-top: 1px solid var(--hairline); border-radius: 0; padding: 14px 0 0; }
   .repairLabel { font-family: var(--sans); font-size: 11px; letter-spacing: 0; color: var(--muted); margin-bottom: 10px; }
   .repairHex { display: block; font-family: var(--mono); font-size: 13px; font-weight: 500; margin-top: 10px; }
   .repairRatio { display: block; font-family: var(--sans); font-size: 12px; color: #1f7a3d; margin-top: 3px; }
-  .repairOpt button { margin-top: 12px; width: auto; font-family: var(--sans); font-size: 12px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; }
-  .repairOpt button:hover { background: var(--ink); color: var(--paper); }
+  .repairOpt button { margin-top: 12px; width: auto; font-family: var(--sans); font-size: 12px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--hairline); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; transition: color .3s var(--ease), border-color .3s var(--ease); }
+  .repairOpt button:hover { color: var(--accent); border-color: var(--accent-line); }
 
-  /* Swiss type system — one size, one weight, hard left, no gray */
-  body, label.lbl, .count, .hint, .seg button, .pill, .actions button,
-  .fontSelect, .fontText, .fontBtn, .statN, .statL, th.corner, .corner small,
-  .headHex, .empty, footer, .panelTitle, .repairLabel, .repairHex, .repairRatio,
-  .repairOpt button, textarea, select, input {
-    font-family: var(--sans);
-    font-size: 18pt;
-    font-weight: 400;
-    letter-spacing: 0;
-    line-height: 1.05;
-  }
-  /* keep the matrix instrument legible at functional sizes */
-  .cellVal { font-size: 14px; font-weight: 400; }
-  .cellGrade { font-size: 9px; font-weight: 400; }
+  .cellVal { font-size: 14px; font-weight: 500; }
+  .cellGrade { font-size: 9px; font-weight: 500; }
+
+  @media (max-width: 760px){ .wrap { padding-left: 20px; padding-right: 20px; } }
 </style>
 </head>
 <body>
 
 <!-- APP -->
 <div class="wrap" id="app">
-  <a href="index.html" id="navOpen" class="home-mark" aria-label="Open McCANN Design Suite">
-    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
-      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
-      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
-    </svg>
-  </a>
+  <header class="page-head">
+    <p class="eyebrow">ADA <span class="dot">·</span> by McCANN</p>
+    <h1 class="page-title">Contrast<br>matrix<span class="accent">.</span></h1>
+    <p class="page-lede">Every foreground / background pairing, scored against WCAG&nbsp;2.2 and APCA. Click any failing cell to auto-repair it toward AA.</p>
+  </header>
 
   <div class="controls">
     <div class="pasteCol">
@@ -203,68 +176,7 @@
 
 <div id="modalMount"></div>
 
-<!-- Slide-down navigation overlay -->
-<div class="navOverlay" id="navOverlay" aria-hidden="true">
-  <button class="home-mark navClose" id="navClose" type="button" aria-label="Close McCANN Design Suite">
-    <svg width="50" height="26" viewBox="0 0 50 26" fill="none" aria-hidden="true">
-      <line y1="5" x2="50" y2="5" stroke="black" stroke-width="10"/>
-      <line y1="21" x2="50" y2="21" stroke="black" stroke-width="10"/>
-    </svg>
-  </button>
-  <iframe class="navFrame" id="navFrame" title="McCANN Design Suite" src="about:blank"></iframe>
-</div>
-
-<script>
-/* ---------- Slide-down nav overlay ---------- */
-(function(){
-  const overlay = document.getElementById('navOverlay');
-  const frame = document.getElementById('navFrame');
-  const openBtn = document.getElementById('navOpen');
-  const closeBtn = document.getElementById('navClose');
-  const SRC = 'index.html';
-
-  function showsIndex(){
-    try {
-      const p = frame.contentWindow.location.pathname || '';
-      return /(^|\/)index\.html?$/.test(p);
-    } catch(e){ return false; }
-  }
-  function ensureSuite(){
-    if(showsIndex()) return;
-    try { frame.contentWindow.location.replace(SRC); }
-    catch(e){ frame.src = SRC; }
-  }
-
-  // Force the suite's links to drive the whole tab, not the iframe — robust even if a
-  // cached index.html is missing <base target="_top">.
-  frame.addEventListener('load', function(){
-    try {
-      frame.contentDocument.querySelectorAll('a[href]').forEach(function(a){ a.setAttribute('target','_top'); });
-    } catch(e){}
-  });
-
-  // Preload immediately so the drawer opens instantly (no lag) and always shows the suite.
-  ensureSuite();
-
-  function openNav(e){
-    if(e) e.preventDefault();
-    ensureSuite();
-    overlay.classList.add('open');
-    overlay.setAttribute('aria-hidden','false');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeNav(){
-    overlay.classList.remove('open');
-    overlay.setAttribute('aria-hidden','true');
-    document.body.style.overflow = '';
-  }
-  if(openBtn) openBtn.addEventListener('click', openNav);
-  if(closeBtn) closeBtn.addEventListener('click', closeNav);
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape' && overlay.classList.contains('open')) closeNav();
-  });
-})();
-</script>
+<script src="assets/nav.js"></script>
 
 <script>
 /* ---------- Color math ---------- */
