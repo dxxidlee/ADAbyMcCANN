@@ -16,44 +16,61 @@
     font-weight:100 900; font-display:swap;
   }
 
-  .wrap{max-width:var(--maxw);margin:0 auto;padding:clamp(104px,14vh,140px) var(--gutter) 120px;}
+  .wrap{max-width:none;}
 
-  .cols{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.2fr);gap:48px;align-items:stretch;margin-top:8px;}
-  @media(max-width:760px){.cols{grid-template-columns:1fr;gap:36px;}}
+  .cols{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.05fr);gap:clamp(28px,3.5vw,44px);align-items:start;}
+  @media(max-width:760px){.cols{grid-template-columns:1fr;gap:30px;}}
   .uploadCol{display:flex;flex-direction:column;}
 
-  label.lbl{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:12px;}
+  label.lbl{font-size:11px;font-weight:500;letter-spacing:.01em;text-transform:none;color:var(--muted);display:block;margin-bottom:12px;}
 
-  /* dropzone */
-  .drop{border:1px dashed var(--hairline);border-radius:12px;background:var(--paper-2);flex:1;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;transition:background .25s var(--ease),border-color .25s var(--ease);gap:10px;}
-  .drop:hover{border-color:var(--accent-line);}
-  .drop.drag{background:var(--accent-soft);border-color:var(--accent-line);}
-  .drop .big{font-weight:450;font-size:18px;letter-spacing:-.01em;}
-  .drop.has{padding:0;border-style:solid;overflow:hidden;}
-  .preview{width:100%;flex:1;min-height:280px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#f4f4f2 0% 25%,#fff 0% 50%) 50%/20px 20px;}
+  /* dropzone — glass */
+  .drop{
+    position:relative;flex:1;min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;gap:8px;
+    border-radius:24px;
+    background:linear-gradient(140deg, rgba(255,255,255,.6), rgba(255,255,255,.22) 65%), rgba(255,255,255,.34);
+    -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+    border:1px dashed rgba(14,14,16,.22);
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.85), 0 12px 36px rgba(14,14,16,.08);
+    transition:border-color .25s var(--ease),box-shadow .25s var(--ease),transform .25s var(--ease);
+  }
+  .drop:hover{border-color:rgba(14,14,16,.35);transform:translateY(-1px);}
+  .drop.drag{border-color:var(--ink);box-shadow:inset 0 1px 1px rgba(255,255,255,.85),0 0 0 3px rgba(14,14,16,.08),0 12px 36px rgba(14,14,16,.10);}
+  .drop .big{font-family:'PP Neue Montreal', var(--sans);font-weight:500;font-size:19px;letter-spacing:-.01em;}
+  .drop .sub{font-size:12px;color:var(--muted);}
+  .drop.has{padding:0;border-style:solid;border-color:rgba(255,255,255,.6);overflow:hidden;}
+  .preview{width:100%;flex:1;min-height:320px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(rgba(14,14,16,.045) 0% 25%,transparent 0% 50%) 50%/22px 22px;}
   .preview img{max-width:86%;max-height:86%;object-fit:contain;}
-  .filemeta{margin-top:12px;display:flex;justify-content:space-between;gap:18px;}
+  .filemeta{margin-top:14px;display:flex;justify-content:space-between;gap:18px;align-items:center;}
   .filemeta button{font-family:var(--sans);font-size:13px;border:none;background:transparent;color:var(--muted);cursor:pointer;padding:0;text-decoration:none;transition:color .3s var(--ease);}
-  .filemeta button:hover{color:var(--accent);text-decoration:underline;text-underline-offset:3px;}
+  .filemeta button:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px;}
   #fileinfo{font-size:13px;color:var(--muted);}
 
   /* options */
-  .optblock{margin-bottom:28px;}
-  .checks{display:flex;flex-direction:column;gap:10px;}
-  .chk{display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none;font-size:15px;}
-  .chk input{appearance:none;-webkit-appearance:none;width:18px;height:18px;border:1px solid var(--hairline);border-radius:5px;background:var(--paper-2);cursor:pointer;position:relative;flex:none;transition:background .2s var(--ease),border-color .2s var(--ease);}
-  .chk input:checked{background:var(--accent);border-color:var(--accent);}
-  .chk input:checked::after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .optblock{margin-bottom:22px;}
+  .checks{display:flex;flex-wrap:wrap;gap:8px;}
+  .chk{
+    display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;font-size:14px;
+    padding:9px 15px;border-radius:999px;
+    background:rgba(255,255,255,.42);border:1px solid var(--hairline-soft);
+    transition:border-color .25s var(--ease),background-color .25s var(--ease),box-shadow .25s var(--ease);
+  }
+  .chk:hover{border-color:rgba(14,14,16,.22);}
+  .chk:has(input:checked){
+    border-color:var(--ink);
+    background:linear-gradient(140deg, rgba(255,255,255,.88), rgba(255,255,255,.56));
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 2px 8px rgba(14,14,16,.06);
+  }
+  .chk input{appearance:none;-webkit-appearance:none;width:17px;height:17px;border:1px solid var(--hairline);border-radius:5px;background:rgba(255,255,255,.7);cursor:pointer;position:relative;flex:none;transition:background .2s var(--ease),border-color .2s var(--ease);}
+  .chk input:checked{background:var(--ink);border-color:var(--ink);}
+  .chk input:checked::after{content:"";position:absolute;left:5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
 
   .sizefield{display:flex;align-items:center;gap:12px;}
-  .sizefield input{font-family:var(--mono);font-size:15px;border:none;border-bottom:1px solid var(--hairline);background:transparent;color:var(--ink);width:110px;padding:4px 0;outline:none;transition:border-color .3s var(--ease);}
-  .sizefield input:focus{border-color:var(--accent-line);}
+  .sizefield input{font-family:var(--mono);font-size:14px;width:130px;padding:9px 13px;}
   .sizefield .note{font-size:13px;color:var(--muted);}
 
-  .run{margin-top:8px;}
-  .run button{font-family:var(--sans);font-size:15px;font-weight:500;border:1px solid var(--ink);border-radius:999px;background:var(--ink);color:var(--paper-2);padding:12px 26px;cursor:pointer;letter-spacing:.01em;transition:background .3s var(--ease),border-color .3s var(--ease),color .3s var(--ease),transform .3s var(--ease);}
-  .run button:hover{background:var(--accent);border-color:var(--accent);transform:translateY(-1px);}
-  .run button:disabled{opacity:.3;cursor:not-allowed;background:transparent;color:var(--ink);transform:none;}
+  .run{margin-top:12px;}
+  #runBtn{font-size:15px;padding:13px 28px;}
   .status{margin-top:14px;min-height:16px;font-size:13px;color:var(--muted);}
 
   .canvas-stash{position:absolute;left:-9999px;top:-9999px;}
@@ -61,20 +78,15 @@
   @media(max-width:760px){.wrap{padding-left:20px;padding-right:20px;}}
 </style>
 </head>
-<body>
-<div class="wrap">
-  <header class="page-head">
-    <p class="eyebrow">Export <span class="dot">·</span> by McCANN</p>
-    <h1 class="page-title">Logo<br>packager<span class="accent">.</span></h1>
-    <p class="page-lede">Drop one logo, get a tidy bundle — every format, colour space and treatment, organised and ready for handoff.</p>
-  </header>
-
+<body class="ambient">
+<div class="wrap tool-wrap">
   <div class="cols">
     <!-- LEFT: upload -->
     <div class="uploadCol">
       <label class="lbl">Source Logo</label>
       <div class="drop" id="drop">
         <div class="big">Drop a logo here</div>
+        <div class="sub">PNG · JPG · SVG</div>
       </div>
       <input type="file" id="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" style="display:none">
       <div class="filemeta" id="filemeta" style="display:none">
@@ -84,7 +96,7 @@
     </div>
 
     <!-- RIGHT: options -->
-    <div>
+    <div class="optionsCol glass glass-panel">
       <div class="optblock">
         <label class="lbl">File Formats</label>
         <div class="checks">
@@ -114,13 +126,13 @@
       <div class="optblock">
         <label class="lbl">Raster Size</label>
         <div class="sizefield">
-          <input type="number" id="size" value="2000" min="64" max="6000" step="1">
+          <input type="number" id="size" class="glass-field" value="2000" min="64" max="6000" step="1">
           <span class="note">px longest edge</span>
         </div>
       </div>
 
       <div class="run">
-        <button id="runBtn" disabled>Generate ZIP</button>
+        <button id="runBtn" class="btn" disabled>Generate ZIP</button>
         <div class="status" id="status"></div>
       </div>
     </div>
@@ -154,7 +166,7 @@ document.getElementById("clearBtn").addEventListener("click",e=>{e.stopPropagati
 function reset(){
   uploaded=null; fileInput.value="";
   drop.classList.remove("has");
-  drop.innerHTML='<div class="big">Drop a logo here</div>';
+  drop.innerHTML='<div class="big">Drop a logo here</div><div class="sub">PNG · JPG · SVG</div>';
   fileMeta.style.display="none"; runBtn.disabled=true; statusEl.textContent="";
   updateTree();
 }

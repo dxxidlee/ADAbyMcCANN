@@ -18,116 +18,94 @@
     font-weight: 100 900;
     font-display: swap;
   }
-  .wrap { max-width: var(--maxw); margin: 0 auto; padding: clamp(104px,14vh,140px) var(--gutter) 120px; }
+  .wrap { max-width: none; }
 
   .kicker { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 
-  /* Controls — no boxes, grid of labelled rows */
-  .controls { display: grid; grid-template-columns: minmax(280px,1fr) minmax(320px,1.2fr); gap: 48px; align-items: stretch; margin: 8px 0 40px; }
+  /* Controls live inside one glass panel */
+  .controls { display: grid; grid-template-columns: minmax(280px,1fr) minmax(320px,1.1fr); gap: clamp(28px,3.5vw,44px); align-items: start; margin: 0 0 22px; }
   .pasteCol { display: flex; flex-direction: column; }
-  @media (max-width: 760px){ .controls { grid-template-columns: 1fr; gap: 36px; } }
-  label.lbl { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: 0; color: var(--muted); display: block; margin-bottom: 8px; text-transform: none; }
+  @media (max-width: 760px){ .controls { grid-template-columns: 1fr; gap: 30px; } }
+  label.lbl { font-family: var(--sans); font-size: 11px; font-weight: 500; letter-spacing: .01em; color: var(--muted); display: block; margin-bottom: 10px; text-transform: none; }
   textarea {
     font-family: var(--mono); font-size: 13px; line-height: 1.7; width: 100%;
-    border: 1px solid var(--hairline); border-radius: 10px; background: var(--paper-2); color: var(--ink); resize: none; flex: 1; min-height: 170px; outline: none; padding: 14px 16px;
-    transition: border-color .3s var(--ease), box-shadow .3s var(--ease);
+    resize: none; flex: 1; min-height: 190px; padding: 16px 18px;
   }
-  textarea:focus { border-color: var(--accent-line); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .count { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-top: 16px; }
-  .switchCol { display: flex; flex-direction: column; gap: 16px; }
-  .hint { font-size: 12px; color: var(--muted); margin: 8px 0 0; line-height: 1.45; }
+  .count { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-top: 14px; }
+  .switchCol { display: flex; flex-direction: column; gap: 22px; }
+  .hint { font-size: 12px; color: var(--muted); margin: 10px 0 0; line-height: 1.45; }
 
-  /* Segmented controls become inline text toggles */
-  .seg { display: inline-flex; gap: 18px; border: none; overflow: visible; }
-  .seg button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; background: transparent; color: var(--muted); cursor: pointer; letter-spacing: 0; text-decoration: none; }
-  .seg button:last-child { border-right: none; }
-  .seg button.active { background: transparent; color: var(--accent); text-decoration: none; border-bottom: 1px solid var(--accent-line); }
-  .seg button:hover { color: var(--accent); }
-
-  /* Legend — inline signals, dot + label, no fill */
-  .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 8px; }
-  .pill { font-family: var(--sans); font-size: 12px; padding: 0; border-radius: 0; display: inline-flex; align-items: center; gap: 7px; font-weight: 400; letter-spacing: 0; background: transparent !important; color: var(--ink) !important; }
+  /* Legend — inline signals, dot + label */
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; }
+  .pill { font-family: var(--sans); font-size: 12px; display: inline-flex; align-items: center; gap: 7px; font-weight: 400; background: transparent !important; color: var(--ink) !important; }
   .pillDot { width: 8px; height: 8px; border-radius: 50%; }
 
-  /* Export actions become text links with arrows */
-  .actions { display: flex; gap: 18px; flex-wrap: wrap; }
-  .actions button { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; text-decoration: none; }
-  .actions button.ghost { background: transparent; color: var(--ink); }
-  .actions button { transition: color .3s var(--ease); }
-  .actions button:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  /* Export + font actions */
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .fontRow { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .fontSelect, .fontText { font-size: 13px; padding: 9px 13px; }
+  .fontText { min-width: 200px; }
 
-  /* Font picker — minimal underlined inputs */
-  .fontRow { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
-  .fontSelect, .fontText { font-family: var(--sans); font-size: 13px; padding: 6px 0; border: none; border-bottom: 1px solid var(--hairline); border-radius: 0; background: transparent; color: var(--ink); outline: none; transition: border-color .3s var(--ease); }
-  .fontSelect:focus, .fontText:focus { border-color: var(--accent-line); }
-  .fontText { min-width: 190px; }
-  .fontBtn { font-family: var(--sans); font-size: 13px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--ink); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; letter-spacing: 0; transition: color .3s var(--ease), border-color .3s var(--ease); }
-  .fontBtn:hover { color: var(--accent); border-color: var(--accent-line); }
+  /* Scoreboard — clean numbers, color as signal only */
+  .score { display: flex; flex-wrap: wrap; gap: 26px; margin: 4px 0 0; }
+  .stat { display: flex; align-items: baseline; gap: 7px; }
+  .statN { font-family: 'PP Neue Montreal', var(--sans); font-size: 30px; font-weight: 500; line-height: 1; letter-spacing: -.02em; }
+  .statL { font-family: var(--sans); font-size: 11px; font-weight: 400; color: var(--muted); }
 
-  /* Scoreboard — hairline-ruled columns, one type size, color as signal only */
-  .score { display: flex; flex-wrap: wrap; gap: 18px; background: transparent; border: none; border-radius: 0; overflow: visible; margin: 0; }
-  .stat { background: transparent; padding: 0; border: none; display: flex; align-items: baseline; gap: 6px; }
-  .stat:last-child { border-right: none; }
-  .statN { font-family: var(--sans); font-size: 28px; font-weight: 500; line-height: 1; letter-spacing: -.02em; }
-  .statL { font-family: var(--sans); font-size: 11px; font-weight: 400; letter-spacing: 0; color: var(--muted); margin-top: 0; text-transform: none; }
-
-  /* Matrix — keeps color fills (it's the instrument), but hairline chrome */
-  .matrixWrap { overflow-x: auto; border: 1px solid var(--hairline); border-radius: 12px; background: var(--paper-2); }
-  table { border-collapse: collapse; width: 100%; }
-  th.corner { position: sticky; left: 0; z-index: 3; background: #fff; color: var(--muted); padding: 10px 12px 10px 0; min-width: 78px; text-align: left; }
-  .corner small { display: block; font-family: var(--sans); font-size: 11px; font-weight: 400; opacity: 1; }
-  th.colHead { padding: 12px 6px; border-left: 1px solid #ececec; background: #fff; min-width: 76px; }
-  th.rowHead { position: sticky; left: 0; z-index: 2; background: #fff; padding: 6px 12px 6px 0; border-top: 1px solid #ececec; text-align: left; white-space: nowrap; }
-  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 0; border: 1px solid rgba(0,0,0,.18); vertical-align: middle; box-shadow: none; }
-  .headHex { font-family: var(--sans); font-size: 11px; margin-left: 7px; letter-spacing: 0; color: var(--ink); }
-  td.cell { padding: 12px 6px; text-align: center; border-left: 1px solid rgba(255,255,255,.35); border-top: 1px solid rgba(255,255,255,.35); transition: opacity .2s; min-width: 76px; vertical-align: middle; }
+  /* Matrix — glass frame; cells keep their color fills (the instrument) */
+  .matrixWrap { overflow-x: auto; padding: 8px; margin-top: 6px; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; }
+  th.corner { position: sticky; left: 0; z-index: 3; background: rgba(255,255,255,.86); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: var(--muted); padding: 12px 14px 12px 12px; min-width: 82px; text-align: left; border-top-left-radius: 16px; }
+  .corner small { display: block; font-family: var(--sans); font-size: 11px; font-weight: 400; }
+  th.colHead { padding: 12px 6px; background: rgba(255,255,255,.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); min-width: 76px; }
+  th.rowHead { position: sticky; left: 0; z-index: 2; background: rgba(255,255,255,.86); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); padding: 6px 14px 6px 12px; text-align: left; white-space: nowrap; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0,0,0,.18); vertical-align: middle; }
+  .headHex { font-family: var(--sans); font-size: 11px; margin-left: 7px; color: var(--ink); }
+  td.cell { padding: 12px 6px; text-align: center; transition: opacity .2s; min-width: 76px; vertical-align: middle; }
   .cellVal { display: block; font-family: var(--sans); font-size: 14px; font-weight: 500; line-height: 1; }
-  .cellGrade { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 500; padding: 1px 0; border-radius: 0; margin-top: 5px; letter-spacing: .02em; background: transparent !important; opacity: .9; }
-  td.diag { background: #f6f6f4; border-left: 1px solid #ececec; border-top: 1px solid #ececec; }
+  .cellGrade { display: inline-block; font-family: var(--sans); font-size: 9px; font-weight: 500; padding: 1px 0; margin-top: 5px; letter-spacing: .02em; background: transparent !important; opacity: .9; }
+  td.diag { background: rgba(14,14,16,.03); }
   .diagDot { display: block; width: 5px; height: 5px; border-radius: 50%; background: #cfcfc9; margin: 0 auto; }
-  .empty { padding: 48px 0; text-align: left; color: var(--muted); font-family: var(--sans); font-size: 13px; }
+  .empty { padding: 48px 4px; text-align: left; color: var(--muted); font-family: var(--sans); font-size: 13px; }
   footer { margin-top: 28px; font-size: 12px; color: var(--muted); line-height: 1.5; font-family: var(--sans); max-width: 620px; }
 
-  /* Repair modal — minimal */
-  .overlay { position: fixed; inset: 0; background: rgba(14,14,16,.28); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1200; }
-  .panel { background: var(--paper-2); border-radius: 16px; padding: 32px; width: min(460px,100%); border: 1px solid var(--hairline); box-shadow: 0 30px 80px rgba(14,14,16,.22); }
+  /* Repair modal — glass card */
+  .overlay { position: fixed; inset: 0; background: rgba(251,251,250,.5); -webkit-backdrop-filter: blur(10px) saturate(1.1); backdrop-filter: blur(10px) saturate(1.1); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 1200; }
+  .panel {
+    padding: 32px; width: min(460px,100%);
+    background: linear-gradient(140deg, rgba(255,255,255,.7), rgba(255,255,255,.4) 65%), rgba(255,255,255,.5);
+    -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6);
+    border: 1px solid rgba(255,255,255,.7); border-radius: 24px;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 30px 80px rgba(14,14,16,.22);
+  }
   .panelHead { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-  .panelTitle { font-family: var(--sans); font-size: 18px; font-weight: 500; margin-top: 6px; letter-spacing: -.01em; }
-  .close { border: none; background: transparent; width: 28px; height: 28px; border-radius: 0; cursor: pointer; font-size: 16px; color: var(--ink); }
-  .repairPreview { border-radius: 0; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 20px; height: 52px; font-family: var(--mono); }
-  .repairGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
-  .repairOpt { border: none; border-top: 1px solid var(--hairline); border-radius: 0; padding: 14px 0 0; }
-  .repairLabel { font-family: var(--sans); font-size: 11px; letter-spacing: 0; color: var(--muted); margin-bottom: 10px; }
+  .panelTitle { font-family: 'PP Neue Montreal', var(--sans); font-size: 20px; font-weight: 500; margin-top: 6px; letter-spacing: -.01em; }
+  .close { border: none; background: transparent; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 16px; color: var(--ink); transition: background-color .3s var(--ease); }
+  .close:hover { background: rgba(14,14,16,.06); }
+  .repairPreview { border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 20px; height: 56px; font-family: var(--mono); }
+  .repairGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 20px; }
+  .repairOpt { border: 1px solid var(--hairline-soft); border-radius: 16px; padding: 16px; background: rgba(255,255,255,.4); }
+  .repairLabel { font-family: var(--sans); font-size: 11px; color: var(--muted); margin-bottom: 10px; }
   .repairHex { display: block; font-family: var(--mono); font-size: 13px; font-weight: 500; margin-top: 10px; }
   .repairRatio { display: block; font-family: var(--sans); font-size: 12px; color: #1f7a3d; margin-top: 3px; }
-  .repairOpt button { margin-top: 12px; width: auto; font-family: var(--sans); font-size: 12px; padding: 0 0 2px; border: none; border-bottom: 1px solid var(--hairline); background: transparent; color: var(--ink); border-radius: 0; cursor: pointer; transition: color .3s var(--ease), border-color .3s var(--ease); }
-  .repairOpt button:hover { color: var(--accent); border-color: var(--accent-line); }
-
-  .cellVal { font-size: 14px; font-weight: 500; }
-  .cellGrade { font-size: 9px; font-weight: 500; }
+  .repairOpt .btn { margin-top: 14px; font-size: 12px; padding: 8px 14px; }
 
   @media (max-width: 760px){ .wrap { padding-left: 20px; padding-right: 20px; } }
 </style>
 </head>
-<body>
+<body class="ambient">
 
 <!-- APP -->
-<div class="wrap" id="app">
-  <header class="page-head">
-    <p class="eyebrow">ADA <span class="dot">·</span> by McCANN</p>
-    <h1 class="page-title">Contrast<br>matrix<span class="accent">.</span></h1>
-    <p class="page-lede">Every foreground / background pairing, scored against WCAG&nbsp;2.2 and APCA. Click any failing cell to auto-repair it toward AA.</p>
-  </header>
-
-  <div class="controls">
+<div class="wrap tool-wrap" id="app">
+  <div class="controls glass glass-panel">
     <div class="pasteCol">
       <label class="lbl">Paste Hex Values (<span id="count"></span>)</label>
-      <textarea id="input" spellcheck="false"></textarea>
+      <textarea id="input" class="glass-field" spellcheck="false"></textarea>
     </div>
     <div class="switchCol">
       <div>
         <label class="lbl">Standard</label>
-        <div class="seg" id="segStandard">
+        <div class="seg seg-glass" id="segStandard">
           <button data-v="wcag" class="active">WCAG 2.2</button>
           <button data-v="apca">APCA · WCAG 3</button>
         </div>
@@ -135,7 +113,7 @@
       </div>
       <div>
         <label class="lbl">Show Only</label>
-        <div class="seg" id="segThreshold">
+        <div class="seg seg-glass" id="segThreshold">
           <button data-v="all" class="active">All</button>
           <button data-v="AALarge">AA Lg+</button>
           <button data-v="AA">AA+</button>
@@ -146,32 +124,32 @@
       <div>
         <label class="lbl">Chart Font</label>
         <div class="fontRow">
-          <select id="fontSelect" class="fontSelect">
+          <select id="fontSelect" class="fontSelect glass-field">
             <option value="__mono">Default</option>
             <option value="__display">McCann Headline</option>
             <option value="__upload">Uploaded Font</option>
             <option value="__google">Google Font…</option>
           </select>
           <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" style="display:none" />
-          <button id="fontUploadBtn" class="fontBtn" style="display:none">Choose file</button>
-          <input type="text" id="googleName" class="fontText" placeholder="e.g. Inter, Roboto Mono" style="display:none" />
-          <button id="googleApply" class="fontBtn" style="display:none">Load</button>
+          <button id="fontUploadBtn" class="btn" style="display:none">Choose file</button>
+          <input type="text" id="googleName" class="fontText glass-field" placeholder="e.g. Inter, Roboto Mono" style="display:none" />
+          <button id="googleApply" class="btn" style="display:none">Load</button>
         </div>
         <p class="hint" id="fontHint">Controls only the text inside the color cells. Adobe Fonts can't be embedded by external sites — use a downloaded OTF/TTF instead.</p>
       </div>
       <div>
         <label class="lbl">Export</label>
         <div class="actions">
-          <button id="expSvg">Editable SVG</button>
-          <button id="expPng" class="ghost">Matrix PNG</button>
-          <button id="expReport" class="ghost">HTML Report</button>
+          <button id="expSvg" class="btn">Editable SVG</button>
+          <button id="expPng" class="btn">Matrix PNG</button>
+          <button id="expReport" class="btn">HTML Report</button>
         </div>
       </div>
       <div class="score" id="score"></div>
     </div>
   </div>
 
-  <div class="matrixWrap" id="matrixWrap"></div>
+  <div class="matrixWrap glass" id="matrixWrap"></div>
 </div>
 
 <div id="modalMount"></div>
@@ -301,7 +279,7 @@ function openRepair(fg,bg){
     return `<div class="repairOpt"><div class="repairLabel">${label}</div>
       <div class="repairPreview" style="background:${nb};color:${nf}">Aa</div>
       <span class="repairHex">${changed}</span><span class="repairRatio">${r.toFixed(2)} · AA ✓</span>
-      <button onclick="copyHex('${changed}')">Copy hex</button></div>`; };
+      <button class="btn" onclick="copyHex('${changed}')">Copy hex</button></div>`; };
   const body = (fixFg||fixBg)
     ? `<div class="repairGrid">${opt("Shift foreground",fixFg||fg,bg,fixFg)}${opt("Shift background",fg,fixBg||bg,fixBg)}</div>`
     : `<div class="empty">No nearby lightness shift reaches AA — these hues are too close.</div>`;

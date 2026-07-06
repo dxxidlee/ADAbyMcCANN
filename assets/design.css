@@ -15,11 +15,11 @@
   --hairline:rgba(14,14,16,.12);
   --hairline-soft:rgba(14,14,16,.07);
 
-  /* Restrained purple accent — used sparingly */
-  --accent:#5B47E0;
-  --accent-ink:#4B39C7;
-  --accent-soft:rgba(91,71,224,.10);
-  --accent-line:rgba(91,71,224,.28);
+  /* Monochrome accent — black / gray only */
+  --accent:#0E0E10;
+  --accent-ink:#000000;
+  --accent-soft:rgba(14,14,16,.08);
+  --accent-line:rgba(14,14,16,.32);
 
   /* Type */
   --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
@@ -93,10 +93,10 @@ a{ color:inherit; text-decoration:none; }
   margin:0 0 clamp(48px,7vw,88px);
 }
 .page-title{
-  font-family:var(--sans);
+  font-family:'PP Neue Montreal', var(--sans);
   font-size:clamp(38px,7vw,84px);
-  font-weight:600;
-  letter-spacing:-.035em;
+  font-weight:500;
+  letter-spacing:-.03em;
   line-height:.94;
   margin:18px 0 0;
 }
@@ -122,99 +122,209 @@ a{ color:inherit; text-decoration:none; }
   align-items:center;
   justify-content:center;
   padding:24px;
-  background:rgba(251,251,250,.66);
-  -webkit-backdrop-filter:blur(10px) saturate(1.1);
-  backdrop-filter:blur(10px) saturate(1.1);
-  transition:opacity var(--speed) var(--ease),
-             -webkit-backdrop-filter var(--speed) var(--ease),
-             backdrop-filter var(--speed) var(--ease);
+  background:transparent;            /* only the tiles are glass — no full-screen blur */
+  transition:opacity var(--speed) var(--ease);
 }
 .menu-screen.is-hidden,
 .menu-screen.is-exiting{
   opacity:0;
   pointer-events:none;
-  -webkit-backdrop-filter:blur(0) saturate(1);
-  backdrop-filter:blur(0) saturate(1);
-}
-/* On the landing page the menu is the page — no scrim behind it */
-.menu-screen.is-home{
-  background:transparent;
-  -webkit-backdrop-filter:none;
-  backdrop-filter:none;
-}
-
-/* card layer handles the enter/exit transform so it never fights the float */
-.menu-card{
-  transition:transform .55s var(--ease), opacity .45s var(--ease);
-}
-.menu-screen.is-hidden .menu-card,
-.menu-screen.is-exiting .menu-card{
-  transform:scale(.965) translateY(10px);
-  opacity:0;
 }
 
 .bento{
   display:flex;
   flex-direction:column;
-  gap:8px;
-  width:min(374px, calc(100vw - 48px));
-  animation:bento-float 9s ease-in-out infinite;
-}
-@keyframes bento-float{
-  0%,100%{ transform:translateY(0); }
-  50%{ transform:translateY(-5px); }
+  gap:6px;
+  width:min(280px, calc(100vw - 48px));
 }
 
-.bento__row{ display:flex; gap:6px; }
+.bento__row{ display:flex; gap:4px; }
 
 .tile{
   position:relative;
-  height:98px;
+  height:74px;
   display:flex;
   align-items:center;
-  padding:0 28px;
-  border-radius:32px;
-  background:rgba(217,217,217,.5);
+  padding:0 21px;
+  border-radius:24px;
   color:#000;
   font-family:'PP Neue Montreal', var(--sans);
-  font-size:clamp(23px, 5.2vw, 30px);
+  font-size:clamp(17px, 3.9vw, 22px);
   font-weight:500;
   letter-spacing:-.01em;
   line-height:1;
   white-space:nowrap;
   cursor:pointer;
-  transition:background-color .35s var(--ease), transform .35s var(--ease);
+  /* Liquid-glass material: translucent body + backdrop refraction blur */
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.12) 60%),
+    rgba(224,224,228,.34);
+  -webkit-backdrop-filter:blur(15px) saturate(1.8) brightness(1.04);
+  backdrop-filter:blur(15px) saturate(1.8) brightness(1.04);
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.85),
+    inset 0 -1px 1px rgba(14,14,16,.05),
+    0 7px 20px rgba(14,14,16,.10),
+    0 2px 6px rgba(14,14,16,.05);
 }
-a.tile:hover{ background:rgba(195,195,197,.62); transform:translateY(-2px); }
-a.tile:active{ transform:translateY(0); }
+/* specular gloss — above the material, below the label */
+.tile::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 46%),
+    radial-gradient(140% 90% at 12% -10%, rgba(255,255,255,.5), rgba(255,255,255,0) 55%);
+  opacity:.9;
+  pointer-events:none;
+}
+.tile__label{
+  position:relative;
+  z-index:1;
+  font-weight:500;
+  /* faux "Medium" — we only ship PP Neue Montreal Book, so thicken it slightly */
+  -webkit-text-stroke:0.4px currentColor;
+  transition:opacity .3s var(--ease);
+}
+
+/* current page + hover: dim the TEXT only (tile stays), no other motion */
+.tile.is-active .tile__label,
+.tile:hover .tile__label{ opacity:.5; }
 
 .tile--suite  { width:100%; }
 .tile--ada    { flex:0 0 41.5%; }
 .tile--export { flex:1 1 auto; }
 .tile--brand  { flex:1 1 auto; }
-.tile--m      { flex:0 0 27.3%; border-radius:49px; justify-content:center; padding:0 12px; }
+.tile--m      { flex:0 0 27.3%; border-radius:37px; justify-content:center; padding:0 9px; }
 
-/* current page marker — a small, restrained purple dot */
-.tile.is-active{ background:rgba(198,198,200,.68); }
-.tile.is-active::after{
-  content:"";
-  width:7px; height:7px;
-  border-radius:50%;
-  background:var(--accent);
-  margin-left:auto;
-}
-.tile--m.is-active::after{ position:absolute; right:14px; margin:0; }
-/* the title tile never needs an active marker */
-.tile--suite.is-active{ background:rgba(217,217,217,.5); }
-.tile--suite.is-active::after{ display:none; }
-
-/* tiles for pages that don't exist yet */
-.tile--soon{ cursor:default; color:rgba(0,0,0,.85); }
-.tile--soon:hover{ background:rgba(217,217,217,.5); transform:none; }
+/* placeholder tiles (no page yet) + the day indicator are not links */
+.tile--soon{ cursor:default; }
 
 @media (max-width:440px){
-  .tile{ height:80px; padding:0 22px; border-radius:26px; }
-  .tile--m{ border-radius:40px; }
+  .tile{ height:60px; padding:0 16px; border-radius:20px; }
+  .tile--m{ border-radius:30px; }
+}
+
+/* --------------------------------------------------------------------------
+   Glass surfaces + controls (shared by the tool pages)
+   -------------------------------------------------------------------------- */
+/* faint ambient field so glass has something to refract — kept very subtle */
+.ambient::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(60vw 52vw at 10% 6%,  rgba(14,14,16,.05), transparent 62%),
+    radial-gradient(52vw 46vw at 94% 20%, rgba(14,14,16,.045), transparent 60%),
+    radial-gradient(54vw 60vw at 74% 104%,rgba(14,14,16,.05), transparent 60%);
+}
+
+.glass{
+  background:
+    linear-gradient(140deg, rgba(255,255,255,.6), rgba(255,255,255,.22) 65%),
+    rgba(255,255,255,.34);
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);
+  backdrop-filter:blur(22px) saturate(1.5);
+  border:1px solid rgba(255,255,255,.6);
+  box-shadow:
+    inset 0 1px 1px rgba(255,255,255,.85),
+    inset 0 -1px 2px rgba(14,14,16,.04),
+    0 12px 36px rgba(14,14,16,.08);
+  border-radius:24px;
+}
+.glass-panel{ padding:clamp(22px,3vw,34px); }
+
+/* Tool pages — dead-center the working UI in the viewport */
+.tool-wrap{
+  width:min(1040px, 100%);
+  max-width:none;
+  margin:0 auto;
+  padding:clamp(32px, 5vh, 64px) var(--gutter);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:stretch;
+  gap:18px;
+  box-sizing:border-box;
+}
+
+/* glass form fields (textarea, inputs, selects) */
+.glass-field{
+  font-family:var(--sans);
+  background:rgba(255,255,255,.5);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:inset 0 1px 2px rgba(14,14,16,.05);
+  -webkit-backdrop-filter:blur(8px);
+  backdrop-filter:blur(8px);
+  border-radius:12px;
+  color:var(--ink);
+  outline:none;
+  transition:border-color .3s var(--ease), box-shadow .3s var(--ease);
+}
+.glass-field:focus,
+.glass-field:focus-within{
+  border-color:var(--accent-line);
+  box-shadow:inset 0 1px 2px rgba(14,14,16,.05), 0 0 0 3px var(--accent-soft);
+}
+
+/* glass pill button */
+.btn{
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:500;
+  display:inline-flex;
+  align-items:center;
+  gap:.5em;
+  padding:10px 18px;
+  border-radius:999px;
+  cursor:pointer;
+  color:var(--ink);
+  background:
+    linear-gradient(140deg, rgba(255,255,255,.72), rgba(255,255,255,.32)),
+    rgba(255,255,255,.4);
+  border:1px solid rgba(255,255,255,.7);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 4px 14px rgba(14,14,16,.08);
+  -webkit-backdrop-filter:blur(10px) saturate(1.4);
+  backdrop-filter:blur(10px) saturate(1.4);
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease),
+             background-color .3s var(--ease), color .3s var(--ease);
+}
+.btn:hover{ transform:translateY(-1px); box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 8px 22px rgba(14,14,16,.12); }
+.btn:active{ transform:translateY(0); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* glass segmented control */
+.seg-glass{
+  display:inline-flex;
+  flex-wrap:wrap;
+  gap:3px;
+  padding:4px;
+  border-radius:999px;
+  background:rgba(14,14,16,.045);
+  border:1px solid var(--hairline-soft);
+}
+.seg-glass button{
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:500;
+  padding:8px 15px;
+  border:0;
+  border-radius:999px;
+  cursor:pointer;
+  color:var(--muted);
+  background:transparent;
+  transition:color .3s var(--ease), background-color .3s var(--ease), box-shadow .3s var(--ease);
+}
+.seg-glass button:hover{ color:var(--ink); }
+.seg-glass button.active{
+  color:var(--ink);
+  background:linear-gradient(140deg, rgba(255,255,255,.92), rgba(255,255,255,.62));
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 2px 8px rgba(14,14,16,.10);
 }
 
 /* --------------------------------------------------------------------------

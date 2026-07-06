@@ -7,12 +7,17 @@
        (auto-hiding again once scrolling stops).
    ========================================================================== */
 (function () {
+  // The circle shows today's weekday initial (M T W T F S S)
+  var now = new Date();
+  var DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
   var TILES = {
     suite:  { href: 'index.html',  label: 'McCANN Design Suite' },
     ada:    { href: 'ada.html',    label: 'ADA' },
     export: { href: 'export.html', label: 'Export' },
-    brand:  { href: null,          label: 'Brandboard', soon: true },
-    m:      { href: null,          label: 'M',          soon: true }
+    brand:  { href: null,          label: 'Brandboard', soon: true, title: 'Coming soon' },
+    m:      { href: null,          label: DAY_LETTERS[now.getDay()], soon: true, title: DAY_NAMES[now.getDay()] }
   };
 
   // Bento layout, row by row (matches the Figma composition)
@@ -50,7 +55,7 @@
       if (t.soon || !t.href) {
         el = document.createElement('span');
         el.setAttribute('aria-disabled', 'true');
-        el.title = 'Coming soon';
+        if (t.title) el.title = t.title;
       } else {
         el = document.createElement('a');
         el.href = t.href;
@@ -58,7 +63,11 @@
       }
 
       el.className = 'tile tile--' + key + (t.soon ? ' tile--soon' : '');
-      el.textContent = t.label;
+
+      var lbl = document.createElement('span');
+      lbl.className = 'tile__label';
+      lbl.textContent = t.label;
+      el.appendChild(lbl);
 
       if (t.href && t.href.toLowerCase() === file) {
         el.classList.add('is-active');
