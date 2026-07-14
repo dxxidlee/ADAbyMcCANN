@@ -12,16 +12,7 @@
 <link rel="stylesheet" href="assets/design.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
 <style>
-  @font-face{
-    font-family:'McCann Headline';
-    src:url('McCann-Headline_4.ttf') format('truetype');
-    font-weight:normal; font-style:normal; font-display:swap;
-  }
-
-  :root{
-    --s:min(14vw,168px);
-    --guide:#2FA8FF;
-  }
+  :root{ --guide:#2FA8FF; }
 
   .var-layout{
     display:grid;
@@ -32,31 +23,44 @@
   @media(max-width:980px){ .var-layout{ grid-template-columns:1fr; } }
 
   .var-stage{
-    min-height:min(62vh,520px);
+    min-height:min(50vh,420px);
     display:flex; align-items:center; justify-content:center;
-    padding:clamp(16px,2vw,28px) 0;
+    padding:clamp(16px,2vw,28px);
     cursor:text;
   }
 
-  .lockup{ position:relative; width:100%; max-width:920px; }
-
-  .line1{
-    font-family:'McCann Headline',var(--display),sans-serif;
-    font-size:var(--s); line-height:1; text-align:center;
-    white-space:nowrap; user-select:none; color:var(--ink);
+  .lockup{
+    position:relative;
+    width:min(100%,720px);
+    margin:0 auto;
   }
 
-  .line2{
-    display:block; width:100%;
-    font-family:'McCann Headline',var(--display),sans-serif;
-    font-size:calc(var(--s) * 0.55); line-height:1;
-    margin-top:calc(var(--s) * -0.1805);
-    text-align:center; text-transform:uppercase;
-    letter-spacing:0.01em; padding-left:0.01em;
-    border:0; outline:none; background:transparent;
-    color:var(--ink); caret-color:var(--ink);
+  .preview-wrap{ position:relative; width:100%; line-height:0; }
+
+  .preview-svg{
+    display:block;
+    width:100%;
+    height:auto;
+    overflow:visible;
   }
-  .line2::placeholder{ color:var(--dim); opacity:.55; }
+
+  .line2-hit{
+    position:absolute;
+    left:0; right:0;
+    top:var(--hit-top,62%);
+    height:var(--hit-h,24%);
+    margin:0; padding:0;
+    border:0; outline:none;
+    background:transparent;
+    color:transparent;
+    caret-color:var(--ink);
+    text-align:center;
+    text-transform:uppercase;
+    font-size:16px; /* caret size only */
+    line-height:1;
+    letter-spacing:0;
+  }
+  .line2-hit:focus-visible{ outline:2px solid var(--guide); outline-offset:2px; }
 
   .guides{
     position:absolute; inset:0; pointer-events:none;
@@ -74,12 +78,11 @@
     font-family:var(--mono); font-weight:500; font-size:9px;
     letter-spacing:.08em; color:var(--guide); text-transform:uppercase;
   }
-  .g-cap{ top:calc(var(--s) * 0.902); }
-  .g-base{ top:calc(var(--s) * 1.287); }
+  .g-cap{ top:var(--guide-cap,62%); }
+  .g-base{ top:var(--guide-base,88%); }
   .guide-v{
-    position:absolute;
-    top:calc(var(--s) * -0.05); bottom:calc(var(--s) * -0.05);
-    left:50%; border-left:1px solid var(--guide); opacity:.55;
+    position:absolute; top:0; bottom:0; left:50%;
+    border-left:1px solid var(--guide); opacity:.55;
   }
 
   .var-side{ display:flex; flex-direction:column; gap:12px; }
@@ -106,9 +109,18 @@
   <div class="var-layout">
     <div class="box var-stage" id="stage">
       <div class="lockup" id="lockup">
-        <div class="line1">McCANN</div>
-        <input class="line2" id="office" type="text" placeholder="OFFICE NAME"
-               autocomplete="off" autocorrect="off" spellcheck="false" maxlength="40" autofocus>
+        <div class="preview-wrap">
+          <svg class="preview-svg" id="previewSvg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g fill="#000">
+              <path id="pathL1"></path>
+              <path id="pathL2"></path>
+              <path id="pathPh" fill="#A9A9A9"></path>
+            </g>
+          </svg>
+          <input class="line2-hit" id="office" type="text" placeholder="OFFICE NAME"
+                 autocomplete="off" autocorrect="off" spellcheck="false" maxlength="40" autofocus
+                 aria-label="Office name">
+        </div>
         <div class="guides" aria-hidden="true">
           <div class="guide-h g-cap"><span class="tag">CAP 55%</span></div>
           <div class="guide-h g-base"><span class="tag">BASELINE</span></div>
@@ -160,9 +172,16 @@
 
   var font = null;
   var input = document.getElementById('office');
+  var lockup = document.getElementById('lockup');
+  var previewSvg = document.getElementById('previewSvg');
+  var pathL1 = document.getElementById('pathL1');
+  var pathL2 = document.getElementById('pathL2');
+  var pathPh = document.getElementById('pathPh');
   var dlSvg = document.getElementById('dlSvg');
   var dlPng = document.getElementById('dlPng');
   var pngSize = document.getElementById('pngSize');
+  var CAP2_TOP = BASE1 + GAP; // cap top of line 2 in font units
+  var PREVIEW_PAD = 80;
 
   // parse embedded font for path export
   try {
@@ -220,6 +239,54 @@
     document.body.removeChild(tmp);
 
     return { l1: l1, l2: l2, x1: x1, x2: x2, bb: bb };
+  }
+
+  function previewViewBox(l1w, l2w) {
+    var inkW = Math.max(l1w, l2w);
+    var vx = -inkW / 2 - PREVIEW_PAD;
+    var vy = -PREVIEW_PAD;
+    var vw = inkW + PREVIEW_PAD * 2;
+    var vh = BASE2 + PREVIEW_PAD * 2;
+    return { vx: vx, vy: vy, vw: vw, vh: vh };
+  }
+
+  function updatePreview() {
+    if (!font) return;
+    var name = currentName();
+    var l1 = layout('McCANN', F1, 0, BASE1);
+    var x1 = -l1.width / 2;
+    pathL1.setAttribute('d', l1.d);
+    pathL1.setAttribute('transform', 'translate(' + round2(x1) + ' 0)');
+
+    var l2w = 0;
+    if (name) {
+      var l2 = layout(name, F2, TRACK2, BASE2);
+      var x2 = -l2.width / 2;
+      l2w = l2.width;
+      pathL2.setAttribute('d', l2.d);
+      pathL2.setAttribute('transform', 'translate(' + round2(x2) + ' 0)');
+      pathL2.style.display = '';
+      pathPh.style.display = 'none';
+    } else {
+      var ph = layout('OFFICE NAME', F2, TRACK2, BASE2);
+      var xPh = -ph.width / 2;
+      l2w = ph.width;
+      pathPh.setAttribute('d', ph.d);
+      pathPh.setAttribute('transform', 'translate(' + round2(xPh) + ' 0)');
+      pathPh.style.display = '';
+      pathL2.style.display = 'none';
+    }
+
+    var box = previewViewBox(l1.width, l2w);
+    previewSvg.setAttribute('viewBox',
+      round2(box.vx) + ' ' + round2(box.vy) + ' ' + round2(box.vw) + ' ' + round2(box.vh));
+
+    var capPct = ((CAP2_TOP - box.vy) / box.vh) * 100;
+    var basePct = ((BASE2 - box.vy) / box.vh) * 100;
+    lockup.style.setProperty('--guide-cap', capPct + '%');
+    lockup.style.setProperty('--guide-base', basePct + '%');
+    lockup.style.setProperty('--hit-top', capPct + '%');
+    lockup.style.setProperty('--hit-h', (basePct - capPct) + '%');
   }
 
   // export box: ink bbox + clear space horizontally; cap line / baseline + clear space vertically
@@ -300,13 +367,15 @@
     var ok = !!font && currentName().length > 0;
     dlSvg.disabled = !ok;
     dlPng.disabled = !ok;
+    updatePreview();
   }
   input.addEventListener('input', refresh);
+  window.addEventListener('resize', updatePreview);
   refresh();
 
   // click anywhere on the stage to type
   document.getElementById('stage').addEventListener('mousedown', function (ev) {
-    if (ev.target === this || ev.target.id === 'lockup') {
+    if (ev.target === this || ev.target.id === 'lockup' || ev.target.id === 'previewSvg') {
       ev.preventDefault();
       input.focus();
     }
