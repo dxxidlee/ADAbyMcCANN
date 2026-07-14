@@ -1,38 +1,39 @@
 /* ==========================================================================
    McCANN Design Suite — shared design system
-   Clean · futuristic · minimal · editorial
+   Editorial · monospace · black-on-white · terminal/print aesthetic
+   Typeface: IBM Plex Mono (Medium / SemiBold, alternated) + McCann Headline
    ========================================================================== */
 
 :root{
   /* Surface + ink */
-  --paper:#FBFBFA;
-  --paper-2:#FFFFFF;
-  --ink:#0E0E10;
-  --muted:#6C6C74;
-  --faint:#9A9AA1;
+  --bg:#FFFFFF;
+  --ink:#000000;
+  --dim:#A9A9A9;               /* hover · active · selected */
 
-  /* Hairlines */
-  --hairline:rgba(14,14,16,.12);
-  --hairline-soft:rgba(14,14,16,.07);
-
-  /* Monochrome accent — black / gray only */
-  --accent:#0E0E10;
-  --accent-ink:#000000;
-  --accent-soft:rgba(14,14,16,.08);
-  --accent-line:rgba(14,14,16,.32);
+  /* Grade signal palette (from the ADA mock) */
+  --aaa:#0FB800;               /* AAA */
+  --aa:#B6E662;                /* AA+  */
+  --aalg:#FFD400;              /* AA Large+ */
+  --fail:#FF0004;              /* Fail */
 
   /* Type */
-  --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
-  --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,monospace;
-  --display:'McCann Headline','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'IBM Plex Mono','SF Mono',ui-monospace,Menlo,monospace;
+  --display:'McCann Headline','IBM Plex Mono',monospace;
 
-  /* Motion */
+  /* Rhythm */
+  --pad:20px;
+  --panel-w:360px;
+  --line:2px;
+
+  /* Fluid sizes */
+  --fs-word:clamp(38px,3.4vw,54px);
+  --fs-title:clamp(19px,1.55vw,25px);
+  --fs-mark:clamp(15px,1.25vw,20px);
+  --fs-opt:clamp(18px,1.5vw,25px);
+  --fs-cap:15px;
+  --fs-field:15px;
+
   --ease:cubic-bezier(.16,1,.3,1);
-  --speed:.5s;
-
-  /* Layout */
-  --gutter:6vw;
-  --maxw:1240px;
 }
 
 *{ box-sizing:border-box; }
@@ -40,308 +41,332 @@ html{ -webkit-text-size-adjust:100%; }
 
 body{
   margin:0;
-  background:var(--paper);
+  background:var(--bg);
   color:var(--ink);
-  font-family:var(--sans);
+  font-family:var(--mono);
   font-size:15px;
-  line-height:1.55;
-  font-weight:400;
-  letter-spacing:.005em;
+  font-weight:500;                 /* Medium is the baseline */
+  line-height:1.35;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
   text-rendering:optimizeLegibility;
 }
 
-::selection{ background:var(--ink); color:var(--paper-2); }
+::selection{ background:var(--ink); color:var(--bg); }
 a{ color:inherit; text-decoration:none; }
+:focus-visible{ outline:2px solid var(--ink); outline-offset:2px; }
 
-:focus-visible{
-  outline:2px solid var(--accent);
-  outline-offset:3px;
-  border-radius:2px;
-}
-
-/* Menu display face (from the Figma mockup) */
+/* Menu display face — the wordmark */
 @font-face{
-  font-family:'PP Neue Montreal';
-  src:url('../PPNeueMontreal-Book.otf') format('opentype');
-  font-weight:400 600;
+  font-family:'McCann Headline';
+  src:url('../McCann-Headline_4.ttf') format('truetype');
+  font-weight:100 900;
   font-style:normal;
   font-display:swap;
 }
 
 /* --------------------------------------------------------------------------
-   Typographic system — the design's primary feature
+   Section motif — a solid black bar, then a marker + title row
    -------------------------------------------------------------------------- */
-.eyebrow{
-  font-size:11px;
-  font-weight:500;
-  letter-spacing:.16em;
-  text-transform:uppercase;
-  color:var(--muted);
-  margin:0;
+.sec__bar{
+  height:8px;
+  background:var(--ink);
+  width:100%;
 }
-.eyebrow .dot{ color:var(--accent); }
+.sec__bar--thin{ height:5px; }
 
-.container{
-  max-width:var(--maxw);
-  margin:0 auto;
+.sec__mark{
+  font-family:var(--mono);
+  font-weight:600;                 /* SemiBold */
+  font-size:var(--fs-mark);
 }
-
-.page-head{
-  max-width:760px;
-  margin:0 0 clamp(48px,7vw,88px);
-}
-.page-title{
-  font-family:'PP Neue Montreal', var(--sans);
-  font-size:clamp(38px,7vw,84px);
-  font-weight:500;
-  letter-spacing:-.03em;
-  line-height:.94;
-  margin:18px 0 0;
-}
-.page-title .accent{ color:var(--accent); }
-.page-lede{
-  font-size:clamp(15px,1.6vw,18px);
-  line-height:1.55;
-  color:var(--muted);
-  margin:24px 0 0;
-  max-width:56ch;
-}
-
-/* --------------------------------------------------------------------------
-   Menu screen — centered bento menu (from Figma: McCANN Design Suite)
-   Doubles as the site navigation. On the landing page it is the content;
-   on tool pages it recedes and reappears whenever the user scrolls.
-   -------------------------------------------------------------------------- */
-.menu-screen{
-  position:fixed;
-  inset:0;
-  z-index:1000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  background:transparent;            /* only the tiles are glass — no full-screen blur */
-  transition:opacity var(--speed) var(--ease);
-}
-.menu-screen.is-hidden,
-.menu-screen.is-exiting{
-  opacity:0;
-  pointer-events:none;
-}
-
-.bento{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  width:min(280px, calc(100vw - 48px));
-}
-
-.bento__row{ display:flex; gap:4px; }
-
-.tile{
-  position:relative;
-  height:74px;
-  display:flex;
-  align-items:center;
-  padding:0 21px;
-  border-radius:24px;
-  color:#000;
-  font-family:'PP Neue Montreal', var(--sans);
-  font-size:clamp(17px, 3.9vw, 22px);
-  font-weight:500;
-  letter-spacing:-.01em;
-  line-height:1;
+.sec__title{
+  font-family:var(--mono);
+  font-weight:600;                 /* SemiBold */
+  font-size:var(--fs-title);
+  letter-spacing:.01em;
   white-space:nowrap;
-  cursor:pointer;
-  /* Liquid-glass material: translucent body + backdrop refraction blur */
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.55), rgba(255,255,255,.12) 60%),
-    rgba(224,224,228,.34);
-  -webkit-backdrop-filter:blur(15px) saturate(1.8) brightness(1.04);
-  backdrop-filter:blur(15px) saturate(1.8) brightness(1.04);
-  border:1px solid rgba(255,255,255,.55);
-  box-shadow:
-    inset 0 1px 1px rgba(255,255,255,.85),
-    inset 0 -1px 1px rgba(14,14,16,.05),
-    0 7px 20px rgba(14,14,16,.10),
-    0 2px 6px rgba(14,14,16,.05);
 }
-/* specular gloss — above the material, below the label */
-.tile::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 46%),
-    radial-gradient(140% 90% at 12% -10%, rgba(255,255,255,.5), rgba(255,255,255,0) 55%);
-  opacity:.9;
-  pointer-events:none;
-}
-.tile__label{
-  position:relative;
-  z-index:1;
+.cap{
+  font-family:var(--mono);
   font-weight:500;
-  /* faux "Medium" — we only ship PP Neue Montreal Book, so thicken it slightly */
-  -webkit-text-stroke:0.4px currentColor;
-  transition:opacity .3s var(--ease);
-}
-
-/* current page + hover: dim the TEXT only (tile stays), no other motion */
-.tile.is-active .tile__label,
-.tile:hover .tile__label{ opacity:.5; }
-
-.tile--suite  { width:100%; }
-.tile--ada    { flex:0 0 41.5%; }
-.tile--export { flex:1 1 auto; }
-.tile--brand  { flex:1 1 auto; }
-.tile--m      { flex:0 0 27.3%; border-radius:37px; justify-content:center; padding:0 9px; }
-
-/* placeholder tiles (no page yet) + the day indicator are not links */
-.tile--soon{ cursor:default; }
-
-@media (max-width:440px){
-  .tile{ height:60px; padding:0 16px; border-radius:20px; }
-  .tile--m{ border-radius:30px; }
+  font-size:var(--fs-cap);
+  color:var(--ink);
+  margin:6px 0 0;
+  text-transform:uppercase;
+  letter-spacing:.01em;
 }
 
 /* --------------------------------------------------------------------------
-   Glass surfaces + controls (shared by the tool pages)
+   Layout — persistent left panel + main working area
    -------------------------------------------------------------------------- */
-/* faint ambient field so glass has something to refract — kept very subtle */
-.ambient::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  pointer-events:none;
-  background:
-    radial-gradient(60vw 52vw at 10% 6%,  rgba(14,14,16,.05), transparent 62%),
-    radial-gradient(52vw 46vw at 94% 20%, rgba(14,14,16,.045), transparent 60%),
-    radial-gradient(54vw 60vw at 74% 104%,rgba(14,14,16,.05), transparent 60%);
-}
-
-.glass{
-  background:
-    linear-gradient(140deg, rgba(255,255,255,.6), rgba(255,255,255,.22) 65%),
-    rgba(255,255,255,.34);
-  -webkit-backdrop-filter:blur(22px) saturate(1.5);
-  backdrop-filter:blur(22px) saturate(1.5);
-  border:1px solid rgba(255,255,255,.6);
-  box-shadow:
-    inset 0 1px 1px rgba(255,255,255,.85),
-    inset 0 -1px 2px rgba(14,14,16,.04),
-    0 12px 36px rgba(14,14,16,.08);
-  border-radius:24px;
-}
-.glass-panel{ padding:clamp(22px,3vw,34px); }
-
-/* Tool pages — dead-center the working UI in the viewport */
-.tool-wrap{
-  width:min(1040px, 100%);
-  max-width:none;
-  margin:0 auto;
-  padding:clamp(32px, 5vh, 64px) var(--gutter);
+.layout{
+  display:flex;
+  align-items:flex-start;
   min-height:100vh;
+}
+
+.panel{
+  position:sticky;
+  top:0;
+  align-self:flex-start;
+  flex:0 0 var(--panel-w);
+  width:var(--panel-w);
+  height:100vh;
+  padding:var(--pad);
   display:flex;
   flex-direction:column;
-  justify-content:center;
-  align-items:stretch;
-  gap:18px;
-  box-sizing:border-box;
+  gap:14px;
+  background:var(--bg);
+  overflow:hidden;
 }
 
-/* glass form fields (textarea, inputs, selects) */
-.glass-field{
-  font-family:var(--sans);
-  background:rgba(255,255,255,.5);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:inset 0 1px 2px rgba(14,14,16,.05);
-  -webkit-backdrop-filter:blur(8px);
-  backdrop-filter:blur(8px);
-  border-radius:12px;
+.wordmark{
+  font-family:var(--display);
+  font-weight:400;
+  font-size:var(--fs-word);
+  line-height:.92;
+  letter-spacing:-.01em;
+  margin:0 0 2px;
+}
+
+/* nav section = bar + grid row (marker | title | list) */
+.nav-sec{ display:flex; flex-direction:column; gap:6px; }
+.nav-row{
+  display:grid;
+  grid-template-columns:44px 100px 1fr;
+  align-items:start;
+  column-gap:0;
+}
+.nav-row .sec__mark{ grid-column:1; line-height:1.15; }
+.nav-row .sec__title{ grid-column:2; line-height:1.15; }
+.nav-list{
+  grid-column:3;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.nav-item{
+  font-family:var(--mono);
+  font-weight:500;                 /* Medium */
+  font-size:var(--fs-opt);
+  line-height:1.15;
   color:var(--ink);
-  outline:none;
-  transition:border-color .3s var(--ease), box-shadow .3s var(--ease);
-}
-.glass-field:focus,
-.glass-field:focus-within{
-  border-color:var(--accent-line);
-  box-shadow:inset 0 1px 2px rgba(14,14,16,.05), 0 0 0 3px var(--accent-soft);
-}
-
-/* glass pill button */
-.btn{
-  font-family:var(--sans);
-  font-size:13px;
-  font-weight:500;
-  display:inline-flex;
-  align-items:center;
-  gap:.5em;
-  padding:10px 18px;
-  border-radius:999px;
   cursor:pointer;
-  color:var(--ink);
-  background:
-    linear-gradient(140deg, rgba(255,255,255,.72), rgba(255,255,255,.32)),
-    rgba(255,255,255,.4);
-  border:1px solid rgba(255,255,255,.7);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 4px 14px rgba(14,14,16,.08);
-  -webkit-backdrop-filter:blur(10px) saturate(1.4);
-  backdrop-filter:blur(10px) saturate(1.4);
-  transition:transform .3s var(--ease), box-shadow .3s var(--ease),
-             background-color .3s var(--ease), color .3s var(--ease);
+  width:max-content;
+  transition:color .18s var(--ease);
 }
-.btn:hover{ transform:translateY(-1px); box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 8px 22px rgba(14,14,16,.12); }
-.btn:active{ transform:translateY(0); }
-.btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; box-shadow:none; }
+.nav-item:hover,
+.nav-item.is-active{ color:var(--dim); }
+.nav-item--soon{ cursor:default; }
+.nav-item--soon:hover{ color:var(--dim); }
 
-/* glass segmented control */
-.seg-glass{
-  display:inline-flex;
-  flex-wrap:wrap;
-  gap:3px;
-  padding:4px;
-  border-radius:999px;
-  background:rgba(14,14,16,.045);
-  border:1px solid var(--hairline-soft);
+.nav-clock{
+  margin-top:14px;
+  font-family:var(--mono);
+  font-weight:600;                 /* SemiBold */
+  font-size:var(--fs-cap);
+  line-height:1.25;
+  letter-spacing:.02em;
 }
-.seg-glass button{
-  font-family:var(--sans);
-  font-size:13px;
-  font-weight:500;
-  padding:8px 15px;
-  border:0;
-  border-radius:999px;
-  cursor:pointer;
-  color:var(--muted);
-  background:transparent;
-  transition:color .3s var(--ease), background-color .3s var(--ease), box-shadow .3s var(--ease);
-}
-.seg-glass button:hover{ color:var(--ink); }
-.seg-glass button.active{
-  color:var(--ink);
-  background:linear-gradient(140deg, rgba(255,255,255,.92), rgba(255,255,255,.62));
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 2px 8px rgba(14,14,16,.10);
+
+/* main working area */
+.main{
+  flex:1 1 auto;
+  min-width:0;
+  padding:var(--pad) var(--pad) 48px;
 }
 
 /* --------------------------------------------------------------------------
-   Reusable primitives
+   Blocks used by the tool pages
    -------------------------------------------------------------------------- */
-.textlink{
+.sec{ display:flex; flex-direction:column; gap:6px; }
+
+.sec__head{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+}
+
+/* the big page title, e.g. "II  ADA" */
+.page-title{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  margin:0 0 6px;
+}
+.page-title .sec__mark{ font-size:var(--fs-mark); }
+.page-title .sec__title{ font-size:var(--fs-title); }
+
+/* option lists (STANDARD, SHOW ONLY, CHART FONT, EXPORT actions) */
+.opts{ display:flex; flex-wrap:wrap; gap:22px; }
+.opts--col{ flex-direction:column; gap:2px; }
+.opt{
+  font-family:var(--mono);
+  font-weight:500;                 /* Medium */
+  font-size:var(--fs-opt);
+  line-height:1.15;
+  color:var(--ink);
+  background:none;
+  border:0;
+  padding:0;
+  cursor:pointer;
+  width:max-content;
+  text-align:left;
+  transition:color .18s var(--ease);
+}
+.opt:hover,
+.opt.is-active{ color:var(--dim); }
+
+/* bordered boxes (hex insert, matrix) */
+.box{ border:var(--line) solid var(--ink); position:relative; }
+
+/* divider line */
+.divider{ height:0; border-top:var(--line) solid var(--ink); margin:26px 0; }
+
+/* --------------------------------------------------------------------------
+   Legend + result stats
+   -------------------------------------------------------------------------- */
+.legend{ display:flex; flex-wrap:wrap; gap:18px; margin-top:8px; }
+.legend .pill{
   display:inline-flex;
   align-items:center;
-  gap:.4em;
-  color:var(--ink);
-  transition:color .3s var(--ease), transform .3s var(--ease);
+  gap:6px;
+  font-family:var(--mono);
+  font-weight:500;
+  font-size:var(--fs-cap);
 }
-.textlink:hover{ color:var(--accent); }
+.legend .sq{ width:5px; height:5px; display:inline-block; }
 
-hr.rule{ border:0; border-top:1px solid var(--hairline-soft); margin:0; }
+.score{ display:flex; flex-wrap:wrap; gap:22px; align-items:baseline; }
+.score .stat{
+  font-family:var(--mono);
+  font-weight:500;
+  font-size:var(--fs-opt);
+  white-space:nowrap;
+}
+.score .n{ font-weight:600; }
+
+/* --------------------------------------------------------------------------
+   Fields — flat, monospace, no chrome
+   -------------------------------------------------------------------------- */
+.field{
+  font-family:var(--mono);
+  font-weight:500;
+  font-size:var(--fs-field);
+  color:var(--dim);
+  background:transparent;
+  border:0;
+  outline:none;
+  padding:0;
+  resize:none;
+  width:100%;
+}
+.field::placeholder{ color:var(--dim); }
+input.field, select.field{ color:var(--ink); }
+
+/* --------------------------------------------------------------------------
+   Matrix
+   -------------------------------------------------------------------------- */
+.matrixWrap{ overflow:auto; }
+table.matrix{
+  border-collapse:collapse;
+  font-family:var(--mono);
+  width:100%;
+}
+table.matrix th,
+table.matrix td{
+  border:1px solid var(--ink);
+  padding:8px 6px;
+  text-align:center;
+  font-weight:500;
+  font-size:12px;
+  white-space:nowrap;
+}
+table.matrix th.corner{
+  text-align:left;
+  font-weight:600;
+  line-height:1.0;
+  min-width:64px;
+}
+table.matrix th.corner span{ display:block; }
+table.matrix th.head{ font-weight:600; }
+table.matrix th .swatch{
+  display:inline-block; width:12px; height:12px;
+  border:1px solid var(--ink); vertical-align:middle; margin-right:5px;
+}
+table.matrix td.cell{ position:relative; min-width:70px; }
+table.matrix td.cell .val{ display:block; font-weight:600; font-size:13px; line-height:1.1; }
+table.matrix td.cell .grade{ display:block; font-weight:500; font-size:9px; margin-top:3px; letter-spacing:.03em; }
+table.matrix td.cell .tier{
+  position:absolute; top:4px; right:4px; width:5px; height:5px;
+}
+table.matrix td.diag{ background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(0,0,0,.08) 4px,rgba(0,0,0,.08) 5px); }
+.empty{ padding:32px 12px; font-family:var(--mono); font-weight:500; color:var(--dim); }
+
+/* --------------------------------------------------------------------------
+   Repair modal
+   -------------------------------------------------------------------------- */
+.overlay{
+  position:fixed; inset:0; z-index:1200;
+  background:rgba(255,255,255,.72);
+  display:flex; align-items:center; justify-content:center; padding:20px;
+}
+.modal{
+  background:var(--bg);
+  border:var(--line) solid var(--ink);
+  padding:24px;
+  width:min(460px,100%);
+  font-family:var(--mono);
+}
+.modal__head{ display:flex; justify-content:space-between; align-items:flex-start; gap:16px; }
+.modal .close{
+  border:0; background:none; cursor:pointer; font-family:var(--mono);
+  font-weight:600; font-size:18px; line-height:1; color:var(--ink);
+  transition:color .18s var(--ease);
+}
+.modal .close:hover{ color:var(--dim); }
+.modal .preview{
+  border:var(--line) solid var(--ink);
+  height:56px; display:flex; align-items:center; justify-content:center;
+  font-family:var(--mono); font-weight:600; font-size:18px; margin-top:16px;
+}
+.repairGrid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:16px; }
+.repairOpt{ border:1px solid var(--ink); padding:14px; }
+.repairOpt .lbl{ font-weight:600; font-size:13px; text-transform:uppercase; }
+.repairOpt .hex{ display:block; font-weight:600; font-size:14px; margin-top:10px; }
+.repairOpt .ratio{ display:block; font-weight:500; font-size:12px; color:var(--ink); margin-top:2px; }
+
+/* --------------------------------------------------------------------------
+   Text button (used sparingly — behaves like an option)
+   -------------------------------------------------------------------------- */
+.btn{
+  font-family:var(--mono);
+  font-weight:500;
+  font-size:var(--fs-opt);
+  color:var(--ink);
+  background:none; border:0; padding:0;
+  cursor:pointer; width:max-content;
+  transition:color .18s var(--ease);
+}
+.btn:hover{ color:var(--dim); }
+.btn:disabled{ color:var(--dim); cursor:not-allowed; opacity:.5; }
+
+/* --------------------------------------------------------------------------
+   Responsive — collapse the panel to a top strip on narrow screens
+   -------------------------------------------------------------------------- */
+@media (max-width:900px){
+  .layout{ flex-direction:column; }
+  .panel{
+    position:static;
+    width:100%;
+    flex-basis:auto;
+    height:auto;
+    border-bottom:var(--line) solid var(--ink);
+  }
+}
 
 @media (prefers-reduced-motion: reduce){
-  .bento{ animation:none; }
-  *{ scroll-behavior:auto !important; }
+  *{ transition:none !important; scroll-behavior:auto !important; }
 }

@@ -3,146 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Export — McCANN Suite</title>
+<base target="_top">
+<title>EXPORT — McCANN Design</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="assets/design.css">
 <style>
-  @font-face{
-    font-family:'McCann Headline';
-    src:url('McCann-Headline_4.ttf') format('truetype');
-    font-weight:100 900; font-display:swap;
-  }
+  .exp-top{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:clamp(24px,3vw,44px); align-items:start; }
+  @media(max-width:1100px){ .exp-top{ grid-template-columns:1fr; gap:28px; } }
 
-  .wrap{max-width:none;}
-
-  .cols{display:grid;grid-template-columns:minmax(280px,1fr) minmax(320px,1.05fr);gap:clamp(28px,3.5vw,44px);align-items:start;}
-  @media(max-width:760px){.cols{grid-template-columns:1fr;gap:30px;}}
-  .uploadCol{display:flex;flex-direction:column;}
-
-  label.lbl{font-size:11px;font-weight:500;letter-spacing:.01em;text-transform:none;color:var(--muted);display:block;margin-bottom:12px;}
-
-  /* dropzone — glass */
+  .uploadCol{ display:flex; flex-direction:column; gap:12px; }
   .drop{
-    position:relative;flex:1;min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;cursor:pointer;gap:8px;
-    border-radius:24px;
-    background:linear-gradient(140deg, rgba(255,255,255,.6), rgba(255,255,255,.22) 65%), rgba(255,255,255,.34);
-    -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
-    border:1px dashed rgba(14,14,16,.22);
-    box-shadow:inset 0 1px 1px rgba(255,255,255,.85), 0 12px 36px rgba(14,14,16,.08);
-    transition:border-color .25s var(--ease),box-shadow .25s var(--ease),transform .25s var(--ease);
+    min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:6px; padding:28px; cursor:pointer;
+    transition:background-color .18s var(--ease);
   }
-  .drop:hover{border-color:rgba(14,14,16,.35);transform:translateY(-1px);}
-  .drop.drag{border-color:var(--ink);box-shadow:inset 0 1px 1px rgba(255,255,255,.85),0 0 0 3px rgba(14,14,16,.08),0 12px 36px rgba(14,14,16,.10);}
-  .drop .big{font-family:'PP Neue Montreal', var(--sans);font-weight:500;font-size:19px;letter-spacing:-.01em;}
-  .drop .sub{font-size:12px;color:var(--muted);}
-  .drop.has{padding:0;border-style:solid;border-color:rgba(255,255,255,.6);overflow:hidden;}
-  .preview{width:100%;flex:1;min-height:320px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(rgba(14,14,16,.045) 0% 25%,transparent 0% 50%) 50%/22px 22px;}
-  .preview img{max-width:86%;max-height:86%;object-fit:contain;}
-  .filemeta{margin-top:14px;display:flex;justify-content:space-between;gap:18px;align-items:center;}
-  .filemeta button{font-family:var(--sans);font-size:13px;border:none;background:transparent;color:var(--muted);cursor:pointer;padding:0;text-decoration:none;transition:color .3s var(--ease);}
-  .filemeta button:hover{color:var(--ink);text-decoration:underline;text-underline-offset:3px;}
-  #fileinfo{font-size:13px;color:var(--muted);}
+  .drop:hover{ background:rgba(0,0,0,.03); }
+  .drop.drag{ background:rgba(0,0,0,.06); }
+  .drop .big{ font-family:var(--mono); font-weight:600; font-size:var(--fs-title); }
+  .drop .sub{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); }
+  .drop.has{ padding:0; }
+  .preview{ width:100%; flex:1 1 auto; min-height:340px; display:flex; align-items:center; justify-content:center;
+    background:repeating-conic-gradient(rgba(0,0,0,.05) 0% 25%,transparent 0% 50%) 50%/20px 20px; }
+  .preview img{ max-width:86%; max-height:86%; object-fit:contain; }
+  .filemeta{ display:flex; justify-content:space-between; align-items:center; gap:18px; }
+  .filemeta #fileinfo{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); }
 
-  /* options */
-  .optblock{margin-bottom:22px;}
-  .checks{display:flex;flex-wrap:wrap;gap:8px;}
-  .chk{
-    display:inline-flex;align-items:center;gap:9px;cursor:pointer;user-select:none;font-size:14px;
-    padding:9px 15px;border-radius:999px;
-    background:rgba(255,255,255,.42);border:1px solid var(--hairline-soft);
-    transition:border-color .25s var(--ease),background-color .25s var(--ease),box-shadow .25s var(--ease);
-  }
-  .chk:hover{border-color:rgba(14,14,16,.22);}
-  .chk:has(input:checked){
-    border-color:var(--ink);
-    background:linear-gradient(140deg, rgba(255,255,255,.88), rgba(255,255,255,.56));
-    box-shadow:inset 0 1px 1px rgba(255,255,255,.9), 0 2px 8px rgba(14,14,16,.06);
-  }
-  .chk input{appearance:none;-webkit-appearance:none;width:17px;height:17px;border:1px solid var(--hairline);border-radius:5px;background:rgba(255,255,255,.7);cursor:pointer;position:relative;flex:none;transition:background .2s var(--ease),border-color .2s var(--ease);}
-  .chk input:checked{background:var(--ink);border-color:var(--ink);}
-  .chk input:checked::after{content:"";position:absolute;left:5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .optionsCol{ display:flex; flex-direction:column; gap:24px; }
+  .sizefield{ display:flex; align-items:baseline; gap:12px; }
+  .sizefield input{ font-family:var(--mono); font-weight:500; font-size:var(--fs-opt); width:150px;
+    border:0; border-bottom:2px solid var(--ink); background:transparent; color:var(--ink); outline:none; padding:2px 0; }
+  .sizefield .note{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); text-transform:uppercase; }
 
-  .sizefield{display:flex;align-items:center;gap:12px;}
-  .sizefield input{font-family:var(--mono);font-size:14px;width:130px;padding:9px 13px;}
-  .sizefield .note{font-size:13px;color:var(--muted);}
+  .status{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); min-height:16px; margin-top:8px; text-transform:uppercase; }
 
-  .run{margin-top:12px;}
-  #runBtn{font-size:15px;padding:13px 28px;}
-  .status{margin-top:14px;min-height:16px;font-size:13px;color:var(--muted);}
+  .tree{ font-family:var(--mono); font-weight:500; font-size:14px; line-height:1.55; white-space:pre; margin:0; padding:14px; overflow:auto; }
+  .tree .muted{ color:var(--dim); }
 
-  .canvas-stash{position:absolute;left:-9999px;top:-9999px;}
-
-  @media(max-width:760px){.wrap{padding-left:20px;padding-right:20px;}}
+  .canvas-stash{ position:absolute; left:-9999px; top:-9999px; }
 </style>
 </head>
-<body class="ambient">
-<div class="wrap tool-wrap">
-  <div class="cols">
-    <!-- LEFT: upload -->
+<body>
+
+  <div class="page-title"><span class="sec__mark">II</span><span class="sec__title">EXPORT</span></div>
+
+  <div class="exp-top">
+    <!-- LEFT — upload -->
     <div class="uploadCol">
-      <label class="lbl">Source Logo</label>
-      <div class="drop" id="drop">
-        <div class="big">Drop a logo here</div>
+      <div class="sec">
+        <div class="sec__bar"></div>
+        <div class="sec__head"><span class="sec__title">SOURCE LOGO</span></div>
+      </div>
+      <div class="box drop" id="drop">
+        <div class="big">DROP A LOGO HERE</div>
         <div class="sub">PNG · JPG · SVG</div>
       </div>
       <input type="file" id="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" style="display:none">
       <div class="filemeta" id="filemeta" style="display:none">
         <span id="fileinfo"></span>
-        <button id="clearBtn">Remove</button>
+        <button id="clearBtn" class="btn" style="font-size:var(--fs-cap)">REMOVE</button>
       </div>
     </div>
 
-    <!-- RIGHT: options -->
-    <div class="optionsCol glass glass-panel">
-      <div class="optblock">
-        <label class="lbl">File Formats</label>
-        <div class="checks">
-          <label class="chk"><input type="checkbox" data-fmt="png" checked> PNG</label>
-          <label class="chk"><input type="checkbox" data-fmt="jpg" checked> JPG</label>
-          <label class="chk"><input type="checkbox" data-fmt="svg" checked> SVG</label>
-          <label class="chk"><input type="checkbox" data-fmt="eps" checked> EPS</label>
+    <!-- RIGHT — options -->
+    <div class="optionsCol">
+      <div class="sec">
+        <div class="sec__bar"></div>
+        <div class="sec__head"><span class="sec__title">FILE FORMATS</span></div>
+        <div class="opts" id="fmtOpts">
+          <button class="opt is-active" data-fmt="png">PNG</button>
+          <button class="opt is-active" data-fmt="jpg">JPG</button>
+          <button class="opt is-active" data-fmt="svg">SVG</button>
+          <button class="opt is-active" data-fmt="eps">EPS</button>
         </div>
       </div>
 
-      <div class="optblock">
-        <label class="lbl">Color Space</label>
-        <div class="checks">
-          <label class="chk"><input type="checkbox" data-space="rgb" checked> RGB</label>
-          <label class="chk"><input type="checkbox" data-space="cmyk" checked> CMYK</label>
+      <div class="sec">
+        <div class="sec__bar"></div>
+        <div class="sec__head"><span class="sec__title">COLOR SPACE</span></div>
+        <div class="opts" id="spaceOpts">
+          <button class="opt is-active" data-space="rgb">RGB</button>
+          <button class="opt is-active" data-space="cmyk">CMYK</button>
         </div>
       </div>
 
-      <div class="optblock">
-        <label class="lbl">Treatment</label>
-        <div class="checks">
-          <label class="chk"><input type="checkbox" data-treat="color" checked> Color</label>
-          <label class="chk"><input type="checkbox" data-treat="grayscale" checked> Grayscale</label>
+      <div class="sec">
+        <div class="sec__bar"></div>
+        <div class="sec__head"><span class="sec__title">TREATMENT</span></div>
+        <div class="opts" id="treatOpts">
+          <button class="opt is-active" data-treat="color">COLOR</button>
+          <button class="opt is-active" data-treat="grayscale">GRAYSCALE</button>
         </div>
       </div>
 
-      <div class="optblock">
-        <label class="lbl">Raster Size</label>
+      <div class="sec">
+        <div class="sec__bar"></div>
+        <div class="sec__head"><span class="sec__title">RASTER SIZE</span></div>
         <div class="sizefield">
-          <input type="number" id="size" class="glass-field" value="2000" min="64" max="6000" step="1">
+          <input type="number" id="size" value="2000" min="64" max="6000" step="1">
           <span class="note">px longest edge</span>
         </div>
       </div>
 
-      <div class="run">
-        <button id="runBtn" class="btn" disabled>Generate ZIP</button>
+      <div class="sec">
+        <div class="sec__bar"></div>
+        <div class="sec__head"><span class="sec__title">GENERATE</span></div>
+        <button id="runBtn" class="btn" disabled>GENERATE ZIP</button>
         <div class="status" id="status"></div>
       </div>
     </div>
   </div>
 
-</div>
+  <div class="divider"></div>
 
-<div class="canvas-stash" id="stash"></div>
+  <div class="sec">
+    <div class="sec__bar" style="max-width:161px"></div>
+    <div class="sec__head"><span class="sec__title">PACKAGE</span></div>
+    <div class="box"><pre class="tree" id="treeView"></pre></div>
+  </div>
 
-<script src="assets/nav.js"></script>
+  <div class="canvas-stash" id="stash"></div>
+
+  <script src="assets/nav.js"></script>
 
 <script>
 let uploaded=null; // {name, type, dataUrl, isSvg, svgText, img}
@@ -166,7 +150,7 @@ document.getElementById("clearBtn").addEventListener("click",e=>{e.stopPropagati
 function reset(){
   uploaded=null; fileInput.value="";
   drop.classList.remove("has");
-  drop.innerHTML='<div class="big">Drop a logo here</div><div class="sub">PNG · JPG · SVG</div>';
+  drop.innerHTML='<div class="big">DROP A LOGO HERE</div><div class="sub">PNG · JPG · SVG</div>';
   fileMeta.style.display="none"; runBtn.disabled=true; statusEl.textContent="";
   updateTree();
 }
@@ -179,14 +163,13 @@ function handleFile(f){
     const obj={name:f.name.replace(/\.[^.]+$/,"")||"logo", type:f.type, isSvg, svgText:null, dataUrl:null, img:null};
     if(isSvg){
       obj.svgText = (typeof result==="string" && result.indexOf("<svg")>=0) ? result : null;
-      // also need a dataURL for rasterizing
       obj.dataUrl = "data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(obj.svgText||"")));
     } else {
       obj.dataUrl = result;
     }
     const img=new Image();
     img.onload=()=>{ obj.img=img; uploaded=obj; showPreview(f, img); runBtn.disabled=false; updateTree(); };
-    img.onerror=()=>{ statusEl.textContent="Could not read that image. Try a PNG, JPG, or SVG."; };
+    img.onerror=()=>{ statusEl.textContent="COULD NOT READ THAT IMAGE. TRY A PNG, JPG, OR SVG."; };
     img.src=obj.dataUrl;
   };
   if(isSvg) reader.readAsText(f); else reader.readAsDataURL(f);
@@ -202,18 +185,23 @@ function showPreview(f, img){
 
 /* ---------- Option reading ---------- */
 function opts(){
-  const get=(attr)=>[...document.querySelectorAll('input[data-'+attr+']:checked')].map(c=>c.dataset[attr]);
+  const get=(attr)=>[...document.querySelectorAll('.opt.is-active[data-'+attr+']')].map(c=>c.dataset[attr]);
   return { fmts:get("fmt"), spaces:get("space"), treats:get("treat"), size:Math.max(64,Math.min(6000,parseInt(document.getElementById("size").value)||2000)) };
 }
-document.querySelectorAll('input[type=checkbox], #size').forEach(el=>el.addEventListener("change",updateTree));
+// toggle behaviour for the option pills
+document.querySelectorAll("#fmtOpts .opt, #spaceOpts .opt, #treatOpts .opt").forEach(b=>{
+  b.setAttribute("aria-pressed", b.classList.contains("is-active"));
+  b.addEventListener("click",()=>{ b.classList.toggle("is-active"); b.setAttribute("aria-pressed", b.classList.contains("is-active")); updateTree(); });
+});
+document.getElementById("size").addEventListener("input",updateTree);
 
 /* ---------- Tree preview ---------- */
 function updateTree(){
   const tv=document.getElementById("treeView");
   if(!tv) return;
-  if(!uploaded){ tv.innerHTML='<span class="muted">Upload a logo and pick your options to preview the folder tree.</span>'; return; }
+  if(!uploaded){ tv.innerHTML='<span class="muted">UPLOAD A LOGO AND PICK OPTIONS TO PREVIEW THE FOLDER TREE.</span>'; return; }
   const {fmts,spaces,treats}=opts();
-  if(!fmts.length||!spaces.length||!treats.length){ tv.innerHTML='<span class="muted">Select at least one format, color space, and treatment.</span>'; return; }
+  if(!fmts.length||!spaces.length||!treats.length){ tv.innerHTML='<span class="muted">SELECT AT LEAST ONE FORMAT, COLOR SPACE, AND TREATMENT.</span>'; return; }
   const base=uploaded.name;
   let out=base+"-Exports/\n";
   const spaceLabel={rgb:"RGB",cmyk:"CMYK"}, treatLabel={color:"COLOR",grayscale:"GRAYSCALE"};
@@ -258,10 +246,8 @@ function canvasBlob(cv,type,q){ return new Promise(res=>cv.toBlob(res,type,q)); 
 
 /* ---------- SVG helpers ---------- */
 function svgGrayWrap(innerSvgOrImg, isVector, dataUrl, w, h){
-  // Wrap with a grayscale filter. For vector we inline; for raster we embed the image.
   const filter='<filter id="g"><feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"/></filter>';
   if(isVector && innerSvgOrImg){
-    // inject filter into existing svg root
     let s=innerSvgOrImg;
     if(/<svg[^>]*>/i.test(s)){
       s=s.replace(/<svg([^>]*)>/i,'<svg$1><defs>'+filter+'</defs><g filter="url(#g)">');
@@ -276,48 +262,36 @@ function svgColorWrap(isVector, svgText, dataUrl, w, h){
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><image width="${w}" height="${h}" href="${dataUrl}"/></svg>`;
 }
 
-/* ---------- EPS generation ----------
-   Two paths:
-   (A) SVG source  -> TRUE VECTOR EPS: parse SVG geometry, emit PostScript paths.
-   (B) Raster source -> embedded-bitmap EPS, guarded against oversized pixel streams.
-*/
-
-// Parse a CSS/SVG color into [r,g,b] 0..1, or null for none/transparent.
+/* ---------- EPS generation ---------- */
 function parseColorToPS(col, fallback){
   if(col==null || col==="none" || col==="transparent") {
     return fallback===undefined ? null : fallback;
   }
   col=String(col).trim();
   if(col==="currentColor") col="#000";
-  // hex
   let m=col.match(/^#([0-9a-f]{3})$/i);
   if(m){ const s=m[1]; return [parseInt(s[0]+s[0],16)/255,parseInt(s[1]+s[1],16)/255,parseInt(s[2]+s[2],16)/255]; }
   m=col.match(/^#([0-9a-f]{6})$/i);
   if(m){ const s=m[1]; return [parseInt(s.slice(0,2),16)/255,parseInt(s.slice(2,4),16)/255,parseInt(s.slice(4,6),16)/255]; }
   m=col.match(/^rgba?\(([^)]+)\)$/i);
   if(m){ const p=m[1].split(",").map(s=>parseFloat(s)); return [(p[0]||0)/255,(p[1]||0)/255,(p[2]||0)/255]; }
-  // named colors: resolve via canvas
   try{ const c=document.createElement("canvas"); c.width=c.height=1; const x=c.getContext("2d");
     x.fillStyle="#000"; x.fillStyle=col; x.fillRect(0,0,1,1);
     const d=x.getImageData(0,0,1,1).data; return [d[0]/255,d[1]/255,d[2]/255];
   }catch(e){ return fallback===undefined?null:fallback; }
 }
 function toGrayPS(rgb){ if(!rgb) return null; const l=0.2126*rgb[0]+0.7152*rgb[1]+0.0722*rgb[2]; return [l,l,l]; }
-// Uncalibrated RGB->CMYK (standard formula, NOT profile-accurate — see README).
-// Input rgb in 0..1, output [c,m,y,k] in 0..1.
 function rgbToCmyk(rgb){
   if(!rgb) return null;
   const r=rgb[0],g=rgb[1],b=rgb[2];
   const k=1-Math.max(r,g,b);
-  if(k>=1) return [0,0,0,1]; // pure black, avoid divide-by-zero
+  if(k>=1) return [0,0,0,1];
   const c=(1-r-k)/(1-k), m=(1-g-k)/(1-k), y=(1-b-k)/(1-k);
   return [c,m,y,k];
 }
-function ps(n){ return (Math.round(n*1000)/1000); } // trim float noise
+function ps(n){ return (Math.round(n*1000)/1000); }
 
-// Convert one SVG path 'd' string into PostScript path ops (absolute coords already flipped by caller transform).
 function pathDataToPS(d){
-  // Tokenize path data
   const tokens=d.match(/[a-zA-Z]|-?\d*\.?\d+(?:e[-+]?\d+)?/gi);
   if(!tokens) return "";
   let i=0, cmd="", out="";
@@ -330,7 +304,7 @@ function pathDataToPS(d){
     if(C==="M"){
       let x=num(), y=num(); if(!abs){x+=cx;y+=cy;}
       cx=x;cy=y;sx=x;sy=y; out+=`${ps(x)} ${ps(y)} moveto\n`;
-      cmd = abs ? "L" : "l"; // subsequent pairs are lineto
+      cmd = abs ? "L" : "l";
     } else if(C==="L"){
       let x=num(), y=num(); if(!abs){x+=cx;y+=cy;} cx=x;cy=y; out+=`${ps(x)} ${ps(y)} lineto\n`;
     } else if(C==="H"){
@@ -351,7 +325,6 @@ function pathDataToPS(d){
     } else if(C==="Q"){
       let qx=num(),qy=num(),x=num(),y=num();
       if(!abs){qx+=cx;qy+=cy;x+=cx;y+=cy;}
-      // convert quadratic to cubic
       const x1=cx+2/3*(qx-cx), y1=cy+2/3*(qy-cy), x2=x+2/3*(qx-x), y2=y+2/3*(qy-y);
       out+=`${ps(x1)} ${ps(y1)} ${ps(x2)} ${ps(y2)} ${ps(x)} ${ps(y)} curveto\n`;
       px=qx;py=qy;cx=x;cy=y;
@@ -362,7 +335,6 @@ function pathDataToPS(d){
       out+=`${ps(x1)} ${ps(y1)} ${ps(x2)} ${ps(y2)} ${ps(x)} ${ps(y)} curveto\n`;
       px=qx;py=qy;cx=x;cy=y;
     } else if(C==="A"){
-      // Arc: approximate by line to endpoint (rare in logos; keeps file valid)
       let rx=num(),ry=num(),rot=num(),laf=num(),sf=num(),x=num(),y=num();
       if(!abs){x+=cx;y+=cy;} cx=x;cy=y; out+=`${ps(x)} ${ps(y)} lineto\n`;
     } else if(C==="Z"){
@@ -373,7 +345,6 @@ function pathDataToPS(d){
   return out;
 }
 
-// Convert basic shape elements to a path 'd' string.
 function shapeToPathD(el){
   const tag=el.tagName.toLowerCase();
   const n=a=>parseFloat(el.getAttribute(a)||0);
@@ -399,12 +370,10 @@ function shapeToPathD(el){
   return "";
 }
 
-// TRUE vector EPS from an SVG string.
 function epsFromSvg(svgText, {gray=false, cmyk=false}={}){
   const doc=new DOMParser().parseFromString(svgText,"image/svg+xml");
   const svg=doc.querySelector("svg");
   if(!svg) return null;
-  // Determine viewBox / size
   let vb=(svg.getAttribute("viewBox")||"").trim().split(/[\s,]+/).map(Number);
   let W,H,minX=0,minY=0;
   if(vb.length===4){ minX=vb[0];minY=vb[1];W=vb[2];H=vb[3]; }
@@ -415,7 +384,6 @@ function epsFromSvg(svgText, {gray=false, cmyk=false}={}){
   shapeEls.forEach(el=>{
     const d=shapeToPathD(el); if(!d) return;
     const psPath=pathDataToPS(d); if(!psPath.trim()) return;
-    // resolve fill: inline attr, then style attr, default black per SVG spec
     const styleFill=(el.getAttribute("style")||"").match(/fill\s*:\s*([^;]+)/i);
     const fillRaw = (el.getAttribute("fill")) || (styleFill&&styleFill[1]) || "#000";
     let fill=parseColorToPS(fillRaw, [0,0,0]);
@@ -444,10 +412,8 @@ function epsFromSvg(svgText, {gray=false, cmyk=false}={}){
 %%DocumentProcessColors: ${cmyk?"Cyan Magenta Yellow Black":"(RGB)"}
 %%EndComments
 gsave
-% flip Y to match SVG's top-left origin
 0 ${ps(H)} translate
 1 -1 scale
-% shift by viewBox origin
 ${ps(-minX)} ${ps(-minY)} translate
 1 setlinejoin
 1 setlinecap
@@ -457,9 +423,8 @@ showpage
   return new Blob([eps],{type:"application/postscript"});
 }
 
-// Raster EPS fallback (embedded bitmap), guarded to avoid giant hex strings.
 function epsFromCanvas(cv, cmyk){
-  const MAX=600; // cap embedded raster dimension to keep the hex stream sane
+  const MAX=600;
   let src=cv;
   if(Math.max(cv.width,cv.height)>MAX){
     const s=MAX/Math.max(cv.width,cv.height);
@@ -496,8 +461,8 @@ document.getElementById("runBtn").addEventListener("click",generate);
 async function generate(){
   if(!uploaded) return;
   const {fmts,spaces,treats,size}=opts();
-  if(!fmts.length||!spaces.length||!treats.length){ statusEl.textContent="Pick at least one format, color space, and treatment."; return; }
-  runBtn.disabled=true; statusEl.textContent="Rendering…";
+  if(!fmts.length||!spaces.length||!treats.length){ statusEl.textContent="PICK AT LEAST ONE FORMAT, COLOR SPACE, AND TREATMENT."; return; }
+  runBtn.disabled=true; statusEl.textContent="RENDERING…";
 
   try{
     const zip=new JSZip();
@@ -514,9 +479,8 @@ async function generate(){
         const dir=root.folder(spaceLabel[sp]).folder(treatLabel[tr]);
         const stem=base+"-"+spaceLabel[sp].toLowerCase()+"-"+treatLabel[tr].toLowerCase();
 
-        // raster canvases
-        const cvPng=drawToCanvas(img,size,{gray});                  // transparent
-        const cvJpg=drawToCanvas(img,size,{gray,matte:"#ffffff"});  // white matte
+        const cvPng=drawToCanvas(img,size,{gray});
+        const cvJpg=drawToCanvas(img,size,{gray,matte:"#ffffff"});
 
         for(const fm of fmts){
           if(fm==="png"){ dir.file(stem+".png", await canvasBlob(cvPng,"image/png")); }
@@ -534,7 +498,7 @@ async function generate(){
             if(uploaded.isSvg && uploaded.svgText){
               epsBlob=epsFromSvg(uploaded.svgText,{gray,cmyk});
             }
-            if(!epsBlob){ epsBlob=epsFromCanvas(cvJpg, cmyk); } // raster fallback (also if SVG parse failed)
+            if(!epsBlob){ epsBlob=epsFromCanvas(cvJpg, cmyk); }
             dir.file(stem+".eps", epsBlob);
           }
           count++;
@@ -543,16 +507,16 @@ async function generate(){
     }
 
     root.file("README.txt", readmeText(base));
-    statusEl.textContent="Packaging "+count+" files…";
+    statusEl.textContent="PACKAGING "+count+" FILES…";
     const blob=await zip.generateAsync({type:"blob"},meta=>{
-      statusEl.textContent="Packaging… "+Math.round(meta.percent)+"%";
+      statusEl.textContent="PACKAGING… "+Math.round(meta.percent)+"%";
     });
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob); a.download=base+"-Exports.zip"; a.click();
-    statusEl.textContent="Done. "+count+" files across "+(spaces.length*treats.length)+" folders.";
+    statusEl.textContent="DONE. "+count+" FILES ACROSS "+(spaces.length*treats.length)+" FOLDERS.";
   }catch(err){
     console.error(err);
-    statusEl.textContent="Something went wrong while generating. Check the console.";
+    statusEl.textContent="SOMETHING WENT WRONG WHILE GENERATING. CHECK THE CONSOLE.";
   }finally{
     runBtn.disabled=false;
   }
@@ -564,9 +528,9 @@ Generated by the McCANN Export tool (prototype)
 
 FOLDER STRUCTURE
   ${base}-Exports/
-    RGB/ and CMYK/      → color space
-      COLOR/ GRAYSCALE/ → treatment
-        .png .jpg .svg .eps → formats
+    RGB/ and CMYK/      -> color space
+      COLOR/ GRAYSCALE/ -> treatment
+        .png .jpg .svg .eps -> formats
 
 WHAT IS REAL
   PNG   Real raster, transparent background.
@@ -580,30 +544,13 @@ WHAT IS REAL
         tracing). For best EPS results, upload vector SVG.
   GRAYSCALE  Real luminance conversion (Rec. 709 weights).
 
-EPS SUPPORT NOTES
-  Supported SVG elements: path, rect, circle, ellipse, line, polyline,
-  polygon, with fill and stroke colors. Arcs (A commands) are approximated.
-  Very complex SVGs with gradients, filters, or clip paths will lose those
-  effects — the geometry converts, the effects don't.
-
 IMPORTANT LIMITS (please read)
-  CMYK  Two different things depending on format:
-
-        EPS (from an SVG upload) — REAL CMYK. The file writes four-channel
-        ink values directly with the PostScript setcmykcolor operator, so a
-        printer's RIP reads true C/M/Y/K, not converted RGB. HOWEVER the
-        values come from a standard uncalibrated formula, NOT an ICC press
-        profile. Colors are in the right space but may shift on press.
-        Always soft-proof and adjust in Illustrator against your actual
-        profile (US Web Coated SWOP, GRACoL, Fogra39) before final output.
-
-        PNG / JPG / SVG / raster EPS — these stay RGB. A browser cannot do
-        profile-accurate CMYK raster separation; those files are organized
-        under CMYK for handoff labeling only. Convert rasters in
+  CMYK  EPS (from an SVG upload) writes true four-channel ink values via the
+        PostScript setcmykcolor operator, but from a standard uncalibrated
+        formula — NOT an ICC press profile. Always soft-proof in Illustrator
+        against your actual profile (SWOP, GRACoL, Fogra39) before output.
+        PNG / JPG / SVG / raster EPS stay RGB — convert rasters in
         Photoshop/Illustrator against your print profile.
-
-  Bottom line: for print, upload SVG and use the CMYK EPS as your starting
-  point, then verify color in Adobe tools.
 
 Treat this package as a fast first pass for screen and layout use. Anything
 going to press should be finalized in Adobe tools against the right profile.`;

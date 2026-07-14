@@ -1,129 +1,129 @@
 /* ==========================================================================
-   McCANN Design Suite — bento menu screen
-   Builds the centered menu from the Figma mockup and wires its behavior:
-     • On the landing page it is the content and stays put.
-     • Selecting a page plays a disappear animation, then routes.
-     • On tool pages the menu starts hidden and reappears whenever you scroll
-       (auto-hiding again once scrolling stops).
+   McCANN Design Suite — persistent left menu panel
+   Always present on the left. Hover between pages using it.
+   Default #000 · hover / active #A9A9A9. IBM Plex Mono Medium + SemiBold.
    ========================================================================== */
 (function () {
-  // The circle shows today's weekday initial (M T W T F S S)
-  var now = new Date();
-  var DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  var DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-  var TILES = {
-    suite:  { href: 'index.html',  label: 'McCANN Design Suite' },
-    ada:    { href: 'ada.html',    label: 'ADA' },
-    export: { href: 'export.html', label: 'Export' },
-    brand:  { href: null,          label: 'Brandboard', soon: true, title: 'Coming soon' },
-    m:      { href: null,          label: DAY_LETTERS[now.getDay()], soon: true, title: DAY_NAMES[now.getDay()] }
-  };
-
-  // Bento layout, row by row (matches the Figma composition)
-  var ROWS = [
-    ['suite'],
-    ['ada', 'export'],
-    ['brand', 'm']
+  var TOOLS = [
+    { href: 'ada.html',    label: 'ADA' },
+    { href: 'export.html', label: 'EXPORT' },
+    { href: null,          label: 'BRANDBOARD', soon: true },
+    { href: null,          label: 'VARLOGO',    soon: true }
   ];
 
   var file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
   if (file === '') file = 'index.html';
-  var isHome = (file === 'index.html');
 
-  var screen = document.createElement('div');
-  screen.className = 'menu-screen';
-  screen.setAttribute('role', 'navigation');
-  screen.setAttribute('aria-label', 'Main menu');
-  if (isHome) screen.classList.add('is-home');
-  else screen.classList.add('is-hidden');
+  var panel = document.createElement('aside');
+  panel.className = 'panel';
+  panel.setAttribute('role', 'navigation');
+  panel.setAttribute('aria-label', 'Main menu');
 
-  var card = document.createElement('div');
-  card.className = 'menu-card';
+  /* wordmark */
+  var word = document.createElement('div');
+  word.className = 'wordmark';
+  word.textContent = 'McCANN Design';
+  panel.appendChild(word);
 
-  var bento = document.createElement('div');
-  bento.className = 'bento';
+  /* ---- ABOUT (I) ---- */
+  panel.appendChild(navSection('I', 'ABOUT', null, false));
 
-  ROWS.forEach(function (row) {
-    var r = document.createElement('div');
-    r.className = 'bento__row';
+  /* ---- TOOLS (II) ---- */
+  var toolsList = document.createElement('div');
+  toolsList.className = 'nav-list';
 
-    row.forEach(function (key) {
-      var t = TILES[key];
-      var el;
-
-      if (t.soon || !t.href) {
-        el = document.createElement('span');
-        el.setAttribute('aria-disabled', 'true');
-        if (t.title) el.title = t.title;
-      } else {
-        el = document.createElement('a');
-        el.href = t.href;
-        el.setAttribute('target', '_top');
-      }
-
-      el.className = 'tile tile--' + key + (t.soon ? ' tile--soon' : '');
-
-      var lbl = document.createElement('span');
-      lbl.className = 'tile__label';
-      lbl.textContent = t.label;
-      el.appendChild(lbl);
-
-      if (t.href && t.href.toLowerCase() === file) {
+  TOOLS.forEach(function (t) {
+    var el;
+    if (t.soon || !t.href) {
+      el = document.createElement('span');
+      el.className = 'nav-item nav-item--soon';
+      el.setAttribute('aria-disabled', 'true');
+      el.title = 'Coming soon';
+    } else {
+      el = document.createElement('a');
+      el.className = 'nav-item';
+      el.href = t.href;
+      el.setAttribute('target', '_top');
+      if (t.href.toLowerCase() === file) {
         el.classList.add('is-active');
         el.setAttribute('aria-current', 'page');
       }
-      r.appendChild(el);
-    });
-
-    bento.appendChild(r);
+    }
+    el.textContent = t.label;
+    toolsList.appendChild(el);
   });
 
-  card.appendChild(bento);
-  screen.appendChild(card);
+  /* live clock lives under the tool list, same column */
+  var clock = document.createElement('div');
+  clock.className = 'nav-clock';
+  var cDate = document.createElement('div');
+  cDate.className = 'clock-date';
+  var cTime = document.createElement('div');
+  cTime.className = 'clock-time';
+  clock.appendChild(cDate);
+  clock.appendChild(cTime);
+  toolsList.appendChild(clock);
 
-  function navigateWithExit(href) {
-    screen.classList.add('is-exiting');
-    setTimeout(function () { window.location.href = href; }, 460);
+  panel.appendChild(navSection('II', 'TOOLS', toolsList, true));
+
+  /* ---- clock ticker ---- */
+  var DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  var MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function tick() {
+    var d = new Date();
+    cDate.textContent = DAYS[d.getDay()] + ' ' + MONTHS[d.getMonth()] + ' ' + d.getDate();
+    var h = d.getHours();
+    var ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12; if (h === 0) h = 12;
+    cTime.textContent = h + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) + ' ' + ap;
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---- helpers ---- */
+  function navSection(mark, title, listEl, thick) {
+    var sec = document.createElement('div');
+    sec.className = 'nav-sec';
+
+    var bar = document.createElement('div');
+    bar.className = 'sec__bar' + (thick ? '' : ' sec__bar--thin');
+    sec.appendChild(bar);
+
+    var row = document.createElement('div');
+    row.className = 'nav-row';
+
+    var m = document.createElement('span');
+    m.className = 'sec__mark';
+    m.textContent = mark;
+    row.appendChild(m);
+
+    var t = document.createElement('span');
+    t.className = 'sec__title';
+    t.textContent = title;
+    row.appendChild(t);
+
+    if (listEl) row.appendChild(listEl);
+    sec.appendChild(row);
+    return sec;
   }
 
-  bento.addEventListener('click', function (e) {
-    var a = e.target.closest('a.tile');
-    if (!a) return;
-    e.preventDefault();
-    var href = a.getAttribute('href');
-    if (!href || href.toLowerCase() === file) return; // same page → ignore
-    navigateWithExit(href);
-  });
+  /* ---- mount: wrap existing body content into the layout ---- */
+  function mount() {
+    var body = document.body;
+    var main = document.createElement('div');
+    main.className = 'main';
 
-  function wireReveal() {
-    var idle;
-    function show() { screen.classList.remove('is-hidden'); }
-    function scheduleHide() {
-      clearTimeout(idle);
-      idle = setTimeout(function () { screen.classList.add('is-hidden'); }, 1900);
+    // move everything already in <body> into the main area
+    while (body.firstChild) {
+      main.appendChild(body.firstChild);
     }
 
-    // Reappear on every scroll, then recede once scrolling stops
-    window.addEventListener('scroll', function () { show(); scheduleHide(); }, { passive: true });
-
-    // Keep it up while the pointer is moving over it
-    window.addEventListener('mousemove', function () {
-      if (!screen.classList.contains('is-hidden')) scheduleHide();
-    }, { passive: true });
-
-    // Dismiss immediately by clicking the scrim or pressing Escape
-    screen.addEventListener('click', function (e) {
-      if (e.target === screen) { clearTimeout(idle); screen.classList.add('is-hidden'); }
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') { clearTimeout(idle); screen.classList.add('is-hidden'); }
-    });
-  }
-
-  function mount() {
-    document.body.appendChild(screen);
-    if (!isHome) wireReveal();
+    var layout = document.createElement('div');
+    layout.className = 'layout';
+    layout.appendChild(panel);
+    layout.appendChild(main);
+    body.appendChild(layout);
   }
 
   if (document.readyState === 'loading') {
