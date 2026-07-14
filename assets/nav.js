@@ -8,7 +8,7 @@
     { href: 'ada.html',    label: 'ADA' },
     { href: 'export.html', label: 'EXPORT' },
     { href: null,          label: 'BRANDBOARD', soon: true },
-    { href: null,          label: 'VARLOGO',    soon: true }
+    { href: 'varlogo.html', label: 'VARLOGO' }
   ];
 
   var file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
