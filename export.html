@@ -14,7 +14,7 @@
   .exp-top{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:clamp(24px,3vw,44px); align-items:start; }
   @media(max-width:1100px){ .exp-top{ grid-template-columns:1fr; gap:28px; } }
 
-  .uploadCol{ display:flex; flex-direction:column; gap:12px; }
+  .uploadCol{ display:flex; flex-direction:column; gap:0; }
   .drop{
     min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; gap:6px; padding:24px; cursor:pointer;
@@ -31,15 +31,15 @@
   .filemeta{ display:flex; justify-content:space-between; align-items:center; gap:18px; }
   .filemeta #fileinfo{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); }
 
-  .optionsCol{ display:flex; flex-direction:column; gap:24px; }
-  .sizefield{ display:flex; align-items:baseline; gap:12px; }
+  .optionsCol{ display:flex; flex-direction:column; gap:12px; }
+  .sizefield{ display:flex; align-items:baseline; gap:12px; line-height:1; }
   .sizefield input{ font-family:var(--mono); font-weight:500; font-size:var(--fs-opt); width:150px;
     border:0; border-bottom:2px solid var(--ink); background:transparent; color:var(--ink); outline:none; padding:2px 0; }
   .sizefield .note{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); text-transform:uppercase; }
 
   .status{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); min-height:16px; margin-top:8px; text-transform:uppercase; }
 
-  .tree{ font-family:var(--mono); font-weight:500; font-size:14px; line-height:1.55; white-space:pre; margin:0; padding:14px; overflow:auto; }
+  .tree{ font-family:var(--mono); font-weight:500; font-size:12px; line-height:1; white-space:pre; margin:0; padding:12px; overflow:auto; }
   .tree .muted{ color:var(--dim); }
 
   .canvas-stash{ position:absolute; left:-9999px; top:-9999px; }
@@ -49,7 +49,10 @@
 
   <div class="sec page-head">
     <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
-    <div class="page-title"><span class="sec__mark">II</span><span class="sec__title">EXPORT</span></div>
+    <div class="sec-row">
+      <span class="sec__mark">II</span>
+      <span class="sec__title">EXPORT</span>
+    </div>
   </div>
 
   <div class="exp-top">
@@ -57,7 +60,10 @@
     <div class="uploadCol">
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">SOURCE LOGO</span></div>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <span class="sec__title">SOURCE LOGO</span>
+        </div>
       </div>
       <div class="box drop" id="drop">
         <div class="big">DROP A LOGO HERE</div>
@@ -74,47 +80,72 @@
     <div class="optionsCol">
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">FILE FORMATS</span></div>
-        <div class="opts" id="fmtOpts">
-          <button class="opt is-active" data-fmt="png">PNG</button>
-          <button class="opt is-active" data-fmt="jpg">JPG</button>
-          <button class="opt is-active" data-fmt="svg">SVG</button>
-          <button class="opt is-active" data-fmt="eps">EPS</button>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">FILE FORMATS</div>
+            <div class="opts" id="fmtOpts">
+              <button class="opt is-active" data-fmt="png">PNG</button>
+              <button class="opt is-active" data-fmt="jpg">JPG</button>
+              <button class="opt is-active" data-fmt="svg">SVG</button>
+              <button class="opt is-active" data-fmt="eps">EPS</button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">COLOR SPACE</span></div>
-        <div class="opts" id="spaceOpts">
-          <button class="opt is-active" data-space="rgb">RGB</button>
-          <button class="opt is-active" data-space="cmyk">CMYK</button>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">COLOR SPACE</div>
+            <div class="opts" id="spaceOpts">
+              <button class="opt is-active" data-space="rgb">RGB</button>
+              <button class="opt is-active" data-space="cmyk">CMYK</button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">TREATMENT</span></div>
-        <div class="opts" id="treatOpts">
-          <button class="opt is-active" data-treat="color">COLOR</button>
-          <button class="opt is-active" data-treat="grayscale">GRAYSCALE</button>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">TREATMENT</div>
+            <div class="opts" id="treatOpts">
+              <button class="opt is-active" data-treat="color">COLOR</button>
+              <button class="opt is-active" data-treat="grayscale">GRAYSCALE</button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">RASTER SIZE</span></div>
-        <div class="sizefield">
-          <input type="number" id="size" value="2000" min="64" max="6000" step="1">
-          <span class="note">px longest edge</span>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">RASTER SIZE</div>
+            <div class="sizefield">
+              <input type="number" id="size" value="2000" min="64" max="6000" step="1">
+              <span class="note">px longest edge</span>
+            </div>
+          </div>
         </div>
       </div>
 
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">GENERATE</span></div>
-        <button id="runBtn" class="btn" disabled>GENERATE ZIP</button>
-        <div class="status" id="status"></div>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">GENERATE</div>
+            <button id="runBtn" class="btn" disabled>GENERATE ZIP</button>
+            <div class="status" id="status"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -123,7 +154,10 @@
 
   <div class="sec">
     <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
-    <div class="sec__head"><span class="sec__title">PACKAGE</span></div>
+    <div class="sec-row">
+      <span class="sec__mark" aria-hidden="true"></span>
+      <span class="sec__title">PACKAGE</span>
+    </div>
     <div class="box"><pre class="tree" id="treeView"></pre></div>
   </div>
 

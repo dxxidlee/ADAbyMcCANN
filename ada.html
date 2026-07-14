@@ -20,21 +20,25 @@
   .ada-top{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:clamp(24px,3vw,44px); align-items:start; }
   @media(max-width:1100px){ .ada-top{ grid-template-columns:1fr; gap:28px; } }
 
-  .hexbox{ padding:12px 14px 14px; display:flex; flex-direction:column; gap:10px; min-height:260px; }
-  .hexbox .field{ flex:1 1 auto; min-height:200px; line-height:1.7; }
+  .hexbox{ padding:0; display:flex; flex-direction:column; gap:0; min-height:240px; }
+  .hexbox .sec{ gap:0; }
+  .hexbox .field{ min-height:180px; margin-top:0; }
 
-  .ctrlcol{ display:flex; flex-direction:column; gap:18px; }
-  .ctrl-row{ display:flex; flex-wrap:wrap; gap:clamp(24px,3vw,56px); }
+  .ctrlcol{ display:flex; flex-direction:column; gap:12px; }
+  .ctrl-row{ display:flex; flex-wrap:wrap; gap:clamp(20px,3vw,48px); }
   .ctrl-row > .sec{ flex:1 1 160px; min-width:150px; }
 
-  .matrixbox{ padding:12px; min-height:300px; }
+  .matrixbox{ padding:0; min-height:280px; }
 </style>
 </head>
 <body>
 
   <div class="sec page-head">
     <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
-    <div class="page-title"><span class="sec__mark">II</span><span class="sec__title">ADA</span></div>
+    <div class="sec-row">
+      <span class="sec__mark">II</span>
+      <span class="sec__title">ADA</span>
+    </div>
   </div>
 
   <div class="ada-top">
@@ -43,9 +47,14 @@
       <div class="box hexbox">
         <div class="sec">
           <div class="sec__bar sec__bar--thin"></div>
-          <div class="sec__head"><span class="sec__title">PASTE HEX VALUES (<span id="count"></span>)</span></div>
+          <div class="sec-row">
+            <span class="sec__mark" aria-hidden="true"></span>
+            <div class="sec__body">
+              <div class="sec__title">PASTE HEX VALUES (<span id="count"></span>)</div>
+              <textarea id="input" class="field" spellcheck="false"></textarea>
+            </div>
+          </div>
         </div>
-        <textarea id="input" class="field" spellcheck="false"></textarea>
       </div>
     </div>
 
@@ -53,58 +62,83 @@
     <div class="ctrlcol">
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">STANDARD</span></div>
-        <div class="opts" id="segStandard">
-          <button class="opt is-active" data-v="wcag">WCAG 2.2</button>
-          <button class="opt" data-v="apca">APCA WCAG 3</button>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">STANDARD</div>
+            <div class="opts" id="segStandard">
+              <button class="opt is-active" data-v="wcag">WCAG 2.2</button>
+              <button class="opt" data-v="apca">APCA WCAG 3</button>
+            </div>
+            <p class="cap" id="stdHint"></p>
+          </div>
         </div>
-        <p class="cap" id="stdHint"></p>
       </div>
 
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">SHOW ONLY</span></div>
-        <div class="opts" id="segThreshold">
-          <button class="opt is-active" data-v="all">ALL</button>
-          <button class="opt" data-v="AALarge">AA Lg+</button>
-          <button class="opt" data-v="AA">AA+</button>
-          <button class="opt" data-v="AAA">AAA</button>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">SHOW ONLY</div>
+            <div class="opts" id="segThreshold">
+              <button class="opt is-active" data-v="all">ALL</button>
+              <button class="opt" data-v="AALarge">AA Lg+</button>
+              <button class="opt" data-v="AA">AA+</button>
+              <button class="opt" data-v="AAA">AAA</button>
+            </div>
+            <div class="legend" id="legend"></div>
+          </div>
         </div>
-        <div class="legend" id="legend"></div>
       </div>
 
       <div class="ctrl-row">
         <div class="sec">
           <div class="sec__bar"></div>
-          <div class="sec__head"><span class="sec__title">CHART FONT</span></div>
-          <div class="opts opts--col" id="fontOpts">
-            <button class="opt is-active" data-font="__mono">DEFAULT</button>
-            <button class="opt" data-font="__display">MCCANN</button>
-            <button class="opt" data-font="__google">GOOGLE FONT</button>
-            <button class="opt" data-font="__upload">UPLOADED FONT</button>
+          <div class="sec-row">
+            <span class="sec__mark" aria-hidden="true"></span>
+            <div class="sec__body">
+              <div class="sec__title">CHART FONT</div>
+              <div class="opts opts--col" id="fontOpts">
+                <button class="opt is-active" data-font="__mono">DEFAULT</button>
+                <button class="opt" data-font="__display">MCCANN</button>
+                <button class="opt" data-font="__google">GOOGLE FONT</button>
+                <button class="opt" data-font="__upload">UPLOADED FONT</button>
+              </div>
+              <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" style="display:none">
+              <button id="fontUploadBtn" class="btn" style="display:none">CHOOSE FILE</button>
+              <input type="text" id="googleName" class="field" placeholder="e.g. Inter, Roboto Mono" style="display:none;max-width:240px;margin-top:2px">
+              <button id="googleApply" class="btn" style="display:none">LOAD</button>
+              <p class="cap" id="fontHint"></p>
+            </div>
           </div>
-          <input type="file" id="fontFile" accept=".ttf,.otf,.woff,.woff2" style="display:none">
-          <button id="fontUploadBtn" class="btn" style="display:none">CHOOSE FILE</button>
-          <input type="text" id="googleName" class="field" placeholder="e.g. Inter, Roboto Mono" style="display:none;max-width:240px;margin-top:8px">
-          <button id="googleApply" class="btn" style="display:none">LOAD</button>
-          <p class="cap" id="fontHint"></p>
         </div>
 
         <div class="sec">
           <div class="sec__bar"></div>
-          <div class="sec__head"><span class="sec__title">EXPORT</span></div>
-          <div class="opts opts--col" id="exportActions">
-            <button class="btn" id="expSvg">EDITABLE SVG</button>
-            <button class="btn" id="expPng">MATRIX PNG</button>
-            <button class="btn" id="expReport">HTML REPORT</button>
+          <div class="sec-row">
+            <span class="sec__mark" aria-hidden="true"></span>
+            <div class="sec__body">
+              <div class="sec__title">EXPORT</div>
+              <div class="opts opts--col" id="exportActions">
+                <button class="btn" id="expSvg">EDITABLE SVG</button>
+                <button class="btn" id="expPng">MATRIX PNG</button>
+                <button class="btn" id="expReport">HTML REPORT</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="sec">
         <div class="sec__bar"></div>
-        <div class="sec__head"><span class="sec__title">RESULT</span></div>
-        <div class="score" id="score"></div>
+        <div class="sec-row">
+          <span class="sec__mark" aria-hidden="true"></span>
+          <div class="sec__body">
+            <div class="sec__title">RESULT</div>
+            <div class="score" id="score"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
