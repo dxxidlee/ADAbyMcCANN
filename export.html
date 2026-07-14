@@ -16,8 +16,8 @@
 
   .uploadCol{ display:flex; flex-direction:column; gap:12px; }
   .drop{
-    min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; gap:6px; padding:28px; cursor:pointer;
+    min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:6px; padding:24px; cursor:pointer;
     transition:background-color .18s var(--ease);
   }
   .drop:hover{ background:rgba(0,0,0,.03); }
@@ -25,7 +25,7 @@
   .drop .big{ font-family:var(--mono); font-weight:600; font-size:var(--fs-title); }
   .drop .sub{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); }
   .drop.has{ padding:0; }
-  .preview{ width:100%; flex:1 1 auto; min-height:340px; display:flex; align-items:center; justify-content:center;
+  .preview{ width:100%; flex:1 1 auto; min-height:260px; display:flex; align-items:center; justify-content:center;
     background:repeating-conic-gradient(rgba(0,0,0,.05) 0% 25%,transparent 0% 50%) 50%/20px 20px; }
   .preview img{ max-width:86%; max-height:86%; object-fit:contain; }
   .filemeta{ display:flex; justify-content:space-between; align-items:center; gap:18px; }
@@ -47,7 +47,10 @@
 </head>
 <body>
 
-  <div class="page-title"><span class="sec__mark">II</span><span class="sec__title">EXPORT</span></div>
+  <div class="sec page-head">
+    <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
+    <div class="page-title"><span class="sec__mark">II</span><span class="sec__title">EXPORT</span></div>
+  </div>
 
   <div class="exp-top">
     <!-- LEFT — upload -->
@@ -119,7 +122,7 @@
   <div class="divider"></div>
 
   <div class="sec">
-    <div class="sec__bar" style="max-width:161px"></div>
+    <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
     <div class="sec__head"><span class="sec__title">PACKAGE</span></div>
     <div class="box"><pre class="tree" id="treeView"></pre></div>
   </div>

@@ -20,26 +20,29 @@
   .ada-top{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.1fr); gap:clamp(24px,3vw,44px); align-items:start; }
   @media(max-width:1100px){ .ada-top{ grid-template-columns:1fr; gap:28px; } }
 
-  .hexbox{ padding:14px 16px 16px; display:flex; flex-direction:column; gap:12px; min-height:360px; }
-  .hexbox .field{ flex:1 1 auto; min-height:260px; line-height:1.75; }
+  .hexbox{ padding:12px 14px 14px; display:flex; flex-direction:column; gap:10px; min-height:260px; }
+  .hexbox .field{ flex:1 1 auto; min-height:200px; line-height:1.7; }
 
-  .ctrlcol{ display:flex; flex-direction:column; gap:24px; }
-  .ctrl-row{ display:flex; flex-wrap:wrap; gap:clamp(30px,4vw,70px); }
-  .ctrl-row > .sec{ flex:1 1 200px; min-width:180px; }
+  .ctrlcol{ display:flex; flex-direction:column; gap:18px; }
+  .ctrl-row{ display:flex; flex-wrap:wrap; gap:clamp(24px,3vw,56px); }
+  .ctrl-row > .sec{ flex:1 1 160px; min-width:150px; }
 
-  .matrixbox{ padding:14px; min-height:340px; }
+  .matrixbox{ padding:12px; min-height:300px; }
 </style>
 </head>
 <body>
 
-  <div class="page-title"><span class="sec__mark">II</span><span class="sec__title">ADA</span></div>
+  <div class="sec page-head">
+    <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
+    <div class="page-title"><span class="sec__mark">II</span><span class="sec__title">ADA</span></div>
+  </div>
 
   <div class="ada-top">
     <!-- LEFT — hex insert -->
     <div class="hexcol">
       <div class="box hexbox">
         <div class="sec">
-          <div class="sec__bar"></div>
+          <div class="sec__bar sec__bar--thin"></div>
           <div class="sec__head"><span class="sec__title">PASTE HEX VALUES (<span id="count"></span>)</span></div>
         </div>
         <textarea id="input" class="field" spellcheck="false"></textarea>
@@ -109,7 +112,7 @@
   <div class="divider"></div>
 
   <div class="sec">
-    <div class="sec__bar" style="max-width:161px"></div>
+    <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
     <div class="box matrixbox">
       <div class="matrixWrap" id="matrixWrap"></div>
     </div>
