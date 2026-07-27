@@ -30,6 +30,7 @@ Source of truth: Figma **Creative Suite** (`mH4MAAEe27RAt2W7jo8Aio`), from redes
 - **Rail selectors**: `--rail-w: 7.5px` track + thumb; active `#333` semibold, inactive `#696969`.
 - **Chips**: `--chip-h: 22.5px`, soft `#EDEDED`, `2.5px` radius.
 - **Sentence case** labels (`Standard`, `Show only`).
+- **Tools**: ADA, Export, Brandboard (gradient), Varlogo — same shell + tokens.
 - When reading new Figma: take artboard values and **× 0.5**, then flatten all type to `--fs`.
 
 ## Adaptation workflow
@@ -38,3 +39,4 @@ Source of truth: Figma **Creative Suite** (`mH4MAAEe27RAt2W7jo8Aio`), from redes
 2. Map into `.box`, `.rail-*`, `.stat-row`, `.chip`, `.opt` in `design.css`.
 3. Scale Figma px × 0.5; force type to `--fs` + Inter.
 4. Extend tokens/rule if a new pattern appears — don’t fork a one-off look.
+5. Avoid naming collisions with shell classes (`.panel` is the left nav — use a scoped name for tool-local panels).
