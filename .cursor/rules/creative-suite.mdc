@@ -1,0 +1,40 @@
+---
+description: McCANN Creative Suite visual language — apply when adapting any Figma or new UI into this site
+alwaysApply: true
+---
+
+# Creative Suite design language
+
+Source of truth: Figma **Creative Suite** (`mH4MAAEe27RAt2W7jo8Aio`), from redesigned ADA frame `62:2`, implemented at **0.5×** of the Figma artboard. Match this language — not IBM Plex Mono / black composite rules, and not Are.na.
+
+## Tokens (`assets/design.css`)
+
+| Role | Value |
+|------|--------|
+| Background | `#FFFFFF` |
+| Active / primary text | `#333333` (`--ink`) |
+| Labels / inactive | `#696969` (`--muted`) |
+| Borders / tracks / hairlines | `#EDEDED` |
+| Chip / track fill | `#EDEDED` (`--surface`) |
+| Rail thumb | `#696969` (`--thumb`) |
+| Box radius | `2.5px` (Figma 5 × 0.5) |
+| Rail radius | `3.75px` (Figma 7.5 × 0.5) |
+| Box border | `1px solid #EDEDED` (Figma 2 × 0.5) |
+| Typeface | **Inter only** (400 labels / 600 active) |
+| Type size | **`12.5px` everywhere** (`--fs`) — Figma 25 × 0.5. No second size. |
+
+## Hard rules
+
+- **One type size**: wordmark, nav, labels, options, stats, fields, matrix, modals — all `var(--fs)` / `12.5px`. Do not introduce larger display sizes.
+- **Inter by default**: no monospace UI chrome; `--mono` aliases to Inter. Chart-font overrides are opt-in only.
+- **Rail selectors**: `--rail-w: 7.5px` track + thumb; active `#333` semibold, inactive `#696969`.
+- **Chips**: `--chip-h: 22.5px`, soft `#EDEDED`, `2.5px` radius.
+- **Sentence case** labels (`Standard`, `Show only`).
+- When reading new Figma: take artboard values and **× 0.5**, then flatten all type to `--fs`.
+
+## Adaptation workflow
+
+1. `get_design_context` on the Figma node (design-to-code skill).
+2. Map into `.box`, `.rail-*`, `.stat-row`, `.chip`, `.opt` in `design.css`.
+3. Scale Figma px × 0.5; force type to `--fs` + Inter.
+4. Extend tokens/rule if a new pattern appears — don’t fork a one-off look.

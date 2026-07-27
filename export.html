@@ -8,7 +8,7 @@
 <title>EXPORT — McCANN Design</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="assets/design.css">
 <style>
@@ -17,30 +17,30 @@
 
   .uploadCol{ display:flex; flex-direction:column; gap:0; }
   .drop{
-    min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; gap:6px; padding:24px; cursor:pointer;
+    min-height:130px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:3px; padding:12px; cursor:pointer;
     transition:background-color .18s var(--ease);
   }
   .drop:hover{ background:rgba(0,0,0,.03); }
   .drop.drag{ background:rgba(0,0,0,.06); }
-  .drop .big{ font-family:var(--mono); font-weight:600; font-size:var(--fs-title); }
-  .drop .sub{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); }
+  .drop .big{ font-family:var(--sans); font-weight:600; font-size:var(--fs); }
+  .drop .sub{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); }
   .drop.has{ padding:0; }
-  .preview{ width:100%; flex:1 1 auto; min-height:260px; display:flex; align-items:center; justify-content:center;
-    background:repeating-conic-gradient(rgba(0,0,0,.05) 0% 25%,transparent 0% 50%) 50%/20px 20px; }
+  .preview{ width:100%; flex:1 1 auto; min-height:130px; display:flex; align-items:center; justify-content:center;
+    background:repeating-conic-gradient(rgba(0,0,0,.05) 0% 25%,transparent 0% 50%) 50%/10px 10px; }
   .preview img{ max-width:86%; max-height:86%; object-fit:contain; }
-  .filemeta{ display:flex; justify-content:space-between; align-items:center; gap:18px; }
-  .filemeta #fileinfo{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); }
+  .filemeta{ display:flex; justify-content:space-between; align-items:center; gap:9px; }
+  .filemeta #fileinfo{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); }
 
-  .optionsCol{ display:flex; flex-direction:column; gap:12px; }
-  .sizefield{ display:flex; align-items:baseline; gap:12px; line-height:1; }
-  .sizefield input{ font-family:var(--mono); font-weight:500; font-size:var(--fs-opt); width:150px;
-    border:0; border-bottom:2px solid var(--ink); background:transparent; color:var(--ink); outline:none; padding:2px 0; }
-  .sizefield .note{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); text-transform:uppercase; }
+  .optionsCol{ display:flex; flex-direction:column; gap:6px; }
+  .sizefield{ display:flex; align-items:baseline; gap:6px; line-height:1; }
+  .sizefield input{ font-family:var(--sans); font-weight:400; font-size:var(--fs); width:75px;
+    border:0; border-bottom:1px solid var(--ink); background:transparent; color:var(--ink); outline:none; padding:1px 0; }
+  .sizefield .note{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); text-transform:none; }
 
-  .status{ font-family:var(--mono); font-weight:500; font-size:var(--fs-cap); color:var(--dim); min-height:16px; margin-top:8px; text-transform:uppercase; }
+  .status{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); min-height:var(--fs); margin-top:4px; text-transform:none; }
 
-  .tree{ font-family:var(--mono); font-weight:500; font-size:12px; line-height:1; white-space:pre; margin:0; padding:12px; overflow:auto; }
+  .tree{ font-family:var(--sans); font-weight:400; font-size:var(--fs); line-height:1.25; white-space:pre; margin:0; padding:6px; overflow:auto; }
   .tree .muted{ color:var(--dim); }
 
   .canvas-stash{ position:absolute; left:-9999px; top:-9999px; }
@@ -73,7 +73,7 @@
       <input type="file" id="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" style="display:none">
       <div class="filemeta" id="filemeta" style="display:none">
         <span id="fileinfo"></span>
-        <button id="clearBtn" class="btn" style="font-size:var(--fs-cap)">REMOVE</button>
+        <button id="clearBtn" class="btn">REMOVE</button>
       </div>
     </div>
 

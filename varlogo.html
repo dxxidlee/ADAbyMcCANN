@@ -8,7 +8,7 @@
 <title>VARLOGO — McCANN Design</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/design.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
 <style>
@@ -56,7 +56,7 @@
     caret-color:var(--ink);
     text-align:center;
     text-transform:uppercase;
-    font-size:16px; /* caret size only */
+    font-size:var(--fs); /* caret size only */
     line-height:1;
     letter-spacing:0;
   }
@@ -76,7 +76,7 @@
   }
   .guide-h .tag{
     position:absolute; right:0; top:-14px;
-    font-family:var(--mono); font-weight:500; font-size:9px;
+    font-family:var(--sans); font-weight:400; font-size:var(--fs);
     letter-spacing:.08em; color:var(--guide); text-transform:uppercase;
   }
   .g-cap{ top:var(--guide-cap,62%); }
@@ -91,7 +91,7 @@
   .var-actions .field{ width:100%; max-width:220px; }
   .var-actions .btn-row{ display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; }
   .var-note{
-    font-family:var(--mono); font-weight:500; font-size:var(--fs-cap);
+    font-family:var(--sans); font-weight:400; font-size:var(--fs);
     color:var(--dim); line-height:1.2; text-transform:uppercase;
   }
 </style>

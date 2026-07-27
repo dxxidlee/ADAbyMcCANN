@@ -1,14 +1,13 @@
 /* ==========================================================================
    McCANN Design Suite — persistent left menu panel
-   Always present on the left. Hover between pages using it.
-   Default #000 · hover / active #A9A9A9. IBM Plex Mono Medium + SemiBold.
+   Creative Suite language: Inter · soft gray · sentence-case sections
    ========================================================================== */
 (function () {
   var TOOLS = [
     { href: 'ada.html',    label: 'ADA' },
-    { href: 'export.html', label: 'EXPORT' },
-    { href: null,          label: 'BRANDBOARD', soon: true },
-    { href: 'varlogo.html', label: 'VARLOGO' }
+    { href: 'export.html', label: 'Export' },
+    { href: 'brandboard.html', label: 'Brandboard' },
+    { href: 'varlogo.html', label: 'Varlogo' }
   ];
 
   var file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
@@ -19,16 +18,13 @@
   panel.setAttribute('role', 'navigation');
   panel.setAttribute('aria-label', 'Main menu');
 
-  /* wordmark */
   var word = document.createElement('div');
   word.className = 'wordmark';
   word.textContent = 'McCANN Design';
   panel.appendChild(word);
 
-  /* ---- ABOUT (I) ---- */
-  panel.appendChild(navSection('I', 'ABOUT', null, false));
+  panel.appendChild(navSection('About', null));
 
-  /* ---- TOOLS (II) ---- */
   var toolsList = document.createElement('div');
   toolsList.className = 'nav-list';
 
@@ -53,7 +49,6 @@
     toolsList.appendChild(el);
   });
 
-  /* live clock lives under the tool list, same column */
   var clock = document.createElement('div');
   clock.className = 'nav-clock';
   var cDate = document.createElement('div');
@@ -64,11 +59,10 @@
   clock.appendChild(cTime);
   toolsList.appendChild(clock);
 
-  panel.appendChild(navSection('II', 'TOOLS', toolsList, true));
+  panel.appendChild(navSection('Tools', toolsList));
 
-  /* ---- clock ticker ---- */
-  var DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  var MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+  var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
   function tick() {
     var d = new Date();
@@ -81,22 +75,16 @@
   tick();
   setInterval(tick, 1000);
 
-  /* ---- helpers ---- */
-  function navSection(mark, title, listEl, thick) {
+  function navSection(title, listEl) {
     var sec = document.createElement('div');
     sec.className = 'nav-sec';
 
     var bar = document.createElement('div');
-    bar.className = 'sec__bar' + (thick ? '' : ' sec__bar--thin');
+    bar.className = 'sec__bar sec__bar--thin';
     sec.appendChild(bar);
 
     var row = document.createElement('div');
     row.className = 'nav-row';
-
-    var m = document.createElement('span');
-    m.className = 'sec__mark';
-    m.textContent = mark;
-    row.appendChild(m);
 
     var t = document.createElement('span');
     t.className = 'sec__title';
@@ -108,13 +96,11 @@
     return sec;
   }
 
-  /* ---- mount: wrap existing body content into the layout ---- */
   function mount() {
     var body = document.body;
     var main = document.createElement('div');
     main.className = 'main';
 
-    // move everything already in <body> into the main area
     while (body.firstChild) {
       main.appendChild(body.firstChild);
     }
