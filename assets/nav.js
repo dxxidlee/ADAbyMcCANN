@@ -1,22 +1,41 @@
 /* ==========================================================================
    McCANN Design Suite — horizontal entrance menu
    Figma Creative Suite 91:3 (collapsed) · 91:58 (Tools open)
+   Clean URLs: / · /color-check/ · /multi-export/ · …
    ========================================================================== */
 (function () {
   var TOOLS = [
-    { href: 'ada.html',        label: 'Color-check' },
-    { href: 'export.html',     label: 'Multi-export' },
-    { href: 'brandboard.html', label: 'Mesh-gradient' },
-    { href: 'varlogo.html',    label: 'Logo-variant' },
-    { href: 'recolor.html',    label: 'Color-swap' }
+    { id: 'color-check',  label: 'Color-check' },
+    { id: 'multi-export', label: 'Multi-export' },
+    { id: 'mesh-gradient', label: 'Mesh-gradient' },
+    { id: 'logo-variant', label: 'Logo-variant' },
+    { id: 'color-swap',   label: 'Color-swap' }
   ];
 
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  var file = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
-  if (file === '') file = 'index.html';
-  var isHome = (file === 'index.html');
+  function pathSegs() {
+    return location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+  }
+
+  function currentToolId() {
+    var segs = pathSegs();
+    var last = (segs[segs.length - 1] || '').toLowerCase();
+    if (last === 'index.html') {
+      segs.pop();
+      last = (segs[segs.length - 1] || '').toLowerCase();
+    }
+    for (var i = 0; i < TOOLS.length; i++) {
+      if (TOOLS[i].id === last) return last;
+    }
+    return '';
+  }
+
+  var toolId = currentToolId();
+  var isHome = !toolId;
+  /* Relative root: tools live one folder deep; home is at site root. */
+  var rootPrefix = isHome ? '' : '../';
 
   function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
@@ -33,7 +52,7 @@
   menu.setAttribute('aria-label', 'Main menu');
 
   var brand = el('a', 'menu__brand', 'McCann Design');
-  brand.href = 'index.html';
+  brand.href = isHome ? './' : rootPrefix;
   brand.setAttribute('target', '_top');
   menu.appendChild(brand);
 
@@ -54,9 +73,9 @@
   TOOLS.forEach(function (t) {
     var li = document.createElement('li');
     var a = el('a', 'menu__tool', t.label);
-    a.href = t.href;
+    a.href = rootPrefix + t.id + '/';
     a.setAttribute('target', '_top');
-    if (t.href.toLowerCase() === file) {
+    if (t.id === toolId) {
       a.classList.add('is-active');
       a.setAttribute('aria-current', 'page');
     }
@@ -110,13 +129,24 @@
     if (!toolsBlock.contains(e.relatedTarget)) setOpen(false);
   });
 
+  function toolIdFromHref(href) {
+    if (!href) return '';
+    var clean = href.replace(/\/+$/, '');
+    var parts = clean.split('/').filter(Boolean);
+    var last = (parts[parts.length - 1] || '').toLowerCase();
+    for (var i = 0; i < TOOLS.length; i++) {
+      if (TOOLS[i].id === last) return last;
+    }
+    return '';
+  }
+
   /* ---- click → rise + enter tool ---- */
   function onToolClick(e) {
     var href = e.currentTarget.getAttribute('href');
     if (!href) return;
 
     // Already on this tool — just ensure docked
-    if (href.toLowerCase() === file) {
+    if (toolIdFromHref(href) === toolId) {
       e.preventDefault();
       return;
     }

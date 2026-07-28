@@ -1,0 +1,3148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base target="_top">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<title>Recolor — McCANN Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/design.css">
+<style>
+
+#recolor{
+  font-family:var(--sans);
+  font-size:var(--fs);
+  color:var(--ink);
+  height:calc(100vh - 20px);
+  min-height:480px;
+  margin:-clamp(10px, 2vw, 24px) -clamp(10px, 1.5vw, 20px) -32px;
+  width:calc(100% + clamp(10px, 1.5vw, 20px) * 2);
+  max-width:none;
+}
+#recolor .app{height:100%;}
+#recolor .rc-btn.primary{background:var(--ink);border-color:var(--ink);color:#fff;}
+#recolor .rc-btn.primary:hover:not(:disabled){background:#222;border-color:#222;}
+#recolor .brand-name{font-size:var(--fs);font-weight:600;}
+#recolor .section-head h2,
+#recolor .rc-modal-head h3{font-size:var(--fs);font-weight:600;text-transform:none;}
+#recolor .rc-status{font-size:var(--fs);}
+#recolor .drop-title{font-size:var(--fs);font-weight:600;}
+#recolor .ic{stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;width:12px;height:12px;}
+#recolor .ic.solid{fill:currentColor;stroke:none;}
+
+/* ---------------------------------------------------------------
+   Design tokens. Figma-like: light neutral ground, white panels,
+   hairline borders, 4px radii, compact 12px control type.
+   --------------------------------------------------------------- */
+#recolor{
+  --bg:#FFFFFF;
+  --panel:#FFFFFF;
+  --border:#EDEDED;
+  --border-strong:#EDEDED;
+  --text:#333333;
+  --text-dim:#696969;
+  --text-faint:#696969;
+  --accent:#333333;
+  --accent-soft:#EDEDED;
+  --danger:#E71324;
+  --hover:#EDEDED;
+  --active:#EDEDED;
+  --radius:2.5px;
+  --radius-sm:2.5px;
+  --font:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  --h-toolbar:36px;
+  --w-side:220px;
+}
+#recolor *{box-sizing:border-box;}
+
+
+#recolor button,#recolor input,#recolor select,#recolor textarea{font-family:inherit;font-size:var(--fs,12.5px);color:inherit;}
+#recolor :focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:2px;}
+#recolor ::-webkit-scrollbar{width:10px;height:10px;}
+#recolor ::-webkit-scrollbar-thumb{background:#CFCFCF;border-radius:6px;border:3px solid var(--panel);}
+#recolor ::-webkit-scrollbar-thumb:hover{background:#B4B4B4;}
+#recolor ::-webkit-scrollbar-track{background:transparent;}
+
+/* ------------------------------ shell ------------------------- */
+#recolor .app{display:flex;flex-direction:column;height:100vh;}
+#recolor .toolbar{
+  height:var(--h-toolbar);flex:0 0 auto;display:flex;align-items:center;gap:8px;
+  padding:0 10px;background:var(--panel);border-bottom:1px solid var(--border);
+}
+#recolor .brand{display:flex;align-items:center;gap:7px;padding-right:10px;margin-right:2px;
+  border-right:1px solid var(--border);height:24px;}
+#recolor .brand-mark{width:15px;height:15px;border-radius:3px;flex:0 0 auto;
+  background:linear-gradient(135deg,#E71324 0%,#92001D 55%,#500010 100%);}
+#recolor .brand-name{font-size:12px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;}
+#recolor .tb-spacer{flex:1 1 auto;}
+
+/* ------------------------------ buttons ----------------------- */
+#recolor .rc-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  height:26px;padding:0 10px;border:1px solid var(--border-strong);
+  background:var(--panel);border-radius:var(--radius);cursor:pointer;
+  font-size:11px;font-weight:500;white-space:nowrap;transition:background .1s,border-color .1s;
+}
+#recolor .rc-btn:hover:not(:disabled){background:var(--hover);}
+#recolor .rc-btn:active:not(:disabled){background:var(--active);}
+#recolor .rc-btn:disabled{opacity:.4;cursor:not-allowed;}
+#recolor .rc-btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+#recolor .rc-btn.primary:hover:not(:disabled){background:#222;}
+#recolor .rc-btn.ghost{border-color:transparent;background:transparent;}
+#recolor .rc-btn.ghost:hover:not(:disabled){background:var(--hover);}
+#recolor .rc-btn.sm{height:22px;padding:0 7px;font-size:10px;}
+#recolor .rc-btn.icon{width:26px;padding:0;}
+#recolor .rc-btn.icon.sm{width:22px;}
+#recolor .rc-btn.danger:hover:not(:disabled){background:#FDECEE;border-color:#F5B5BB;color:var(--danger);}
+
+/* ------------------------------ status ------------------------ */
+#recolor .rc-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);
+  padding:0 9px;height:24px;border:1px solid var(--border);border-radius:var(--radius);
+  background:#FAFAFA;max-width:340px;}
+#recolor .status-dot{width:6px;height:6px;border-radius:50%;background:#BDBDBD;flex:0 0 auto;}
+#recolor .status-dot.busy{background:var(--accent);animation:pulse 1s ease-in-out infinite;}
+#recolor .status-dot.ok{background:#14AE5C;}
+#recolor .status-dot.err{background:var(--danger);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+#recolor .status-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+@media(prefers-reduced-motion:reduce){#recolor *{animation:none!important;transition:none!important;}}
+
+/* ------------------------------ layout ------------------------ */
+#recolor .workspace{flex:1 1 auto;display:flex;min-height:0;}
+#recolor .side{
+  width:var(--w-side);flex:0 0 var(--w-side);background:var(--panel);
+  display:flex;flex-direction:column;min-height:0;overflow-y:auto;overflow-x:hidden;
+}
+#recolor .side.left{border-right:1px solid var(--border);}
+#recolor .side.right{border-left:1px solid var(--border);}
+#recolor .center{flex:1 1 auto;display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--bg);}
+
+/* ------------------------------ sections ---------------------- */
+#recolor .section{border-bottom:1px solid var(--border);}
+#recolor .section-head{
+  display:flex;align-items:center;gap:6px;padding:0 10px;height:30px;cursor:pointer;
+  user-select:none;background:var(--panel);position:sticky;top:0;z-index:2;
+  border-bottom:1px solid transparent;
+}
+#recolor .section-head:hover{background:#FAFAFA;}
+#recolor .section-head h2{margin:0;font-size:11px;font-weight:600;letter-spacing:.01em;flex:1 1 auto;}
+#recolor .section-head .caret{width:9px;height:9px;flex:0 0 auto;color:var(--text-faint);transition:transform .12s;}
+#recolor .section.collapsed .caret{transform:rotate(-90deg);}
+#recolor .section.collapsed .section-
+.section-
+.section-note{font-size:10px;color:var(--text-faint);margin:0 0 8px;line-height:1.5;}
+
+/* ------------------------------ rows -------------------------- */
+#recolor .row{display:flex;align-items:center;gap:6px;}
+#recolor .row+.row{margin-top:6px;}
+#recolor .row.wrap{flex-wrap:wrap;}
+#recolor .grow{flex:1 1 auto;min-width:0;}
+#recolor .rc-field-label{font-size:10px;color:var(--text-dim);flex:0 0 auto;}
+
+/* ------------------------------ inputs ------------------------ */
+#recolor .input,#recolor select.input{
+  height:24px;padding:0 6px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);
+  background:var(--panel);width:100%;min-width:0;
+}
+#recolor .input:hover{border-color:#BDBDBD;}
+#recolor .input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 1px var(--accent);}
+#recolor .input.mono{font-family:var(--mono);font-size:10px;letter-spacing:-.01em;text-transform:uppercase;}
+#recolor .input.num{width:52px;flex:0 0 52px;text-align:right;font-family:var(--mono);font-size:10px;}
+#recolor select.input{cursor:pointer;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236B6B6B' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 6px center;background-size:8px;padding-right:18px;}
+#recolor textarea.input{height:auto;padding:5px 6px;resize:vertical;line-height:1.5;}
+#recolor input[type=checkbox]{width:13px;height:13px;margin:0;flex:0 0 auto;cursor:pointer;accent-color:var(--accent);}
+#recolor label.check{display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-size:10px;color:var(--text-dim);}
+
+/* ------------------------------ sliders ----------------------- */
+#recolor .ctrl{padding:5px 0;}
+#recolor .ctrl-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+#recolor .ctrl-name{font-size:10.5px;color:var(--text);flex:1 1 auto;cursor:pointer;user-select:none;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#recolor .ctrl-name:hover{color:var(--accent);}
+#recolor .ctrl-val{font-family:var(--mono);font-size:10px;color:var(--text-dim);flex:0 0 auto;
+  min-width:30px;text-align:right;font-variant-numeric:tabular-nums;}
+#recolor input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:14px;background:transparent;
+  cursor:pointer;display:block;margin:0;
+}
+#recolor input[type=range]::-webkit-slider-runnable-track{height:3px;background:#E0E0E0;border-radius:2px;}
+#recolor input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:11px;height:11px;border-radius:50%;background:var(--panel);
+  border:1px solid #9E9E9E;margin-top:-4px;box-shadow:0 1px 2px rgba(0,0,0,.14);
+}
+#recolor input[type=range]:hover::-webkit-slider-thumb{border-color:var(--accent);}
+#recolor input[type=range]:active::-webkit-slider-thumb{background:var(--accent-soft);border-color:var(--accent);}
+#recolor input[type=range]::-moz-range-track{height:3px;background:#E0E0E0;border-radius:2px;}
+#recolor input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--panel);
+  border:1px solid #9E9E9E;box-shadow:0 1px 2px rgba(0,0,0,.14);}
+#recolor input[type=range]:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ------------------------------ tooltip ----------------------- */
+#recolor .tip{position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:12px;height:12px;border-radius:50%;border:1px solid var(--border-strong);
+  color:var(--text-faint);font-size:8px;font-weight:600;cursor:help;flex:0 0 auto;
+  background:var(--panel);}
+#recolor .tip:hover{border-color:var(--accent);color:var(--accent);}
+#recolor .tip::after{
+  content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);right:-4px;
+  width:190px;padding:6px 8px;background:#2C2C2C;color:#F5F5F5;border-radius:var(--radius);
+  font-size:10px;font-weight:400;line-height:1.45;text-align:left;
+  opacity:0;visibility:hidden;transition:opacity .1s;pointer-events:none;z-index:60;
+  box-shadow:0 3px 10px rgba(0,0,0,.2);
+}
+#recolor .tip:hover::after,#recolor .tip:focus-visible::after{opacity:1;visibility:visible;}
+
+/* ------------------------------ swatches ---------------------- */
+#recolor .swatch-list{display:flex;flex-direction:column;gap:5px;}
+#recolor .swatch{border:1px solid var(--border);border-radius:var(--radius);padding:6px;background:var(--panel);}
+#recolor .swatch.off{opacity:.5;background:#FAFAFA;}
+#recolor .swatch.locked{border-color:#F0C36B;background:#FFFCF5;}
+#recolor .swatch-top{display:flex;align-items:center;gap:6px;}
+#recolor .swatch-chip{width:22px;height:22px;border-radius:var(--radius-sm);flex:0 0 auto;
+  border:1px solid rgba(0,0,0,.14);cursor:pointer;padding:0;position:relative;overflow:hidden;}
+#recolor .swatch-chip input{position:absolute;inset:0;opacity:0;cursor:pointer;border:0;padding:0;}
+#recolor .swatch-name{font-size:10.5px;font-weight:500;flex:1 1 auto;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;border:0;background:transparent;padding:0;height:14px;}
+#recolor .swatch-name:focus{outline:none;color:var(--accent);}
+#recolor .swatch-mid{display:flex;align-items:center;gap:5px;margin-top:5px;}
+#recolor .swatch-mid .input.mono{flex:1 1 auto;width:auto;}
+#recolor .swatch-mid select.input{flex:0 0 82px;width:82px;}
+#recolor .lock-btn{border:0;background:transparent;cursor:pointer;padding:2px;line-height:0;
+  color:var(--text-faint);border-radius:3px;flex:0 0 auto;}
+#recolor .lock-btn:hover{background:var(--hover);color:var(--text);}
+#recolor .lock-btn.on{color:#C9821A;}
+
+/* ------------------------------ center ------------------------ */
+#recolor .viewbar{
+  height:34px;flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:0 10px;
+  background:var(--panel);border-bottom:1px solid var(--border);
+}
+#recolor .seg{display:inline-flex;border:1px solid var(--border-strong);border-radius:var(--radius);overflow:hidden;height:24px;}
+#recolor .seg button{
+  border:0;background:var(--panel);padding:0 9px;cursor:pointer;font-size:10.5px;font-weight:500;
+  color:var(--text-dim);border-right:1px solid var(--border);height:100%;
+}
+#recolor .seg button:last-child{border-right:0;}
+#recolor .seg button:hover{background:var(--hover);}
+#recolor .seg button.on{background:var(--accent);color:#fff;}
+#recolor .divider{width:1px;height:18px;background:var(--border);flex:0 0 auto;}
+#recolor .fps{font-family:var(--mono);font-size:10px;color:var(--text-faint);
+  font-variant-numeric:tabular-nums;white-space:nowrap;}
+
+#recolor .stage{
+  flex:1 1 auto;position:relative;display:flex;align-items:center;justify-content:center;
+  min-height:0;padding:14px;overflow:hidden;
+}
+#recolor .stage-inner{position:relative;max-width:100%;max-height:100%;line-height:0;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);background:#111;}
+#recolor #outCanvas{display:block;max-width:100%;max-height:100%;}
+#recolor .stage.fill .stage-inner{width:100%;height:100%;}
+#recolor .stage.fill #outCanvas{width:100%;height:100%;object-fit:cover;}
+
+#recolor .drop{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:9px;background:var(--bg);z-index:5;padding:20px;text-align:center;
+}
+#recolor .drop.hide{display:none;}
+#recolor .drop-box{
+  border:1.5px dashed var(--border-strong);border-radius:6px;padding:30px 44px;background:var(--panel);
+  display:flex;flex-direction:column;align-items:center;gap:9px;transition:border-color .12s,background .12s;
+}
+#recolor .drop.over .drop-box{border-color:var(--accent);background:var(--accent-soft);}
+#recolor .drop-title{font-size:13px;font-weight:600;}
+#recolor .drop-sub{font-size:11px;color:var(--text-dim);max-width:280px;line-height:1.5;}
+#recolor .privacy{font-size:10px;color:var(--text-faint);display:flex;align-items:center;gap:5px;}
+
+/* split handle */
+#recolor .split-handle{position:absolute;top:0;bottom:0;width:2px;background:#fff;
+  box-shadow:0 0 0 1px rgba(0,0,0,.28);cursor:ew-resize;z-index:6;transform:translateX(-1px);}
+#recolor .split-handle::after{
+  content:"";position:absolute;top:50%;left:50%;width:24px;height:24px;
+  transform:translate(-50%,-50%);border-radius:50%;background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.32);
+}
+#recolor .split-handle::before{
+  content:"";position:absolute;top:50%;left:50%;width:9px;height:9px;z-index:1;
+  transform:translate(-50%,-50%) rotate(45deg);
+  border-left:1.5px solid #4A4A4A;border-bottom:1.5px solid #4A4A4A;
+}
+#recolor .stage-tag{position:absolute;top:8px;padding:2px 6px;background:rgba(0,0,0,.62);color:#fff;
+  font-size:9.5px;font-weight:600;letter-spacing:.04em;border-radius:3px;z-index:6;line-height:1.5;}
+#recolor .stage-tag.l{left:8px;} #recolor .stage-tag.r{right:8px;}
+#recolor .picking #outCanvas{cursor:crosshair;}
+#recolor .pick-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:7;
+  background:rgba(13,153,255,.95);color:#fff;padding:4px 10px;border-radius:var(--radius);
+  font-size:10.5px;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+
+/* transport */
+#recolor .transport{
+  flex:0 0 auto;background:var(--panel);border-top:1px solid var(--border);
+  padding:7px 10px 8px;display:flex;flex-direction:column;gap:6px;
+}
+#recolor .scrub-wrap{display:flex;align-items:center;gap:8px;}
+#recolor .time{font-family:var(--mono);font-size:10px;color:var(--text-dim);
+  font-variant-numeric:tabular-nums;flex:0 0 auto;}
+#recolor #scrub{flex:1 1 auto;}
+#recolor .transport-btns{display:flex;align-items:center;gap:5px;}
+#recolor svg.ic{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;display:block;}
+#recolor svg.ic.solid{fill:currentColor;stroke:none;}
+
+/* ------------------------------ clusters ---------------------- */
+#recolor .cluster{display:flex;align-items:center;gap:6px;padding:5px;border:1px solid var(--border);
+  border-radius:var(--radius);margin-bottom:5px;background:var(--panel);}
+#recolor .cluster.protected{border-color:#9BD5A8;background:#F4FBF6;}
+#recolor .cluster-src{width:22px;height:22px;border-radius:var(--radius-sm);flex:0 0 auto;
+  border:1px solid rgba(0,0,0,.14);}
+#recolor .arrow{color:var(--text-faint);flex:0 0 auto;font-size:10px;}
+#recolor .cluster-
+.cluster-meta{font-family:var(--mono);font-size:9px;color:var(--text-faint);}
+
+/* ------------------------------ rules ------------------------- */
+#recolor .rule{border:1px solid var(--border);border-radius:var(--radius);padding:7px;margin-bottom:6px;background:var(--panel);}
+#recolor .rule.off{opacity:.5;}
+#recolor .rule-head{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+#recolor .rule-title{font-size:10px;font-weight:600;flex:1 1 auto;color:var(--text-dim);}
+#recolor .mini{font-size:9.5px;color:var(--text-faint);margin-bottom:2px;display:block;}
+
+/* ------------------------------ presets ----------------------- */
+#recolor .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+#recolor .preset-grid .rc-btn{width:100%;}
+
+/* ------------------------------ modal ------------------------- */
+#recolor .rc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.34);display:flex;align-items:center;
+  justify-content:center;z-index:100;padding:20px;}
+#recolor .rc-overlay[hidden]{display:none;}
+#recolor .rc-modal{background:var(--panel);border-radius:6px;box-shadow:0 10px 34px rgba(0,0,0,.24);
+  width:100%;max-width:380px;max-height:88vh;overflow-y:auto;}
+#recolor .rc-modal-head{display:flex;align-items:center;padding:11px 13px;border-bottom:1px solid var(--border);}
+#recolor .rc-modal-head h3{margin:0;font-size:12px;font-weight:600;flex:1 1 auto;}
+#recolor .rc-modal-
+.rc-modal-foot{display:flex;justify-content:flex-end;gap:6px;padding:10px 13px;
+  border-top:1px solid var(--border);background:#FAFAFA;border-radius:0 0 6px 6px;}
+#recolor .note{background:#FFF8E6;border:1px solid #F2DFAF;border-radius:var(--radius);
+  padding:7px 9px;font-size:10px;line-height:1.5;color:#7A5B12;}
+#recolor .progress{height:4px;background:#EAEAEA;border-radius:2px;overflow:hidden;}
+#recolor .progress-bar{height:100%;width:0;background:var(--accent);transition:width .15s;}
+#recolor .rc-field{margin-bottom:9px;}
+#recolor .rc-field>label{display:block;font-size:10px;color:var(--text-dim);margin-bottom:3px;}
+#recolor .kv{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);padding:2px 0;}
+#recolor .kv span:last-child{font-family:var(--mono);color:var(--text);}
+#recolor .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+#recolor .toast{position:fixed;bottom:14px;left:50%;transform:translateX(-50%);background:#2C2C2C;
+  color:#fff;padding:7px 13px;border-radius:var(--radius);font-size:11px;z-index:200;
+  box-shadow:0 3px 12px rgba(0,0,0,.26);}
+#recolor .toast[hidden]{display:none;}
+
+</style>
+</head>
+<body>
+<div id="recolor">
+
+<div class="app">
+
+  <!-- ===================== TOOLBAR ===================== -->
+  <header class="toolbar">
+    <div class="brand"><div class="brand-mark"></div><div class="brand-name">Recolor</div></div>
+    <button class="rc-btn" id="btnUpload">
+      <svg class="ic" viewBox="0 0 16 16"><path d="M8 11V3M4.5 6.5L8 3l3.5 3.5M2.5 11v2h11v-2"/></svg>
+      Upload</button>
+    <button class="rc-btn" id="btnExport" disabled>
+      <svg class="ic" viewBox="0 0 16 16"><path d="M8 3v8M4.5 7.5L8 11l3.5-3.5M2.5 13h11"/></svg>
+      Export</button>
+    <button class="rc-btn" id="btnReset">Reset</button>
+    <div class="tb-spacer"></div>
+    <div class="rc-status" role="status" aria-live="polite">
+      <div class="status-dot" id="statusDot"></div>
+      <div class="status-text" id="statusText">Ready. Upload an image or video to begin.</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*,video/*" class="sr">
+  </header>
+
+  <div class="workspace">
+
+    <!-- ===================== LEFT: PALETTE ===================== -->
+    <aside class="side left" aria-label="Palette">
+      <section class="section" data-sec="palette">
+        <div class="section-head" role="button" tabindex="0" aria-expanded="true">
+          <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5l3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+          <h2>Palette</h2>
+          <span class="fps" id="paletteCount">8 colors</span>
+        </div>
+        <div class="section-body">
+          <p class="section-note">Weight sets how much of the frame a color claims. Role decides which part of the tonal range it lands in.</p>
+          <div class="swatch-list" id="swatchList"></div>
+          <div class="row" style="margin-top:8px">
+            <button class="rc-btn sm grow" id="btnAddColor">Add color</button>
+            <button class="rc-btn sm grow" id="btnResetPalette">Reset palette</button>
+          </div>
+          <div class="row">
+            <button class="rc-btn sm grow" id="btnCopyPalette">Copy hex list</button>
+            <button class="rc-btn sm grow" id="btnImportPalette">Import hex</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-sec="clusters">
+        <div class="section-head" role="button" tabindex="0" aria-expanded="true">
+          <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5l3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+          <h2>Detected source colors</h2>
+        </div>
+        <div class="section-body">
+          <p class="section-note" id="clusterNote">Load a video to analyze its color families.</p>
+          <div id="clusterList"></div>
+          <button class="rc-btn sm" id="btnReanalyze" disabled style="width:100%">Re-run analysis</button>
+        </div>
+      </section>
+
+      <section class="section" data-sec="mapping">
+        <div class="section-head" role="button" tabindex="0" aria-expanded="true">
+          <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5l3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+          <h2>Color mapping</h2>
+          <span class="fps" id="ruleCount">0 rules</span>
+        </div>
+        <div class="section-body">
+          <p class="section-note">Rules run before automatic mapping. Sample a source color from the preview, then pick where it should go.</p>
+          <div id="ruleList"></div>
+          <div class="row">
+            <button class="rc-btn sm grow" id="btnAddRule">Add rule</button>
+            <button class="rc-btn sm grow" id="btnPickRule">Sample from video</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" data-sec="presetio">
+        <div class="section-head" role="button" tabindex="0" aria-expanded="false">
+          <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5l3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+          <h2>Presets file</h2>
+        </div>
+        <div class="section-body">
+          <div class="row">
+            <button class="rc-btn sm grow" id="btnSavePreset">Save .json</button>
+            <button class="rc-btn sm grow" id="btnLoadPreset">Load .json</button>
+          </div>
+          <input type="file" id="presetInput" accept="application/json,.json" class="sr">
+        </div>
+      </section>
+    </aside>
+
+    <!-- ===================== CENTER ===================== -->
+    <main class="center">
+      <div class="viewbar">
+        <div class="seg" role="group" aria-label="Preview mode">
+          <button data-view="original">Original</button>
+          <button data-view="recolored" class="on">Recolored</button>
+          <button data-view="split">Split</button>
+        </div>
+        <div class="divider"></div>
+        <span class="rc-field-label">Quality</span>
+        <select class="input" id="selQuality" style="width:82px;flex:0 0 82px">
+          <option value="draft">Draft</option>
+          <option value="standard" selected>Standard</option>
+          <option value="high">High</option>
+        </select>
+        <div class="divider"></div>
+        <div class="seg" role="group" aria-label="Preview fit">
+          <button data-fit="fit" class="on">Fit</button>
+          <button data-fit="fill">Fill</button>
+        </div>
+        <div class="tb-spacer"></div>
+        <span class="fps" id="fpsRead">—</span>
+        <div class="divider"></div>
+        <span class="fps" id="resRead">—</span>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="stage-inner" id="stageInner">
+          <canvas id="outCanvas" width="16" height="9" aria-label="Video preview"></canvas>
+          <div class="stage-tag l" id="tagL" hidden>ORIGINAL</div>
+          <div class="stage-tag r" id="tagR" hidden>RECOLORED</div>
+          <div class="split-handle" id="splitHandle" hidden role="slider"
+               aria-label="Split position" tabindex="0" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"></div>
+        </div>
+        <div class="pick-hint" id="pickHint" hidden>Click a color in the preview</div>
+        <div class="drop" id="dropZone">
+          <div class="drop-box">
+            <div class="drop-title">Drop an image or video here</div>
+            <div class="drop-sub">PNG, JPG, WebP, MP4, WebM, MOV — analyzed fresh on each import.</div>
+            <button class="rc-btn primary" id="btnUpload2">Choose file</button>
+          </div>
+          <div class="privacy">
+            <svg class="ic" viewBox="0 0 16 16" style="width:11px;height:11px"><path d="M8 2l5 2v4c0 3-2.2 5.4-5 6-2.8-.6-5-3-5-6V4l5-2z"/></svg>
+            Processed locally in your browser. Each import starts a fresh analysis.
+          </div>
+        </div>
+      </div>
+
+      <div class="transport">
+        <div class="scrub-wrap">
+          <span class="time" id="timeCur">0:00.00</span>
+          <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Timeline" disabled>
+          <span class="time" id="timeDur">0:00.00</span>
+        </div>
+        <div class="transport-btns">
+          <button class="rc-btn icon" id="btnPlay" disabled aria-label="Play">
+            <svg class="ic solid" viewBox="0 0 16 16" id="icPlay"><path d="M5 3.5l7 4.5-7 4.5z"/></svg>
+            <svg class="ic solid" viewBox="0 0 16 16" id="icPause" style="display:none"><path d="M5 3h2.2v10H5zM8.8 3H11v10H8.8z"/></svg>
+          </button>
+          <button class="rc-btn icon" id="btnPrevFrame" disabled aria-label="Previous frame" title="Previous frame (←)">
+            <svg class="ic" viewBox="0 0 16 16"><path d="M10 3.5L5.5 8l4.5 4.5M4 3.5v9"/></svg></button>
+          <button class="rc-btn icon" id="btnNextFrame" disabled aria-label="Next frame" title="Next frame (→)">
+            <svg class="ic" viewBox="0 0 16 16"><path d="M6 3.5L10.5 8 6 12.5M12 3.5v9"/></svg></button>
+          <div class="divider"></div>
+          <button class="rc-btn icon" id="btnMute" disabled aria-label="Mute" aria-pressed="false">
+            <svg class="ic" viewBox="0 0 16 16" id="icVolOn"><path d="M4 6h2l3-2.5v9L6 10H4zM11 6c.8.8.8 3.2 0 4"/></svg>
+            <svg class="ic" viewBox="0 0 16 16" id="icVolOff" style="display:none"><path d="M4 6h2l3-2.5v9L6 10H4zM11 6.5l3 3M14 6.5l-3 3"/></svg>
+          </button>
+          <button class="rc-btn sm" id="btnLoop" disabled aria-pressed="true">Loop</button>
+          <div class="tb-spacer"></div>
+          <span class="fps" id="frameRead">—</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===================== RIGHT: SETTINGS ===================== -->
+    <aside class="side right" aria-label="Recolor settings">
+      <section class="section" data-sec="presets">
+        <div class="section-head" role="button" tabindex="0" aria-expanded="true">
+          <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5l3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+          <h2>Presets</h2>
+        </div>
+        <div class="section-body">
+          <div class="preset-grid" id="presetGrid"></div>
+        </div>
+      </section>
+
+      <section class="section" data-sec="settings">
+        <div class="section-head" role="button" tabindex="0" aria-expanded="true">
+          <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5l3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+          <h2>Recolor settings</h2>
+        </div>
+        <div class="section-body">
+          <p class="section-note">Double-click any label to reset that value.</p>
+          <div id="settingsList"></div>
+        </div>
+      </section>
+
+      <section class="section" data-sec="protect">
+        <div class="section-head" role="button" tabindex="0" aria-expanded="true">
+          <svg class="caret" viewBox="0 0 10 10"><path d="M2 3.5L5 6.5l3-3" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+          <h2>Preserved colors</h2>
+        </div>
+        <div class="section-body">
+          <p class="section-note">Sampled colors stay close to their original values.</p>
+          <div id="preserveList"></div>
+          <button class="rc-btn sm" id="btnPickPreserve" style="width:100%">Sample color to preserve</button>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="rc-overlay" id="exportModal" hidden role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+  <div class="rc-modal">
+    <div class="rc-modal-head"><h3 id="exportTitle">Export</h3>
+      <button class="rc-btn ghost icon sm" data-close="exportModal" aria-label="Close">
+        <svg class="ic" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <div class="rc-modal-body">
+      <div class="rc-field"><label for="expRes">Resolution</label>
+        <select class="input" id="expRes">
+          <option value="original" selected>Original</option>
+          <option value="1080">1080p</option><option value="720">720p</option><option value="480">480p</option>
+        </select></div>
+      <div class="rc-field"><label for="expFps">Frame rate</label>
+        <select class="input" id="expFps">
+          <option value="original" selected>Original (detected)</option>
+          <option value="30">30 fps</option><option value="24">24 fps</option>
+        </select></div>
+      <div class="rc-field"><label for="expQual">Quality</label>
+        <select class="input" id="expQual">
+          <option value="high" selected>High</option><option value="medium">Medium</option><option value="small">Small file</option>
+        </select></div>
+      <div class="rc-field"><label class="check"><input type="checkbox" id="expAudio" checked> Include audio</label></div>
+      <div class="kv"><span>Output size</span><span id="expSizeRead">—</span></div>
+      <div class="kv"><span>Frame rate</span><span id="expFpsRead">—</span></div>
+      <div class="kv"><span>Format</span><span id="expMime">—</span></div>
+      <div class="kv"><span>Estimated duration</span><span id="expDur">—</span></div>
+      <div class="note" style="margin-top:9px" id="expNote">
+        Export renders in real time and produces <b>WebM</b>. MP4 cannot be reliably encoded by
+        MediaRecorder in a dependency-free page, so it is not offered rather than faked.
+      </div>
+      <div style="margin-top:10px" id="expProgWrap" hidden>
+        <div class="progress"><div class="progress-bar" id="expProg"></div></div>
+        <div class="kv" style="margin-top:5px"><span id="expStatus">Rendering…</span><span id="expPct">0%</span></div>
+      </div>
+    </div>
+    <div class="rc-modal-foot">
+      <button class="rc-btn" data-close="exportModal" id="expCancel">Cancel</button>
+      <button class="rc-btn primary" id="expStart">Start export</button>
+      <a class="rc-btn primary" id="expDownload" hidden download>Download</a>
+    </div>
+  </div>
+</div>
+
+<div class="rc-overlay" id="importModal" hidden role="dialog" aria-modal="true" aria-labelledby="importTitle">
+  <div class="rc-modal" style="max-width:340px">
+    <div class="rc-modal-head"><h3 id="importTitle">Import palette</h3>
+      <button class="rc-btn ghost icon sm" data-close="importModal" aria-label="Close">
+        <svg class="ic" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button></div>
+    <div class="rc-modal-body">
+      <div class="rc-field"><label for="importText">Paste hex values, separated by commas, spaces, or new lines</label>
+        <textarea class="input mono" id="importText" rows="6" placeholder="#E71324&#10;#92001D&#10;#500010"></textarea></div>
+      <div class="kv"><span id="importRead">No valid colors yet</span><span></span></div>
+    </div>
+    <div class="rc-modal-foot">
+      <button class="rc-btn" data-close="importModal">Cancel</button>
+      <button class="rc-btn primary" id="importApply">Replace palette</button>
+    </div>
+  </div>
+</div>
+
+<div class="rc-overlay" id="confirmModal" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="rc-modal" style="max-width:320px">
+    <div class="rc-modal-head"><h3 id="confirmTitle">Reset everything?</h3></div>
+    <div class="rc-modal-body" id="confirmBody">
+      This restores the default palette, settings, and mappings, and clears saved data. The loaded video stays.
+    </div>
+    <div class="rc-modal-foot">
+      <button class="rc-btn" data-close="confirmModal">Cancel</button>
+      <button class="rc-btn primary" id="confirmOk">Reset</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden role="status"></div>
+<video id="srcVideo" class="sr" playsinline crossorigin="anonymous"></video>
+</div>
+<script src="../assets/nav.js"></script>
+<script>
+
+/* ============================================================
+   SHADERS
+   ============================================================ */
+const VERT_SRC = `#version 300 es
+in vec2 aPos;
+out vec2 vUv;
+uniform bool uFlipY;
+void main(){
+  vUv = vec2(aPos.x*0.5+0.5, uFlipY ? (0.5-aPos.y*0.5) : (aPos.y*0.5+0.5));
+  gl_Position = vec4(aPos,0.0,1.0);
+}`;
+
+/* Pass-through used for the temporal history copy. */
+const COPY_SRC = `#version 300 es
+precision highp float;
+in vec2 vUv; out vec4 outColor;
+uniform sampler2D uTex;
+void main(){ outColor = texture(uTex,vUv); }`;
+
+const MAX_COLORS = 16;
+const MAX_RULES  = 12;
+const MAX_CLUST  = 8;
+const MAX_PRESERVE = 6;
+
+/* ------------------------------------------------------------
+   Main recolor shader.
+
+   Pipeline per pixel:
+     sRGB -> linear -> OKLab (L, a, b)
+     split L (lightness) from chroma (C, h)
+     classify: shadow / midtone / highlight, neutral-ness
+     score every enabled palette color against the pixel using
+       role fit x weight x hue affinity x perceptual distance
+     manual rules and cluster assignments override the score
+     blend chroma toward the winner, keep source L, then
+       re-impose the target's own tonal shape so highlights and
+       shadows read as that color rather than as a flat tint
+     saturation ceiling, gamut clamp, local contrast restore
+     temporal blend against previous frame
+   ------------------------------------------------------------ */
+const FRAG_SRC = `#version 300 es
+precision highp float;
+in vec2 vUv;
+out vec4 outColor;
+
+uniform sampler2D uFrame;     // current video frame
+uniform sampler2D uPrev;      // previous processed frame (temporal)
+uniform bool  uHasPrev;
+uniform vec2  uTexel;         // 1/resolution
+uniform float uSplit;         // split position 0..1
+uniform int   uView;          // 0 original, 1 recolored, 2 split
+
+// palette
+uniform int   uCount;
+uniform vec3  uPalLab[${MAX_COLORS}];   // OKLab of each palette color
+uniform float uPalWeight[${MAX_COLORS}];
+uniform int   uPalRole[${MAX_COLORS}];  // 0 primary 1 shadow 2 mid 3 high 4 neutral 5 accent 6 protect
+
+// clusters (stable source-color families from analysis)
+uniform int   uClusterCount;
+uniform vec3  uClustLab[${MAX_CLUST}];
+uniform int   uClustTarget[${MAX_CLUST}];  // palette index, -1 = auto
+uniform float uClustStrength[${MAX_CLUST}];
+uniform float uClustProtect[${MAX_CLUST}];
+
+// manual rules
+uniform int   uRuleCount;
+uniform vec3  uRuleSrcLab[${MAX_RULES}];
+uniform float uRuleSrcHue[${MAX_RULES}];
+uniform int   uRuleTarget[${MAX_RULES}];
+uniform vec4  uRuleTol[${MAX_RULES}];      // hue, sat, bright, strength
+uniform float uRuleFeather[${MAX_RULES}];
+
+// preserved source colors
+uniform int   uPreserveCount;
+uniform vec4  uPreserve[${MAX_PRESERVE}];  // xyz = OKLab, w = radius
+
+// settings
+uniform float uStrength, uLumaPreserve, uTexture, uShadowProtect, uHighlightProtect;
+uniform float uNeutral, uAccentFreq, uSoftness, uSatLimit, uTemporal, uSeparation, uSkin;
+
+const float PI = 3.14159265359;
+
+/* ---------- sRGB <-> linear ---------- */
+vec3 srgbToLinear(vec3 c){
+  return mix(c/12.92, pow((c+0.055)/1.055, vec3(2.4)), step(0.04045, c));
+}
+vec3 linearToSrgb(vec3 c){
+  c = max(c, 0.0);
+  return mix(c*12.92, 1.055*pow(c, vec3(1.0/2.4))-0.055, step(0.0031308, c));
+}
+
+/* ---------- OKLab (Björn Ottosson) ----------
+   Perceptually uniform: equal numeric steps look like equal
+   perceptual steps, so distance and blending behave sanely. */
+vec3 linearToOklab(vec3 c){
+  float l = 0.4122214708*c.r + 0.5363325363*c.g + 0.0514459929*c.b;
+  float m = 0.2119034982*c.r + 0.6806995451*c.g + 0.1073969566*c.b;
+  float s = 0.0883024619*c.r + 0.2817188376*c.g + 0.6299787005*c.b;
+  float l_ = sign(l)*pow(abs(l), 1.0/3.0);
+  float m_ = sign(m)*pow(abs(m), 1.0/3.0);
+  float s_ = sign(s)*pow(abs(s), 1.0/3.0);
+  return vec3(
+    0.2104542553*l_ + 0.7936177850*m_ - 0.0040720468*s_,
+    1.9779984951*l_ - 2.4285922050*m_ + 0.4505937099*s_,
+    0.0259040371*l_ + 0.7827717662*m_ - 0.8086757660*s_);
+}
+vec3 oklabToLinear(vec3 lab){
+  float l_ = lab.x + 0.3963377774*lab.y + 0.2158037573*lab.z;
+  float m_ = lab.x - 0.1055613458*lab.y - 0.0638541728*lab.z;
+  float s_ = lab.x - 0.0894841775*lab.y - 1.2914855480*lab.z;
+  float l = l_*l_*l_, m = m_*m_*m_, s = s_*s_*s_;
+  return vec3(
+    +4.0767416621*l - 3.3077115913*m + 0.2309699292*s,
+    -1.2684380046*l + 2.6097574011*m - 0.3413193965*s,
+    -0.0041960863*l - 0.7034186147*m + 1.7076147010*s);
+}
+float labChroma(vec3 lab){ return length(lab.yz); }
+float labHue(vec3 lab){ return atan(lab.z, lab.y); }
+
+/* Shortest angular distance, normalized 0..1 (1 = opposite hue). */
+float hueDist(float h1, float h2){
+  float d = abs(h1-h2);
+  d = min(d, 2.0*PI-d);
+  return d/PI;
+}
+
+/* Role fit: how well a palette role suits this pixel's lightness.
+   Keeps deep shadows out of highlight colors and vice versa. */
+float roleFit(int role, float L, float neutralness, float chroma){
+  // Strongly chromatic pixels must not be claimed by achromatic roles,
+  // or a saturated cyan object washes out to white instead of taking
+  // a palette color. Scales highlight/neutral down as chroma rises.
+  float chromatic = smoothstep(0.02, 0.11, chroma);
+  if(role==1) return smoothstep(0.62,0.10,L);           // shadow
+  if(role==3) return smoothstep(0.55,0.95,L) * (1.0 - chromatic*0.85);
+  if(role==2) return 1.0-abs(L-0.5)*1.7;                // midtone
+  if(role==4) return (neutralness*0.85+0.15) * (1.0 - chromatic*0.90);
+  // Accents compete only where the source is genuinely saturated. The
+  // base term is boosted so the slider spans a useful range instead of
+  // being double-penalized by the low accent weights; hue affinity in
+  // the caller still decides which accent, so they stay selective.
+  if(role==5) return smoothstep(0.05,0.16,chroma) * (0.35 + uAccentFreq*1.0);
+  if(role==0) return 0.55+0.45*(1.0-abs(L-0.45)*1.5);   // primary
+  return 0.0;                                            // protect: never a target
+}
+
+/* Approximate skin-tone range in OKLab: warm hue band, moderate
+   chroma, mid-to-high lightness. This is a color-range guard, not
+   face or person detection. */
+float skinMask(vec3 lab, float C, float h){
+  // Widened bands and a gamma lift so a genuine skin pixel reaches ~1.0.
+  // Multiplying three partial ramps otherwise caps the mask near 0.5 and
+  // the protection slider barely bites.
+  float hd  = 1.0 - smoothstep(0.10, 0.42, hueDist(h, 0.97));
+  float cd  = smoothstep(0.006, 0.030, C) * (1.0 - smoothstep(0.16, 0.28, C));
+  float ld  = smoothstep(0.18, 0.34, lab.x) * (1.0 - smoothstep(0.84, 0.97, lab.x));
+  return clamp(pow(hd*cd*ld, 0.45), 0.0, 1.0);
+}
+
+void main(){
+  vec3 srcSrgb = texture(uFrame, vUv).rgb;
+
+  if(uView==0){ outColor = vec4(srcSrgb,1.0); return; }
+  if(uView==2 && vUv.x < uSplit){ outColor = vec4(srcSrgb,1.0); return; }
+
+  vec3 lin = srgbToLinear(srcSrgb);
+  vec3 lab = linearToOklab(lin);
+  float L  = clamp(lab.x, 0.0, 1.0);
+  float C  = labChroma(lab);
+  float h  = labHue(lab);
+
+  /* --- classify the pixel --- */
+  float neutralness = 1.0 - smoothstep(0.006, 0.075, C);
+  float shadowAmt   = smoothstep(0.42, 0.06, L);
+  float highAmt     = smoothstep(0.66, 0.97, L);
+  float skin        = skinMask(lab, C, h) * uSkin;
+
+  /* --- local contrast: how much this pixel deviates from its
+         neighborhood. Preserved and re-added after recoloring so
+         texture and fine detail survive. --- */
+  float lSum = 0.0;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+vec2( uTexel.x,0.0)).rgb)).x;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+vec2(-uTexel.x,0.0)).rgb)).x;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+vec2(0.0, uTexel.y)).rgb)).x;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+vec2(0.0,-uTexel.y)).rgb)).x;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+uTexel*vec2( 1.0, 1.0)).rgb)).x;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+uTexel*vec2(-1.0, 1.0)).rgb)).x;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+uTexel*vec2( 1.0,-1.0)).rgb)).x;
+  lSum += linearToOklab(srgbToLinear(texture(uFrame, vUv+uTexel*vec2(-1.0,-1.0)).rgb)).x;
+  float localMean = lSum/8.0;
+  float detail    = L - localMean;
+
+  /* --- snap this pixel to its nearest stable source cluster.
+         Using a fixed cluster set (computed once from sampled
+         frames) is what keeps mapping consistent between frames
+         instead of re-deciding per frame. --- */
+  int   clustIdx = -1;
+  float clustD   = 1e9;
+  for(int i=0;i<${MAX_CLUST};i++){
+    if(i>=uClusterCount) break;
+    vec3 d = uClustLab[i]-lab;
+    // weight chroma difference more than lightness: a light and a
+    // dark blue belong to the same family, blue and green do not.
+    float dist = d.x*d.x*0.55 + d.y*d.y*2.4 + d.z*d.z*2.4;
+    if(dist<clustD){ clustD=dist; clustIdx=i; }
+  }
+  float clusterProtect = 0.0;
+  int   forcedTarget   = -1;
+  float forcedStrength = 1.0;
+  if(clustIdx>=0){
+    clusterProtect = uClustProtect[clustIdx];
+    forcedStrength = uClustStrength[clustIdx];
+    if(uClustTarget[clustIdx]>=0) forcedTarget = uClustTarget[clustIdx];
+  }
+
+  /* --- manual rules override clusters --- */
+  float ruleWeight = 0.0;
+  int   ruleTarget = -1;
+  for(int i=0;i<${MAX_RULES};i++){
+    if(i>=uRuleCount) break;
+    if(uRuleTarget[i]<0) continue;
+    vec3  rl = uRuleSrcLab[i];
+    float rC = labChroma(rl);
+    float hueOk, satOk, briOk;
+    // Achromatic sources are matched by lightness only; hue is
+    // meaningless for near-grays and would match randomly.
+    if(rC < 0.012 || C < 0.012){
+      hueOk = 1.0 - smoothstep(0.02, 0.02+uRuleTol[i].y*0.35, abs(C-rC));
+    } else {
+      hueOk = 1.0 - smoothstep(uRuleTol[i].x*0.55, uRuleTol[i].x, hueDist(h, uRuleSrcHue[i]));
+    }
+    satOk = 1.0 - smoothstep(uRuleTol[i].y*0.6, uRuleTol[i].y, abs(C-rC));
+    briOk = 1.0 - smoothstep(uRuleTol[i].z*0.6, uRuleTol[i].z, abs(L-rl.x));
+    float m = hueOk*satOk*briOk;
+    m = pow(clamp(m,0.0,1.0), mix(2.2, 0.45, uRuleFeather[i]));
+    m *= uRuleTol[i].w;
+    if(m > ruleWeight){ ruleWeight = m; ruleTarget = uRuleTarget[i]; }
+  }
+
+  /* --- score palette candidates --- */
+  int   best = -1, second = -1;
+  float bestScore = -1e9, secondScore = -1e9;
+  for(int i=0;i<${MAX_COLORS};i++){
+    if(i>=uCount) break;
+    float w = uPalWeight[i];
+    if(w <= 0.0) continue;
+    int role = uPalRole[i];
+    if(role==6) continue;                       // protect role is never a destination
+    vec3  p  = uPalLab[i];
+    float pC = labChroma(p);
+    float pH = labHue(p);
+
+    float fit = roleFit(role, L, neutralness, C);
+    if(fit <= 0.0) continue;
+
+    // hue affinity keeps a source family landing on a consistent
+    // palette family; ignored when either side is near-neutral.
+    float hueAff = (C>0.012 && pC>0.012) ? (1.0 - hueDist(h,pH)) : 0.5;
+
+    // perceptual closeness in the chroma plane
+    float chromaDist = distance(vec2(lab.y,lab.z), vec2(p.y,p.z));
+    float near = 1.0 - clamp(chromaDist*2.6, 0.0, 1.0);
+
+    float score = fit * (0.35+w*0.65) * (0.45 + 0.55*hueAff) * (0.55 + 0.45*near);
+
+    // neutral sources prefer neutral/highlight roles so grays and
+    // whites do not all get dragged into red
+    if(neutralness>0.5 && (role==4||role==3)) score *= 1.0 + uNeutral*1.5;
+    if(neutralness>0.5 && role==5)            score *= 1.0 - uNeutral*0.85;
+
+    if(score>bestScore){ secondScore=bestScore; second=best; bestScore=score; best=i; }
+    else if(score>secondScore){ secondScore=score; second=i; }
+  }
+  if(best<0){ outColor = vec4(srcSrgb,1.0); return; }
+
+  /* --- resolve the target, honoring overrides --- */
+  int   tgt = best;
+  float overrideAmt = 0.0;
+  if(forcedTarget>=0 && forcedTarget<uCount){ tgt = forcedTarget; overrideAmt = 1.0; }
+  if(ruleTarget>=0   && ruleTarget<uCount){   tgt = ruleTarget;   overrideAmt = ruleWeight; }
+
+  vec3 target = uPalLab[tgt];
+
+  /* --- Palette softness blends between a strict single-color
+         result and a natural blend with the runner-up. Color
+         separation pushes the opposite way so neighboring palette
+         colors do not average into mud. --- */
+  if(second>=0 && overrideAmt<0.99){
+    float sep = clamp(1.0-uSeparation, 0.0, 1.0);
+    float mixAmt = uSoftness * sep * 0.5;
+    float gap = clamp((bestScore-secondScore)/max(bestScore,1e-4), 0.0, 1.0);
+    mixAmt *= (1.0-gap);
+    target = mix(target, uPalLab[second], mixAmt);
+  }
+
+  float tC = labChroma(target);
+  float tH = labHue(target);
+
+  /* --- Reconstruct the target's tonal shape.
+         Rather than tinting flat, rebuild chroma as a function of
+         the source lightness: shadows of a color are less chromatic
+         and slightly hue-rotated, highlights desaturate toward the
+         light. This is what makes it read as designed color rather
+         than a gradient map. --- */
+  float shape = 1.0 - abs(L-0.55)*1.25;
+  shape = clamp(shape, 0.18, 1.0);
+  // Shadow protection lifts the chroma floor in the darks when it is
+  // low, so the control has real range instead of being pre-empted by
+  // the neutral pass, which has already stripped near-black pixels.
+  shape = mix(shape + shadowAmt*0.55, shape, uShadowProtect);
+  float newC = tC * shape;
+
+  // deep shadows keep less chroma so they do not glow
+  newC *= mix(1.0, 0.24, shadowAmt*uShadowProtect);
+  // bright areas roll off toward the light instead of clipping hot
+  newC *= mix(1.0, 0.30, highAmt*uHighlightProtect);
+  // low-saturation source areas stay low-saturation
+  newC *= mix(1.0, 0.12, neutralness*uNeutral);
+
+  // slight hue rotation in the darks adds depth instead of a flat wash
+  float newH = tH + shadowAmt*0.10 - highAmt*0.06;
+
+  vec3 outLab;
+  outLab.x = L;
+  outLab.y = cos(newH)*newC;
+  outLab.z = sin(newH)*newC;
+
+  /* --- Luminance preservation: reintroduce a controlled amount of
+         the target's own lightness so a dark palette color still
+         reads as dark, while uLumaPreserve keeps the original
+         brightness structure dominant. --- */
+  float targetL = mix(target.x, L, 0.5);
+  outLab.x = mix(targetL, L, clamp(uLumaPreserve,0.0,1.0));
+  // never let a region invert its tonal ordering
+  outLab.x = mix(outLab.x, L, 0.22);
+
+  /* --- restore local detail that the chroma rebuild flattened --- */
+  outLab.x += detail * uTexture * 1.25;
+
+  /* --- saturation ceiling --- */
+  float outC = labChroma(outLab);
+  float maxC = mix(0.055, 0.33, uSatLimit);
+  if(outC > maxC){
+    float k = maxC/max(outC,1e-5);
+    outLab.yz *= k;
+  }
+
+  /* --- how far to move overall --- */
+  float amt = uStrength;
+  amt *= mix(1.0, forcedStrength, step(0.5, overrideAmt));
+  amt = mix(amt, max(amt, uStrength*overrideAmt), overrideAmt);
+  amt *= (1.0 - clusterProtect);
+  amt *= (1.0 - skin*0.92);
+
+  /* --- preserved sampled colors stay near their originals --- */
+  for(int i=0;i<${MAX_PRESERVE};i++){
+    if(i>=uPreserveCount) break;
+    vec3 pl = uPreserve[i].xyz;
+    float r = uPreserve[i].w;
+    float d = distance(vec3(lab.x*0.6,lab.y,lab.z), vec3(pl.x*0.6,pl.y,pl.z));
+    amt *= mix(1.0, 0.05, 1.0-smoothstep(r*0.45, r, d));
+  }
+
+  vec3 finalLab = mix(lab, outLab, clamp(amt,0.0,1.0));
+  vec3 rgb = linearToSrgb(oklabToLinear(finalLab));
+
+  /* --- gamut safety: if the result left sRGB, pull chroma in
+         rather than letting channels clip to a false hue --- */
+  for(int i=0;i<3;i++){
+    float over = max(max(rgb.r,rgb.g),rgb.b);
+    float under = min(min(rgb.r,rgb.g),rgb.b);
+    if(over<=1.001 && under>=-0.001) break;
+    finalLab.yz *= 0.86;
+    rgb = linearToSrgb(oklabToLinear(finalLab));
+  }
+  rgb = clamp(rgb, 0.0, 1.0);
+
+  /* --- Temporal stability: blend against the previous processed
+         frame, but only where the source barely moved, so motion
+         stays sharp while static areas stop shimmering. --- */
+  if(uHasPrev && uTemporal > 0.001){
+    vec3 prev = texture(uPrev, vUv).rgb;
+    float motion = distance(prev, rgb);
+    float still = 1.0 - smoothstep(0.02, 0.20, motion);
+    rgb = mix(rgb, prev, uTemporal*0.72*still);
+  }
+
+  outColor = vec4(rgb, 1.0);
+}`;
+
+
+/* ============================================================
+   COLOR MATH (CPU side, mirrors the shader)
+   ============================================================ */
+const ColorMath = {
+  hexToRgb(hex){
+    let h = String(hex||'').trim().replace(/^#/,'');
+    if(h.length===3) h = h.split('').map(c=>c+c).join('');
+    if(!/^[0-9a-fA-F]{6}$/.test(h)) return null;
+    return [parseInt(h.slice(0,2),16)/255, parseInt(h.slice(2,4),16)/255, parseInt(h.slice(4,6),16)/255];
+  },
+  rgbToHex(r,g,b){
+    const c = v => Math.max(0,Math.min(255,Math.round(v*255))).toString(16).padStart(2,'0');
+    return ('#'+c(r)+c(g)+c(b)).toUpperCase();
+  },
+  normalizeHex(hex){
+    const rgb = this.hexToRgb(hex);
+    return rgb ? this.rgbToHex(rgb[0],rgb[1],rgb[2]) : null;
+  },
+  srgbToLinear(c){ return c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4); },
+  linearToSrgb(c){
+    c = Math.max(0,c);
+    return c<=0.0031308 ? c*12.92 : 1.055*Math.pow(c,1/2.4)-0.055;
+  },
+  linearToOklab(r,g,b){
+    const l = 0.4122214708*r + 0.5363325363*g + 0.0514459929*b;
+    const m = 0.2119034982*r + 0.6806995451*g + 0.1073969566*b;
+    const s = 0.0883024619*r + 0.2817188376*g + 0.6299787005*b;
+    const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s);
+    return [
+      0.2104542553*l_ + 0.7936177850*m_ - 0.0040720468*s_,
+      1.9779984951*l_ - 2.4285922050*m_ + 0.4505937099*s_,
+      0.0259040371*l_ + 0.7827717662*m_ - 0.8086757660*s_
+    ];
+  },
+  oklabToLinear(L,a,bb){
+    const l_ = L + 0.3963377774*a + 0.2158037573*bb;
+    const m_ = L - 0.1055613458*a - 0.0638541728*bb;
+    const s_ = L - 0.0894841775*a - 1.2914855480*bb;
+    const l = l_*l_*l_, m = m_*m_*m_, s = s_*s_*s_;
+    return [
+      +4.0767416621*l - 3.3077115913*m + 0.2309699292*s,
+      -1.2684380046*l + 2.6097574011*m - 0.3413193965*s,
+      -0.0041960863*l - 0.7034186147*m + 1.7076147010*s
+    ];
+  },
+  hexToOklab(hex){
+    const rgb = this.hexToRgb(hex);
+    if(!rgb) return [0,0,0];
+    return this.linearToOklab(this.srgbToLinear(rgb[0]),this.srgbToLinear(rgb[1]),this.srgbToLinear(rgb[2]));
+  },
+  rgb255ToOklab(r,g,b){
+    return this.linearToOklab(this.srgbToLinear(r/255),this.srgbToLinear(g/255),this.srgbToLinear(b/255));
+  },
+  oklabToHex(L,a,b){
+    const lin = this.oklabToLinear(L,a,b);
+    return this.rgbToHex(this.linearToSrgb(lin[0]),this.linearToSrgb(lin[1]),this.linearToSrgb(lin[2]));
+  },
+  chroma(lab){ return Math.hypot(lab[1],lab[2]); },
+  hue(lab){ return Math.atan2(lab[2],lab[1]); },
+  /* Readable text color for a swatch background. */
+  contrastText(hex){
+    const rgb = this.hexToRgb(hex) || [0,0,0];
+    const L = this.linearToOklab(this.srgbToLinear(rgb[0]),this.srgbToLinear(rgb[1]),this.srgbToLinear(rgb[2]))[0];
+    return L > 0.62 ? '#1A1A1A' : '#FFFFFF';
+  }
+};
+
+/* ============================================================
+   DEFAULTS
+   ============================================================ */
+const ROLES = ['Primary','Shadow','Midtone','Highlight','Neutral','Accent','Protect'];
+const ROLE_INDEX = { Primary:0, Shadow:1, Midtone:2, Highlight:3, Neutral:4, Accent:5, Protect:6 };
+
+const DEFAULT_PALETTE = [
+  { name:'Scarlet Red',      hex:'#E71324', role:'Primary',   weight:100, enabled:true, locked:false },
+  { name:'Scarlet Dark Red', hex:'#92001D', role:'Midtone',   weight:90,  enabled:true, locked:false },
+  { name:'Scarlet Deep Red', hex:'#500010', role:'Shadow',    weight:85,  enabled:true, locked:false },
+  { name:'White',               hex:'#FFFFFF', role:'Highlight', weight:55,  enabled:true, locked:false },
+  { name:'Stone',               hex:'#DCE2E9', role:'Neutral',   weight:60,  enabled:true, locked:false },
+  { name:'Sun',                 hex:'#FF9D00', role:'Accent',    weight:22,  enabled:true, locked:false },
+  { name:'Amethyst',            hex:'#A200ED', role:'Accent',    weight:28,  enabled:true, locked:false },
+  { name:'Ocean',               hex:'#00B0F2', role:'Accent',    weight:18,  enabled:true, locked:false }
+];
+
+/* Each setting: uniform key, label, default, tooltip. */
+const SETTING_DEFS = [
+  { key:'strength',         label:'Recolor strength',    def:0.85, tip:'How far source colors move toward the palette. At 0 the frame is untouched.' },
+  { key:'lumaPreserve',     label:'Luminance preservation', def:0.78, tip:'Keeps the original brightness structure. Lower values let palette colors impose their own lightness.' },
+  { key:'texture',          label:'Texture preservation', def:0.70, tip:'Re-adds fine local detail after recoloring so surfaces do not turn into flat blocks.' },
+  { key:'shadowProtect',    label:'Shadow protection',   def:0.72, tip:'Holds chroma out of deep shadows so darks stay dark instead of glowing.' },
+  { key:'highlightProtect', label:'Highlight protection', def:0.68, tip:'Rolls bright areas off toward the light so they do not clip into fluorescent color.' },
+  { key:'neutral',          label:'Neutral preservation', def:0.62, tip:'Keeps whites, grays, and blacks near-neutral rather than pulling them into a brand color.' },
+  { key:'accentFreq',       label:'Accent frequency',    def:0.30, tip:'How often accent colors win a region. Low values keep Scarlet Red dominant.' },
+  { key:'softness',         label:'Palette softness',    def:0.35, tip:'Blends between neighboring palette colors. High values are natural, low values are graphic and strict.' },
+  { key:'satLimit',         label:'Saturation limit',    def:0.58, tip:'Ceiling on output chroma. Prevents clipped or fluorescent results.' },
+  { key:'temporal',         label:'Temporal stability',  def:0.55, tip:'Blends against the previous frame where the image is still, reducing flicker without smearing motion.' },
+  { key:'separation',       label:'Color separation',    def:0.55, tip:'Stops nearby palette colors from averaging into muddy intermediates.' },
+  { key:'skin',             label:'Skin-tone protection', def:0.55, tip:'Reduces recoloring inside an approximate skin hue range. This is a color-range guard, not person detection.' }
+];
+
+const PRESETS = {
+  'Balanced': {},
+  'Red Dominant': { accentFreq:0.08, neutral:0.40, strength:0.95, separation:0.70, satLimit:0.62 },
+  'Cinematic':    { strength:0.70, lumaPreserve:0.88, shadowProtect:0.85, highlightProtect:0.80,
+                    satLimit:0.42, softness:0.60, texture:0.80, temporal:0.68, accentFreq:0.18 },
+  'Graphic':      { strength:1.0, lumaPreserve:0.45, softness:0.05, separation:0.90, texture:0.35,
+                    satLimit:0.80, neutral:0.30, accentFreq:0.42 },
+  'Preserve Neutrals': { neutral:0.95, strength:0.72, accentFreq:0.15, satLimit:0.48, highlightProtect:0.85 },
+  'Maximum Palette':   { strength:1.0, neutral:0.10, accentFreq:0.55, satLimit:0.85, softness:0.20,
+                         lumaPreserve:0.60, separation:0.75 },
+  'Subtle Brand Grade':{ strength:0.34, lumaPreserve:0.92, satLimit:0.36, accentFreq:0.10,
+                         neutral:0.80, softness:0.65, texture:0.85, temporal:0.70 }
+};
+
+/* ============================================================
+   PaletteManager
+   ============================================================ */
+class PaletteManager {
+  constructor(){ this.colors = this.defaults(); this.onChange = null; }
+  defaults(){ return DEFAULT_PALETTE.map(c => ({...c})); }
+  get active(){ return this.colors.filter(c => c.enabled); }
+
+  /* Index within the full list, used by rules and clusters so
+     indices stay valid when colors are disabled rather than removed. */
+  indexOf(color){ return this.colors.indexOf(color); }
+
+  add(){
+    if(this.colors.length >= MAX_COLORS) return false;
+    this.colors.push({ name:'New color', hex:'#808080', role:'Midtone', weight:40, enabled:true, locked:false });
+    this.changed(); return true;
+  }
+  remove(i){
+    if(this.colors.length <= 2) return false;
+    this.colors.splice(i,1); this.changed(); return true;
+  }
+  /* Reset restores defaults but keeps locked colors intact, since a
+     lock means "automatic balancing must not alter this color". */
+  reset(){
+    const locked = this.colors.filter(c => c.locked);
+    const fresh = this.defaults().filter(d => !locked.some(l => l.hex === d.hex));
+    this.colors = locked.concat(fresh).slice(0, MAX_COLORS);
+    this.changed();
+  }
+
+  importHex(text){
+    const found = String(text||'').match(/#?[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) || [];
+    const hexes = [];
+    for(const raw of found){
+      const n = ColorMath.normalizeHex(raw);
+      if(n && !hexes.includes(n)) hexes.push(n);
+      if(hexes.length >= MAX_COLORS) break;
+    }
+    if(hexes.length < 2) return 0;
+    // Keep locked colors; their influence should survive an import.
+    const locked = this.colors.filter(c => c.locked);
+    const fresh = hexes.map((hex,i) => {
+      const lab = ColorMath.hexToOklab(hex);
+      const C = ColorMath.chroma(lab);
+      let role = 'Midtone';
+      if(C < 0.02) role = lab[0] > 0.7 ? 'Highlight' : (lab[0] < 0.25 ? 'Shadow' : 'Neutral');
+      else if(lab[0] < 0.30) role = 'Shadow';
+      else if(lab[0] > 0.78) role = 'Highlight';
+      else if(i === 0) role = 'Primary';
+      else if(i > 4) role = 'Accent';
+      return { name:'Color '+(i+1), hex, role, weight: Math.max(20, 100 - i*11), enabled:true, locked:false };
+    });
+    this.colors = locked.concat(fresh).slice(0, MAX_COLORS);
+    this.changed();
+    return fresh.length;
+  }
+  copyText(){ return this.colors.filter(c=>c.enabled).map(c=>c.hex).join('\n'); }
+
+  /* Normalized weights for the shader.
+
+     Locked colors keep their weight exactly as the user set it (scaled
+     only by the fixed 0..100 range). Unlocked colors are normalized
+     against the strongest unlocked color, so adding or removing colors
+     rebalances them without ever changing a locked color's influence. */
+  shaderWeights(){
+    const out = new Float32Array(MAX_COLORS);
+    let maxUnlocked = 0;
+    for(const c of this.colors){
+      if(c.enabled && !c.locked) maxUnlocked = Math.max(maxUnlocked, c.weight);
+    }
+    this.colors.forEach((c,i) => {
+      if(!c.enabled){ out[i] = 0; return; }
+      if(c.locked) out[i] = c.weight/100;
+      else out[i] = maxUnlocked > 0 ? (c.weight/maxUnlocked) : 0;
+    });
+    return out;
+  }
+  changed(){ if(this.onChange) this.onChange(); }
+}
+
+
+/* ============================================================
+   RecolorRenderer — WebGL2 pipeline with ping-pong history
+   ============================================================ */
+class RecolorRenderer {
+  constructor(canvas){
+    this.canvas = canvas;
+    this.gl = canvas.getContext('webgl2', {
+      alpha:false, antialias:false, depth:false, stencil:false,
+      preserveDrawingBuffer:true, premultipliedAlpha:false
+    });
+    this.ok = !!this.gl;
+    this.hasPrev = false;
+    if(!this.ok) return;
+    try { this.init(); }
+    catch(e){ this.ok = false; this.error = e.message; }
+  }
+
+  compile(type, src){
+    const gl = this.gl, sh = gl.createShader(type);
+    gl.shaderSource(sh, src); gl.compileShader(sh);
+    if(!gl.getShaderParameter(sh, gl.COMPILE_STATUS)){
+      const log = gl.getShaderInfoLog(sh);
+      gl.deleteShader(sh);
+      throw new Error('Shader compile failed: ' + log);
+    }
+    return sh;
+  }
+  link(vsSrc, fsSrc){
+    const gl = this.gl, p = gl.createProgram();
+    const vs = this.compile(gl.VERTEX_SHADER, vsSrc);
+    const fs = this.compile(gl.FRAGMENT_SHADER, fsSrc);
+    gl.attachShader(p, vs); gl.attachShader(p, fs);
+    gl.bindAttribLocation(p, 0, 'aPos');
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)){
+      const log = gl.getProgramInfoLog(p);
+      throw new Error('Program link failed: ' + log);
+    }
+    gl.deleteShader(vs); gl.deleteShader(fs);
+    return p;
+  }
+
+  init(){
+    const gl = this.gl;
+    this.prog = this.link(VERT_SRC, FRAG_SRC);
+    this.copyProg = this.link(VERT_SRC, COPY_SRC);
+
+    // fullscreen triangle pair
+    this.vao = gl.createVertexArray();
+    gl.bindVertexArray(this.vao);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+
+    this.frameTex = this.makeTex();
+    this.histTex  = [this.makeTex(), this.makeTex()];
+    this.histFbo  = [gl.createFramebuffer(), gl.createFramebuffer()];
+    this.histIdx  = 0;
+    this.histSize = [0,0];
+
+    // cache uniform locations once
+    this.u = {};
+    const n = gl.getProgramParameter(this.prog, gl.ACTIVE_UNIFORMS);
+    for(let i=0;i<n;i++){
+      const info = gl.getActiveUniform(this.prog, i);
+      const name = info.name.replace(/\[0\]$/,'');
+      this.u[name] = gl.getUniformLocation(this.prog, name);
+    }
+    this.uCopyTex   = gl.getUniformLocation(this.copyProg, 'uTex');
+    this.uCopyFlip  = gl.getUniformLocation(this.copyProg, 'uFlipY');
+  }
+
+  makeTex(){
+    const gl = this.gl, t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    return t;
+  }
+
+  resize(w,h){
+    if(this.canvas.width !== w || this.canvas.height !== h){
+      this.canvas.width = w; this.canvas.height = h;
+      this.hasPrev = false;
+    }
+    if(this.histSize[0] !== w || this.histSize[1] !== h){
+      const gl = this.gl;
+      for(let i=0;i<2;i++){
+        gl.bindTexture(gl.TEXTURE_2D, this.histTex[i]);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.histFbo[i]);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.histTex[i], 0);
+      }
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      this.histSize = [w,h];
+      this.hasPrev = false;
+    }
+  }
+
+  uploadFrame(video){
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.frameTex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    try {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, video);
+    } catch(e){ return false; }
+    return true;
+  }
+
+  /* state: { palette, clusters, rules, preserve, settings, view, split } */
+  render(video, state){
+    if(!this.ok) return false;
+    const gl = this.gl;
+    const w = this.canvas.width, h = this.canvas.height;
+    if(w < 2 || h < 2) return false;
+    if(!this.uploadFrame(video)) return false;
+
+    gl.useProgram(this.prog);
+    gl.bindVertexArray(this.vao);
+    gl.viewport(0,0,w,h);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.frameTex);
+    gl.uniform1i(this.u.uFrame, 0);
+
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, this.histTex[this.histIdx]);
+    gl.uniform1i(this.u.uPrev, 1);
+    gl.uniform1i(this.u.uHasPrev, this.hasPrev ? 1 : 0);
+
+    gl.uniform2f(this.u.uTexel, 1/w, 1/h);
+    gl.uniform1f(this.u.uSplit, state.split);
+    gl.uniform1i(this.u.uView, state.view);
+    gl.uniform1i(this.u.uFlipY, 0);
+
+    this.setPalette(state.palette);
+    this.setClusters(state.clusters, state.palette);
+    this.setRules(state.rules, state.palette);
+    this.setPreserve(state.preserve);
+    this.setSettings(state.settings);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    // copy result into the history buffer for the next frame
+    const next = 1 - this.histIdx;
+    gl.useProgram(this.copyProg);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, this.histFbo[next]);
+    gl.viewport(0,0,w,h);
+    gl.activeTexture(gl.TEXTURE0);
+    // read the freshly drawn default framebuffer via a texture copy
+    gl.bindTexture(gl.TEXTURE_2D, this.histTex[next]);
+    gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 0, 0, w, h, 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.histIdx = next;
+    this.hasPrev = true;
+
+    gl.bindVertexArray(null);
+    return true;
+  }
+
+  setPalette(pm){
+    const gl = this.gl, list = pm.colors;
+    const lab = new Float32Array(MAX_COLORS*3);
+    const role = new Int32Array(MAX_COLORS);
+    const weights = pm.shaderWeights();
+    for(let i=0;i<list.length && i<MAX_COLORS;i++){
+      const L = ColorMath.hexToOklab(list[i].hex);
+      lab[i*3]=L[0]; lab[i*3+1]=L[1]; lab[i*3+2]=L[2];
+      role[i] = ROLE_INDEX[list[i].role] ?? 2;
+    }
+    gl.uniform1i(this.u.uCount, Math.min(list.length, MAX_COLORS));
+    gl.uniform3fv(this.u.uPalLab, lab);
+    gl.uniform1fv(this.u.uPalWeight, weights);
+    gl.uniform1iv(this.u.uPalRole, role);
+  }
+
+  setClusters(clusters, pm){
+    const gl = this.gl;
+    const lab = new Float32Array(MAX_CLUST*3);
+    const tgt = new Int32Array(MAX_CLUST).fill(-1);
+    const str = new Float32Array(MAX_CLUST).fill(1);
+    const pro = new Float32Array(MAX_CLUST);
+    const n = Math.min(clusters.length, MAX_CLUST);
+    for(let i=0;i<n;i++){
+      const c = clusters[i];
+      lab[i*3]=c.lab[0]; lab[i*3+1]=c.lab[1]; lab[i*3+2]=c.lab[2];
+      tgt[i] = (c.target != null && c.target >= 0 && c.target < pm.colors.length && pm.colors[c.target].enabled) ? c.target : -1;
+      str[i] = c.strength;
+      pro[i] = c.protect ? 1 : 0;
+    }
+    gl.uniform1i(this.u.uClusterCount, n);
+    gl.uniform3fv(this.u.uClustLab, lab);
+    gl.uniform1iv(this.u.uClustTarget, tgt);
+    gl.uniform1fv(this.u.uClustStrength, str);
+    gl.uniform1fv(this.u.uClustProtect, pro);
+  }
+
+  setRules(rules, pm){
+    const gl = this.gl;
+    const src = new Float32Array(MAX_RULES*3);
+    const hue = new Float32Array(MAX_RULES);
+    const tgt = new Int32Array(MAX_RULES).fill(-1);
+    const tol = new Float32Array(MAX_RULES*4);
+    const fea = new Float32Array(MAX_RULES);
+    const on = rules.filter(r => r.enabled).slice(0, MAX_RULES);
+    on.forEach((r,i) => {
+      const L = ColorMath.hexToOklab(r.source);
+      src[i*3]=L[0]; src[i*3+1]=L[1]; src[i*3+2]=L[2];
+      hue[i] = ColorMath.hue(L);
+      tgt[i] = (r.target >= 0 && r.target < pm.colors.length && pm.colors[r.target].enabled) ? r.target : -1;
+      tol[i*4]   = Math.max(0.02, r.hueTol);
+      tol[i*4+1] = Math.max(0.01, r.satTol);
+      tol[i*4+2] = Math.max(0.01, r.briTol);
+      tol[i*4+3] = r.strength;
+      fea[i] = r.feather;
+    });
+    gl.uniform1i(this.u.uRuleCount, on.length);
+    gl.uniform3fv(this.u.uRuleSrcLab, src);
+    gl.uniform1fv(this.u.uRuleSrcHue, hue);
+    gl.uniform1iv(this.u.uRuleTarget, tgt);
+    gl.uniform4fv(this.u.uRuleTol, tol);
+    gl.uniform1fv(this.u.uRuleFeather, fea);
+  }
+
+  setPreserve(list){
+    const gl = this.gl;
+    const arr = new Float32Array(MAX_PRESERVE*4);
+    const n = Math.min(list.length, MAX_PRESERVE);
+    for(let i=0;i<n;i++){
+      const L = ColorMath.hexToOklab(list[i].hex);
+      arr[i*4]=L[0]; arr[i*4+1]=L[1]; arr[i*4+2]=L[2]; arr[i*4+3]=list[i].radius;
+    }
+    gl.uniform1i(this.u.uPreserveCount, n);
+    gl.uniform4fv(this.u.uPreserve, arr);
+  }
+
+  setSettings(s){
+    const gl = this.gl, u = this.u;
+    gl.uniform1f(u.uStrength, s.strength);
+    gl.uniform1f(u.uLumaPreserve, s.lumaPreserve);
+    gl.uniform1f(u.uTexture, s.texture);
+    gl.uniform1f(u.uShadowProtect, s.shadowProtect);
+    gl.uniform1f(u.uHighlightProtect, s.highlightProtect);
+    gl.uniform1f(u.uNeutral, s.neutral);
+    gl.uniform1f(u.uAccentFreq, s.accentFreq);
+    gl.uniform1f(u.uSoftness, s.softness);
+    gl.uniform1f(u.uSatLimit, s.satLimit);
+    gl.uniform1f(u.uTemporal, s.temporal);
+    gl.uniform1f(u.uSeparation, s.separation);
+    gl.uniform1f(u.uSkin, s.skin);
+  }
+
+  resetHistory(){ this.hasPrev = false; }
+}
+
+/* ============================================================
+   ColorAnalyzer — samples frames, runs k-means in OKLab.
+   Async and chunked so the UI never blocks.
+   ============================================================ */
+class ColorAnalyzer {
+  constructor(){
+    this.canvas = document.createElement('canvas');
+    this.ctx = this.canvas.getContext('2d', { willReadFrequently:true });
+    this.cancelled = false;
+    this.SAMPLE_W = 96;
+  }
+  cancel(){ this.cancelled = true; }
+
+  /* Seek the video to each sample point and read pixels back. */
+  async collect(video, frameCount, onProgress){
+    this.cancelled = false;
+    const dur = video.duration;
+    const still = !isFinite(dur) || dur <= 0;
+    const vw = video.videoWidth || (video.width||0);
+    const vh = video.videoHeight || (video.height||0);
+    if(!vw || !vh) throw new Error('Media dimensions unavailable.');
+    const ar = vh / Math.max(1, vw);
+    const w = this.SAMPLE_W, h = Math.max(2, Math.round(w*ar));
+    this.canvas.width = w; this.canvas.height = h;
+
+    const samples = [];
+    const pushFrame = () => {
+      this.ctx.drawImage(video, 0, 0, w, h);
+      let data;
+      try { data = this.ctx.getImageData(0,0,w,h).data; }
+      catch(e){ throw new Error('Cannot read pixels. The file may be cross-origin protected.'); }
+      for(let p=0;p<data.length;p+=4){
+        if(data[p+3] < 128) continue;
+        samples.push(ColorMath.rgb255ToOklab(data[p],data[p+1],data[p+2]));
+      }
+    };
+
+    if(still){
+      const passes = Math.min(4, Math.max(1, frameCount));
+      for(let i=0;i<passes;i++){
+        if(this.cancelled) break;
+        pushFrame();
+        if(onProgress) onProgress((i+1)/passes * 0.6);
+        await this.yield();
+      }
+      return samples;
+    }
+
+    const wasPaused = video.paused;
+    const resumeAt = video.currentTime;
+    video.pause();
+
+    for(let i=0;i<frameCount;i++){
+      if(this.cancelled) break;
+      const t = dur * (i + 0.5) / frameCount;
+      await this.seek(video, Math.min(Math.max(t, 0), Math.max(0, dur - 0.05)));
+      pushFrame();
+      if(onProgress) onProgress((i+1)/frameCount * 0.6);
+      await this.yield();
+    }
+
+    try {
+      await this.seek(video, resumeAt);
+      if(!wasPaused) await video.play().catch(()=>{});
+    } catch(e){ /* seeking back is best-effort */ }
+
+    return samples;
+  }
+
+  seek(video, t){
+    return new Promise((resolve, reject) => {
+      let done = false;
+      const timer = setTimeout(() => { if(!done){ done=true; cleanup(); resolve(); } }, 2500);
+      const onSeek = () => { if(!done){ done=true; clearTimeout(timer); cleanup(); resolve(); } };
+      const cleanup = () => video.removeEventListener('seeked', onSeek);
+      video.addEventListener('seeked', onSeek);
+      try { video.currentTime = t; }
+      catch(e){ done=true; clearTimeout(timer); cleanup(); reject(e); }
+    });
+  }
+  yield(){ return new Promise(r => setTimeout(r, 0)); }
+
+  /* k-means++ style seeding, then chunked Lloyd iterations. */
+  async kmeans(samples, k, onProgress){
+    if(samples.length === 0) return [];
+    k = Math.min(k, Math.max(2, Math.floor(samples.length/40)) , samples.length);
+    if(k < 2) k = Math.min(2, samples.length);
+
+    const dist2 = (a,b) => {
+      const dl=a[0]-b[0], da=a[1]-b[1], db=a[2]-b[2];
+      // chroma weighted higher so hue families separate before tone
+      return dl*dl*0.55 + da*da*2.4 + db*db*2.4;
+    };
+
+    // seed: first point random, rest biased toward far-away points
+    const centers = [samples[Math.floor(Math.random()*samples.length)].slice()];
+    while(centers.length < k){
+      let bestP = null, bestD = -1;
+      const tries = Math.min(320, samples.length);
+      for(let t=0;t<tries;t++){
+        const p = samples[Math.floor(Math.random()*samples.length)];
+        let nearest = Infinity;
+        for(const c of centers) nearest = Math.min(nearest, dist2(p,c));
+        if(nearest > bestD){ bestD = nearest; bestP = p; }
+      }
+      centers.push(bestP.slice());
+    }
+
+    const assign = new Int32Array(samples.length);
+    const ITER = 12;
+    for(let it=0; it<ITER; it++){
+      if(this.cancelled) break;
+      let moved = 0;
+      for(let i=0;i<samples.length;i++){
+        let bi=0, bd=Infinity;
+        for(let c=0;c<centers.length;c++){
+          const d = dist2(samples[i], centers[c]);
+          if(d<bd){ bd=d; bi=c; }
+        }
+        if(assign[i]!==bi){ assign[i]=bi; moved++; }
+      }
+      const sums = centers.map(()=>[0,0,0,0]);
+      for(let i=0;i<samples.length;i++){
+        const s = sums[assign[i]], p = samples[i];
+        s[0]+=p[0]; s[1]+=p[1]; s[2]+=p[2]; s[3]++;
+      }
+      for(let c=0;c<centers.length;c++){
+        if(sums[c][3] > 0){
+          centers[c][0]=sums[c][0]/sums[c][3];
+          centers[c][1]=sums[c][1]/sums[c][3];
+          centers[c][2]=sums[c][2]/sums[c][3];
+        }
+      }
+      if(onProgress) onProgress(0.6 + (it+1)/ITER*0.4);
+      await this.yield();
+      if(moved === 0) break;
+    }
+
+    const counts = new Array(centers.length).fill(0);
+    for(let i=0;i<samples.length;i++) counts[assign[i]]++;
+
+    return centers.map((lab,i) => ({
+      lab,
+      share: counts[i]/samples.length,
+      hex: ColorMath.oklabToHex(lab[0],lab[1],lab[2])
+    })).filter(c => c.share > 0.004)
+       .sort((a,b) => b.share - a.share);
+  }
+
+  /* Pick a sensible palette destination for a detected cluster. */
+  suggest(cluster, pm){
+    const lab = cluster.lab, C = ColorMath.chroma(lab), L = lab[0], H = ColorMath.hue(lab);
+    let best = -1, bestScore = -Infinity;
+    pm.colors.forEach((col, i) => {
+      if(!col.enabled || col.role === 'Protect') return;
+      const pl = ColorMath.hexToOklab(col.hex);
+      const pC = ColorMath.chroma(pl), pH = ColorMath.hue(pl);
+      let score = 0;
+      // tonal agreement
+      score += (1 - Math.abs(L - pl[0])) * 1.5;
+      // role agreement with the cluster's position in the range
+      if(L < 0.32 && col.role === 'Shadow') score += 1.3;
+      else if(L > 0.72 && (col.role === 'Highlight' || col.role === 'Neutral')) score += 1.2;
+      else if(col.role === 'Primary' || col.role === 'Midtone') score += 0.8;
+      // neutral sources should land on neutral destinations
+      if(C < 0.03){
+        if(col.role === 'Neutral' || col.role === 'Highlight' || col.role === 'Shadow') score += 1.1;
+        if(col.role === 'Accent') score -= 1.4;
+      } else {
+        let hd = Math.abs(H - pH); hd = Math.min(hd, Math.PI*2 - hd) / Math.PI;
+        score += (1 - hd) * 0.9;
+        if(col.role === 'Accent') score -= 0.5;
+      }
+      score += col.weight / 100 * 0.7;
+      if(score > bestScore){ bestScore = score; best = i; }
+    });
+    return best;
+  }
+}
+
+
+/* ============================================================
+   VideoController
+   ============================================================ */
+class VideoController {
+  constructor(video){
+    this.v = video;
+    this.fps = 30;
+    this.loaded = false;
+    this.objectUrl = null;
+    this.isStill = false;
+    this.v.loop = true;
+    this.v.muted = false;
+  }
+
+  load(file){
+    if(!file) return Promise.reject(new Error('No file selected.'));
+    const isImage = !!(file.type && file.type.startsWith('image/'));
+    const isVideo = !!(file.type && file.type.startsWith('video/'));
+    if(file.type && !isImage && !isVideo){
+      return Promise.reject(new Error(`"${file.name}" is not an image or video file.`));
+    }
+    if(isImage || (!file.type && /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(file.name))){
+      return this.loadImage(file);
+    }
+    return this.loadVideo(file);
+  }
+
+  loadImage(file){
+    return new Promise((resolve, reject) => {
+      if(this.objectUrl) URL.revokeObjectURL(this.objectUrl);
+      if(this._stillStream){
+        this._stillStream.getTracks().forEach(t => t.stop());
+        this._stillStream = null;
+      }
+      this.objectUrl = URL.createObjectURL(file);
+      this.loaded = false;
+      this.isStill = true;
+      this.fps = 1;
+      this.v.removeAttribute('src');
+      this.v.srcObject = null;
+
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          if(!canvas.width || !canvas.height){
+            reject(new Error('This image has no readable dimensions.')); return;
+          }
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          this._stillCanvas = canvas;
+          const stream = canvas.captureStream(1);
+          this._stillStream = stream;
+
+          const onMeta = () => {
+            cleanup();
+            this.loaded = true;
+            this.fileName = file.name.replace(/\.[^.]+$/,'') || 'image';
+            this.v.play().catch(()=>{});
+            resolve();
+          };
+          const onErr = () => { cleanup(); reject(new Error(`Could not load "${file.name}".`)); };
+          const cleanup = () => {
+            this.v.removeEventListener('loadedmetadata', onMeta);
+            this.v.removeEventListener('error', onErr);
+            clearTimeout(timer);
+          };
+          const timer = setTimeout(() => { cleanup(); reject(new Error('Timed out reading this image.')); }, 20000);
+          this.v.addEventListener('loadedmetadata', onMeta);
+          this.v.addEventListener('error', onErr);
+          this.v.srcObject = stream;
+        } catch(e){
+          reject(new Error(e.message || 'Could not prepare this image.'));
+        }
+      };
+      img.onerror = () => reject(new Error(`This browser cannot decode "${file.name}".`));
+      img.src = this.objectUrl;
+    });
+  }
+
+  loadVideo(file){
+    return new Promise((resolve, reject) => {
+      if(this.objectUrl) URL.revokeObjectURL(this.objectUrl);
+      if(this._stillStream){
+        this._stillStream.getTracks().forEach(t => t.stop());
+        this._stillStream = null;
+      }
+      this.objectUrl = URL.createObjectURL(file);
+      this.loaded = false;
+      this.isStill = false;
+      this._stillCanvas = null;
+      this.v.srcObject = null;
+
+      const onMeta = () => {
+        cleanup();
+        if(!this.v.videoWidth || !this.v.videoHeight){
+          reject(new Error('This file has no readable video track.')); return;
+        }
+        this.loaded = true;
+        this.fileName = file.name.replace(/\.[^.]+$/,'') || 'video';
+        this.detectFps().then(() => resolve()).catch(() => resolve());
+      };
+      const onErr = () => {
+        cleanup();
+        reject(new Error(`This browser cannot decode "${file.name}". Try MP4 (H.264) or WebM.`));
+      };
+      const cleanup = () => {
+        this.v.removeEventListener('loadedmetadata', onMeta);
+        this.v.removeEventListener('error', onErr);
+        clearTimeout(timer);
+      };
+      const timer = setTimeout(() => { cleanup(); reject(new Error('Timed out reading this video.')); }, 20000);
+
+      this.v.addEventListener('loadedmetadata', onMeta);
+      this.v.addEventListener('error', onErr);
+      this.v.src = this.objectUrl;
+      this.v.load();
+    });
+  }
+
+  /* Estimate frame rate from requestVideoFrameCallback timestamps
+     when available; fall back to 30. */
+  detectFps(){
+    return new Promise(resolve => {
+      if(typeof this.v.requestVideoFrameCallback !== 'function'){ this.fps = 30; resolve(); return; }
+      const stamps = [];
+      let handle = null;
+      const done = () => {
+        if(stamps.length >= 3){
+          const deltas = [];
+          for(let i=1;i<stamps.length;i++) deltas.push(stamps[i]-stamps[i-1]);
+          deltas.sort((a,b)=>a-b);
+          const med = deltas[Math.floor(deltas.length/2)];
+          if(med > 0.002 && med < 0.5){
+            const f = Math.round(1/med);
+            // snap to common rates
+            const common = [23.976,24,25,29.97,30,48,50,59.94,60];
+            let nearest = common.reduce((p,c)=> Math.abs(c-f)<Math.abs(p-f)?c:p, 30);
+            this.fps = Math.abs(nearest - f) <= 2 ? nearest : Math.min(120, Math.max(1, f));
+          }
+        }
+        resolve();
+      };
+      const step = (now, meta) => {
+        stamps.push(meta.mediaTime);
+        if(stamps.length >= 6){ done(); return; }
+        handle = this.v.requestVideoFrameCallback(step);
+      };
+      const t0 = this.v.currentTime;
+      this.v.muted = true;
+      this.v.play().then(() => {
+        handle = this.v.requestVideoFrameCallback(step);
+        setTimeout(() => {
+          this.v.pause();
+          try { this.v.currentTime = t0; } catch(e){}
+          this.v.muted = false;
+          if(handle && this.v.cancelVideoFrameCallback) this.v.cancelVideoFrameCallback(handle);
+          done();
+        }, 700);
+      }).catch(() => { this.v.muted = false; resolve(); });
+    });
+  }
+
+  play(){ return this.v.play(); }
+  pause(){ this.v.pause(); }
+  toggle(){ return this.v.paused ? this.play() : (this.pause(), Promise.resolve()); }
+  step(dir){
+    this.pause();
+    const dt = 1/(this.fps||30);
+    const t = Math.min(Math.max(0, this.v.currentTime + dir*dt), this.v.duration||0);
+    this.v.currentTime = t;
+  }
+  seekFrac(f){
+    if(!isFinite(this.v.duration)) return;
+    this.v.currentTime = Math.min(this.v.duration, Math.max(0, f*this.v.duration));
+  }
+  get frameIndex(){ return Math.floor(this.v.currentTime * (this.fps||30)); }
+  get totalFrames(){ return Math.floor((this.v.duration||0) * (this.fps||30)); }
+
+  static formatTime(t){
+    if(!isFinite(t) || t < 0) t = 0;
+    const m = Math.floor(t/60), s = Math.floor(t%60), cs = Math.floor((t%1)*100);
+    return `${m}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+  }
+  destroy(){
+    if(this.objectUrl) URL.revokeObjectURL(this.objectUrl);
+    if(this._stillStream){ this._stillStream.getTracks().forEach(t => t.stop()); this._stillStream = null; }
+  }
+}
+
+/* ============================================================
+   MappingManager — manual rules + preserved colors
+   ============================================================ */
+class MappingManager {
+  constructor(){ this.rules = []; this.preserve = []; this.onChange = null; }
+
+  addRule(source='#3A6EA5', target=0){
+    if(this.rules.length >= MAX_RULES) return null;
+    const r = {
+      id: 'r'+Date.now()+Math.random().toString(36).slice(2,6),
+      source: ColorMath.normalizeHex(source) || '#3A6EA5',
+      target, hueTol:0.28, satTol:0.10, briTol:0.35,
+      strength:1.0, feather:0.5, enabled:true
+    };
+    this.rules.push(r); this.changed(); return r;
+  }
+  removeRule(id){ this.rules = this.rules.filter(r => r.id !== id); this.changed(); }
+
+  addPreserve(hex){
+    if(this.preserve.length >= MAX_PRESERVE) return null;
+    const p = { id:'p'+Date.now()+Math.random().toString(36).slice(2,6),
+                hex: ColorMath.normalizeHex(hex) || '#808080', radius:0.10 };
+    this.preserve.push(p); this.changed(); return p;
+  }
+  removePreserve(id){ this.preserve = this.preserve.filter(p => p.id !== id); this.changed(); }
+  changed(){ if(this.onChange) this.onChange(); }
+}
+
+/* ============================================================
+   ExportManager — canvas.captureStream + MediaRecorder.
+   WebM only; MP4 is not offered rather than faked.
+   ============================================================ */
+class ExportManager {
+  constructor(app){
+    this.app = app;
+    this.recorder = null;
+    this.chunks = [];
+    this.active = false;
+    this.blobUrl = null;
+    this.audioCtx = null;
+  }
+
+  static pickMime(){
+    const candidates = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm;codecs=vp9',
+      'video/webm;codecs=vp8',
+      'video/webm'
+    ];
+    if(typeof MediaRecorder === 'undefined') return null;
+    for(const m of candidates) if(MediaRecorder.isTypeSupported(m)) return m;
+    return null;
+  }
+
+  static bitrate(quality, w, h, fps){
+    const pixels = w*h*fps;
+    const perPixel = quality === 'high' ? 0.14 : quality === 'medium' ? 0.08 : 0.04;
+    return Math.max(600000, Math.min(48000000, Math.round(pixels*perPixel)));
+  }
+
+  static targetSize(mode, vw, vh){
+    if(mode === 'original') return [vw, vh];
+    const target = parseInt(mode,10);
+    const scale = target / vh;
+    // even dimensions keep encoders happy
+    const w = Math.max(2, Math.round(vw*scale/2)*2);
+    const h = Math.max(2, Math.round(target/2)*2);
+    return [w, h];
+  }
+
+  async exportStill(opts, onProgress, onDone, onError){
+    const app = this.app;
+    const video = app.video.v;
+    const vw = video.videoWidth || (app.video._stillCanvas && app.video._stillCanvas.width);
+    const vh = video.videoHeight || (app.video._stillCanvas && app.video._stillCanvas.height);
+    if(!vw || !vh){ onError(new Error('Image dimensions unavailable.')); return; }
+    const [w,h] = ExportManager.targetSize(opts.resolution, vw, vh);
+    const expCanvas = document.createElement('canvas');
+    expCanvas.width = w; expCanvas.height = h;
+    const expRenderer = new RecolorRenderer(expCanvas);
+    if(!expRenderer.ok){ onError(new Error('Could not create the export renderer: ' + (expRenderer.error||'WebGL2 unavailable'))); return; }
+    expRenderer.resize(w,h);
+    onProgress(0.2);
+    const st = app.renderState();
+    st.view = 1; // recolored
+    st.split = 1;
+    expRenderer.render(video, st);
+    onProgress(0.8);
+    expCanvas.toBlob(blob => {
+      if(!blob){ onError(new Error('Could not encode PNG.')); return; }
+      if(this.blobUrl) URL.revokeObjectURL(this.blobUrl);
+      this.blobUrl = URL.createObjectURL(blob);
+      onDone({ url:this.blobUrl, blob, mime:'image/png', w, h, fps:1, audio:false, still:true });
+    }, 'image/png');
+  }
+
+  async start(opts, onProgress, onDone, onError){
+    const app = this.app;
+    const video = app.video.v;
+    if(app.video.isStill){
+      return this.exportStill(opts, onProgress, onDone, onError);
+    }
+    const mime = ExportManager.pickMime();
+    if(!mime){ onError(new Error('This browser cannot record video. Try Chrome, Edge, or Firefox.')); return; }
+
+    const [w,h] = ExportManager.targetSize(opts.resolution, video.videoWidth, video.videoHeight);
+    const fps = opts.fps === 'original' ? (app.video.fps||30) : parseInt(opts.fps,10);
+    const duration = video.duration;
+    if(!isFinite(duration) || duration <= 0){ onError(new Error('Video duration unavailable.')); return; }
+
+    // Dedicated canvas + renderer so export resolution is independent
+    // of the preview and the preview is not disturbed.
+    const expCanvas = document.createElement('canvas');
+    expCanvas.width = w; expCanvas.height = h;
+    const expRenderer = new RecolorRenderer(expCanvas);
+    if(!expRenderer.ok){ onError(new Error('Could not create the export renderer: ' + (expRenderer.error||'WebGL2 unavailable'))); return; }
+    expRenderer.resize(w,h);
+
+    const stream = expCanvas.captureStream(fps);
+
+    // Route audio through a MediaStream destination so it is muxed in.
+    let audioTrackAdded = false;
+    if(opts.audio){
+      try {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if(AC && !this.audioCtx){
+          this.audioCtx = new AC();
+          this.srcNode = this.audioCtx.createMediaElementSource(video);
+          this.dest = this.audioCtx.createMediaStreamDestination();
+          this.srcNode.connect(this.dest);
+          this.srcNode.connect(this.audioCtx.destination);
+        }
+        if(this.audioCtx){
+          if(this.audioCtx.state === 'suspended') await this.audioCtx.resume();
+          const tracks = this.dest.stream.getAudioTracks();
+          if(tracks.length){ stream.addTrack(tracks[0]); audioTrackAdded = true; }
+        }
+      } catch(e){ audioTrackAdded = false; }
+    }
+
+    let recorder;
+    try {
+      recorder = new MediaRecorder(stream, {
+        mimeType: mime,
+        videoBitsPerSecond: ExportManager.bitrate(opts.quality, w, h, fps)
+      });
+    } catch(e){ onError(new Error('Recorder rejected these settings: ' + e.message)); return; }
+
+    this.recorder = recorder;
+    this.chunks = [];
+    this.active = true;
+    this.cancelled = false;
+
+    recorder.ondataavailable = e => { if(e.data && e.data.size) this.chunks.push(e.data); };
+    recorder.onerror = e => { this.cleanup(video); onError(new Error('Recording failed.')); };
+    recorder.onstop = () => {
+      this.cleanup(video);
+      if(this.cancelled){ this.chunks = []; return; }
+      const blob = new Blob(this.chunks, { type: mime.split(';')[0] });
+      this.chunks = [];
+      if(this.blobUrl) URL.revokeObjectURL(this.blobUrl);
+      this.blobUrl = URL.createObjectURL(blob);
+      onDone({ url:this.blobUrl, blob, mime, w, h, fps, audio: audioTrackAdded });
+    };
+
+    // Play from the start and render every displayed frame into the
+    // export canvas in real time. MediaRecorder is a realtime encoder,
+    // so export takes about as long as the clip.
+    const wasMuted = video.muted;
+    const wasLoop = video.loop;
+    video.loop = false;
+    video.muted = opts.audio ? wasMuted : true;
+    video.pause();
+    try { video.currentTime = 0; } catch(e){}
+    await new Promise(r => {
+      if(video.readyState >= 2 && video.currentTime < 0.05) return r();
+      const h2 = () => { video.removeEventListener('seeked', h2); r(); };
+      video.addEventListener('seeked', h2);
+      setTimeout(r, 1500);
+    });
+
+    this.restore = { wasMuted, wasLoop };
+    const state = () => app.renderState();
+
+    const drawOnce = () => {
+      expRenderer.render(video, state());
+    };
+    drawOnce();
+    recorder.start(250);
+
+    const tick = () => {
+      if(!this.active) return;
+      drawOnce();
+      const p = Math.min(1, video.currentTime / duration);
+      onProgress(p, video.currentTime, duration);
+      if(video.ended || video.currentTime >= duration - 0.02){
+        this.finish();
+        return;
+      }
+      this.raf = requestAnimationFrame(tick);
+    };
+
+    try { await video.play(); }
+    catch(e){ this.active=false; this.cleanup(video); onError(new Error('Playback was blocked. Click the preview once, then export again.')); return; }
+
+    this.onEnded = () => this.finish();
+    video.addEventListener('ended', this.onEnded);
+    this.raf = requestAnimationFrame(tick);
+  }
+
+  finish(){
+    if(!this.active) return;
+    this.active = false;
+    if(this.raf) cancelAnimationFrame(this.raf);
+    try { if(this.recorder && this.recorder.state !== 'inactive') this.recorder.stop(); }
+    catch(e){ /* already stopped */ }
+  }
+
+  cancel(){
+    this.cancelled = true;
+    this.finish();
+  }
+
+  cleanup(video){
+    if(this.raf) cancelAnimationFrame(this.raf);
+    if(this.onEnded){ video.removeEventListener('ended', this.onEnded); this.onEnded = null; }
+    video.pause();
+    if(this.restore){
+      video.muted = this.restore.wasMuted;
+      video.loop = this.restore.wasLoop;
+      this.restore = null;
+    }
+    this.active = false;
+  }
+}
+
+
+/* ============================================================
+   UIController — wires DOM to the engine
+   ============================================================ */
+const STORAGE_KEY = 'recolor.state.v1';
+const $ = id => document.getElementById(id);
+
+class UIController {
+  constructor(){
+    this.palette = new PaletteManager();
+    this.mapping = new MappingManager();
+    this.analyzer = new ColorAnalyzer();
+    this.video = new VideoController($('srcVideo'));
+    this.exporter = new ExportManager(this);
+
+    this.settings = {};
+    SETTING_DEFS.forEach(d => this.settings[d.key] = d.def);
+
+    this.clusters = [];
+    this.view = 'recolored';
+    this.fit = 'fit';
+    this.quality = 'standard';
+    this.split = 0.5;
+    this.pickMode = null;        // 'rule' | 'preserve' | 'cluster'
+    this.pickClusterIdx = -1;
+    this.fpsSamples = [];
+    this.lastFrameTime = performance.now();
+
+    this.renderer = new RecolorRenderer($('outCanvas'));
+    if(!this.renderer.ok){
+      this.status('WebGL2 is unavailable, so recoloring cannot run. Try Chrome, Edge, Firefox, or Safari 15+.', 'err');
+      $('btnUpload').disabled = true;
+      $('btnUpload2').disabled = true;
+    }
+
+    this.palette.onChange = () => { this.renderPalette(); this.renderClusters(); this.renderRules(); this.persist(); };
+    this.mapping.onChange = () => { this.renderRules(); this.renderPreserve(); this.persist(); };
+
+    this.buildSettings();
+    this.buildPresets();
+    this.renderPalette();
+    this.renderClusters();
+    this.renderRules();
+    this.renderPreserve();
+    this.bind();
+    this.restore();
+    this.loop();
+  }
+
+  /* ---------------- status + toast ---------------- */
+  status(text, kind){
+    $('statusText').textContent = text;
+    const d = $('statusDot');
+    d.className = 'status-dot' + (kind ? ' ' + kind : '');
+  }
+  toast(msg){
+    const t = $('toast');
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(this._toastT);
+    this._toastT = setTimeout(() => { t.hidden = true; }, 2200);
+  }
+
+  /* ---------------- settings panel ---------------- */
+  buildSettings(){
+    const host = $('settingsList');
+    host.innerHTML = '';
+    SETTING_DEFS.forEach(def => {
+      const wrap = document.createElement('div');
+      wrap.className = 'ctrl';
+      const id = 'set_'+def.key;
+      wrap.innerHTML = `
+        <div class="ctrl-top">
+          <label class="ctrl-name" for="${id}" title="Double-click to reset">${def.label}</label>
+          <span class="ctrl-val" id="${id}_v">${Math.round(def.def*100)}</span>
+          <span class="tip" tabindex="0" role="note" data-tip="${def.tip}">?</span>
+        </div>
+        <input type="range" id="${id}" min="0" max="100" step="1" value="${Math.round(def.def*100)}"
+               aria-label="${def.label}">`;
+      host.appendChild(wrap);
+      const slider = wrap.querySelector('input');
+      const readout = wrap.querySelector('.ctrl-val');
+      const label = wrap.querySelector('.ctrl-name');
+      slider.addEventListener('input', () => {
+        this.settings[def.key] = slider.value/100;
+        readout.textContent = slider.value;
+        this.renderer.resetHistory();
+        this.persist();
+      });
+      label.addEventListener('dblclick', e => {
+        e.preventDefault();
+        this.settings[def.key] = def.def;
+        slider.value = Math.round(def.def*100);
+        readout.textContent = slider.value;
+        this.renderer.resetHistory();
+        this.persist();
+        this.toast(def.label + ' reset');
+      });
+    });
+  }
+  syncSettingsUI(){
+    SETTING_DEFS.forEach(d => {
+      const s = $('set_'+d.key), v = $('set_'+d.key+'_v');
+      if(s && v){ s.value = Math.round(this.settings[d.key]*100); v.textContent = s.value; }
+    });
+  }
+
+  buildPresets(){
+    const host = $('presetGrid');
+    host.innerHTML = '';
+    Object.keys(PRESETS).forEach(name => {
+      const b = document.createElement('button');
+      b.className = 'btn sm';
+      b.textContent = name;
+      b.addEventListener('click', () => {
+        SETTING_DEFS.forEach(d => this.settings[d.key] = d.def);
+        Object.assign(this.settings, PRESETS[name]);
+        this.syncSettingsUI();
+        this.renderer.resetHistory();
+        this.persist();
+        this.toast(name + ' applied');
+      });
+      host.appendChild(b);
+    });
+  }
+
+  /* ---------------- palette panel ---------------- */
+  renderPalette(){
+    const host = $('swatchList');
+    host.innerHTML = '';
+    $('paletteCount').textContent = this.palette.active.length + ' active';
+
+    this.palette.colors.forEach((c, i) => {
+      const el = document.createElement('div');
+      el.className = 'swatch' + (c.enabled ? '' : ' off') + (c.locked ? ' locked' : '');
+      const roleOpts = ROLES.map(r => `<option value="${r}"${r===c.role?' selected':''}>${r}</option>`).join('');
+      el.innerHTML = `
+        <div class="swatch-top">
+          <input type="checkbox" ${c.enabled?'checked':''} aria-label="Enable ${c.name}" data-a="on">
+          <button class="swatch-chip" style="background:${c.hex}" aria-label="Pick color for ${c.name}">
+            <input type="color" value="${c.hex}" data-a="picker" aria-label="${c.name} color">
+          </button>
+          <input class="swatch-name" value="${c.name.replace(/"/g,'&quot;')}" aria-label="Color name" data-a="name">
+          <button class="lock-btn ${c.locked?'on':''}" data-a="lock"
+                  aria-pressed="${c.locked}" aria-label="Lock ${c.name} weight" title="Lock weight">
+            <svg class="ic" viewBox="0 0 16 16" style="width:11px;height:11px">
+              ${c.locked
+                ? '<rect x="4" y="7" width="8" height="6" rx="1"/><path d="M6 7V5.2a2 2 0 014 0V7"/>'
+                : '<rect x="4" y="7" width="8" height="6" rx="1"/><path d="M6 7V5.2a2 2 0 013.8-.9"/>'}
+            </svg>
+          </button>
+          <button class="rc-btn ghost icon sm danger" data-a="del" aria-label="Remove ${c.name}">
+            <svg class="ic" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        <div class="swatch-mid">
+          <input class="input mono" value="${c.hex}" maxlength="7" data-a="hex" aria-label="${c.name} hex value">
+          <select class="input" data-a="role" aria-label="${c.name} role">${roleOpts}</select>
+        </div>
+        <div class="ctrl" style="padding:5px 0 0">
+          <div class="ctrl-top">
+            <span class="ctrl-name" data-a="wlabel" title="Double-click to reset">Weight</span>
+            <span class="ctrl-val" data-a="wval">${c.weight}</span>
+          </div>
+          <input type="range" min="0" max="100" value="${c.weight}" data-a="weight"
+                 aria-label="${c.name} weight" ${c.enabled?'':'disabled'}>
+        </div>`;
+      host.appendChild(el);
+
+      const q = a => el.querySelector(`[data-a="${a}"]`);
+      q('on').addEventListener('change', e => { c.enabled = e.target.checked; this.palette.changed(); this.renderer.resetHistory(); });
+      q('picker').addEventListener('input', e => {
+        c.hex = e.target.value.toUpperCase();
+        el.querySelector('.swatch-chip').style.background = c.hex;
+        q('hex').value = c.hex;
+        this.renderer.resetHistory(); this.persist();
+      });
+      q('picker').addEventListener('change', () => this.palette.changed());
+      q('name').addEventListener('change', e => { c.name = e.target.value.trim() || 'Untitled'; this.persist(); });
+      q('hex').addEventListener('change', e => {
+        const n = ColorMath.normalizeHex(e.target.value);
+        if(n){ c.hex = n; this.palette.changed(); this.renderer.resetHistory(); }
+        else { e.target.value = c.hex; this.toast('That is not a valid hex value'); }
+      });
+      q('role').addEventListener('change', e => { c.role = e.target.value; this.palette.changed(); this.renderer.resetHistory(); });
+      q('lock').addEventListener('click', () => { c.locked = !c.locked; this.palette.changed(); });
+      q('del').addEventListener('click', () => {
+        if(!this.palette.remove(i)) this.toast('Keep at least two colors');
+        else this.renderer.resetHistory();
+      });
+      const wSlider = q('weight'), wVal = q('wval');
+      wSlider.addEventListener('input', e => {
+        c.weight = parseInt(e.target.value,10);
+        wVal.textContent = c.weight;
+        this.renderer.resetHistory(); this.persist();
+      });
+      q('wlabel').addEventListener('dblclick', () => {
+        const def = DEFAULT_PALETTE.find(d => d.hex === c.hex);
+        c.weight = def ? def.weight : 50;
+        wSlider.value = c.weight; wVal.textContent = c.weight;
+        this.renderer.resetHistory(); this.persist();
+      });
+    });
+  }
+
+  paletteOptions(selected){
+    return '<option value="-1"' + (selected==null||selected<0?' selected':'') + '>Automatic</option>' +
+      this.palette.colors.map((c,i) =>
+        `<option value="${i}"${i===selected?' selected':''}${c.enabled?'':' disabled'}>${c.name}</option>`).join('');
+  }
+
+  /* ---------------- clusters ---------------- */
+  renderClusters(){
+    const host = $('clusterList');
+    host.innerHTML = '';
+    if(!this.clusters.length){ return; }
+
+    this.clusters.forEach((cl, i) => {
+      const el = document.createElement('div');
+      el.className = 'cluster' + (cl.protect ? ' protected' : '');
+      el.innerHTML = `
+        <div class="cluster-src" style="background:${cl.hex}" title="${cl.hex}"></div>
+        <span class="arrow">→</span>
+        <div class="cluster-body">
+          <select class="input" data-a="target" aria-label="Target palette color for source ${cl.hex}">
+            ${this.paletteOptions(cl.target)}
+          </select>
+          <div class="ctrl" style="padding:0">
+            <div class="ctrl-top">
+              <span class="cluster-meta">${cl.hex} · ${(cl.share*100).toFixed(1)}% of frame</span>
+              <span class="ctrl-val" data-a="sval">${Math.round(cl.strength*100)}</span>
+            </div>
+            <input type="range" min="0" max="100" value="${Math.round(cl.strength*100)}"
+                   data-a="strength" aria-label="Mapping strength">
+          </div>
+          <label class="check"><input type="checkbox" data-a="protect" ${cl.protect?'checked':''}> Protect this family</label>
+        </div>`;
+      host.appendChild(el);
+      const q = a => el.querySelector(`[data-a="${a}"]`);
+      q('target').addEventListener('change', e => {
+        cl.target = parseInt(e.target.value,10);
+        this.renderer.resetHistory(); this.persist();
+      });
+      q('strength').addEventListener('input', e => {
+        cl.strength = parseInt(e.target.value,10)/100;
+        q('sval').textContent = e.target.value;
+        this.renderer.resetHistory(); this.persist();
+      });
+      q('protect').addEventListener('change', e => {
+        cl.protect = e.target.checked;
+        el.classList.toggle('protected', cl.protect);
+        this.renderer.resetHistory(); this.persist();
+      });
+    });
+  }
+
+  /* ---------------- rules ---------------- */
+  renderRules(){
+    const host = $('ruleList');
+    host.innerHTML = '';
+    $('ruleCount').textContent = this.mapping.rules.length + (this.mapping.rules.length===1?' rule':' rules');
+
+    this.mapping.rules.forEach(r => {
+      const el = document.createElement('div');
+      el.className = 'rule' + (r.enabled ? '' : ' off');
+      el.innerHTML = `
+        <div class="rule-head">
+          <input type="checkbox" ${r.enabled?'checked':''} data-a="on" aria-label="Enable rule">
+          <button class="swatch-chip" style="width:18px;height:18px;background:${r.source}" aria-label="Rule source color">
+            <input type="color" value="${r.source}" data-a="src">
+          </button>
+          <span class="arrow">→</span>
+          <select class="input grow" data-a="target" aria-label="Rule target color">
+            ${this.palette.colors.map((c,i)=>`<option value="${i}"${i===r.target?' selected':''}${c.enabled?'':' disabled'}>${c.name}</option>`).join('')}
+          </select>
+          <button class="rc-btn ghost icon sm danger" data-a="del" aria-label="Delete rule">
+            <svg class="ic" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        ${this.miniSlider('hue','Hue tolerance', r.hueTol, 0.02, 1)}
+        ${this.miniSlider('sat','Saturation tolerance', r.satTol, 0.01, 0.4)}
+        ${this.miniSlider('bri','Brightness tolerance', r.briTol, 0.01, 1)}
+        ${this.miniSlider('str','Strength', r.strength, 0, 1)}
+        ${this.miniSlider('fea','Feathering', r.feather, 0, 1)}`;
+      host.appendChild(el);
+
+      const q = a => el.querySelector(`[data-a="${a}"]`);
+      q('on').addEventListener('change', e => { r.enabled = e.target.checked; el.classList.toggle('off', !r.enabled); this.renderer.resetHistory(); this.persist(); });
+      q('src').addEventListener('input', e => {
+        r.source = e.target.value.toUpperCase();
+        e.target.parentElement.style.background = r.source;
+        this.renderer.resetHistory(); this.persist();
+      });
+      q('target').addEventListener('change', e => { r.target = parseInt(e.target.value,10); this.renderer.resetHistory(); this.persist(); });
+      q('del').addEventListener('click', () => this.mapping.removeRule(r.id));
+
+      const bindMini = (key, prop, min, max) => {
+        const s = el.querySelector(`[data-m="${key}"]`);
+        const v = el.querySelector(`[data-mv="${key}"]`);
+        s.addEventListener('input', () => {
+          r[prop] = min + (max-min)*(s.value/100);
+          v.textContent = s.value;
+          this.renderer.resetHistory(); this.persist();
+        });
+      };
+      bindMini('hue','hueTol',0.02,1);
+      bindMini('sat','satTol',0.01,0.4);
+      bindMini('bri','briTol',0.01,1);
+      bindMini('str','strength',0,1);
+      bindMini('fea','feather',0,1);
+    });
+  }
+
+  miniSlider(key, label, val, min, max){
+    const pct = Math.round((val-min)/(max-min)*100);
+    return `<div class="ctrl" style="padding:2px 0">
+      <div class="ctrl-top" style="margin-bottom:2px">
+        <span class="mini" style="flex:1 1 auto">${label}</span>
+        <span class="ctrl-val" data-mv="${key}">${pct}</span>
+      </div>
+      <input type="range" min="0" max="100" value="${pct}" data-m="${key}" aria-label="${label}">
+    </div>`;
+  }
+
+  /* ---------------- preserved colors ---------------- */
+  renderPreserve(){
+    const host = $('preserveList');
+    host.innerHTML = '';
+    this.mapping.preserve.forEach(p => {
+      const el = document.createElement('div');
+      el.className = 'rule';
+      el.innerHTML = `
+        <div class="rule-head">
+          <button class="swatch-chip" style="width:18px;height:18px;background:${p.hex}" aria-label="Preserved color">
+            <input type="color" value="${p.hex}" data-a="c">
+          </button>
+          <span class="rule-title" style="font-family:var(--mono)">${p.hex}</span>
+          <button class="rc-btn ghost icon sm danger" data-a="del" aria-label="Remove preserved color">
+            <svg class="ic" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+        </div>
+        ${this.miniSlider('rad','Range', p.radius, 0.02, 0.30)}`;
+      host.appendChild(el);
+      el.querySelector('[data-a="c"]').addEventListener('input', e => {
+        p.hex = e.target.value.toUpperCase();
+        e.target.parentElement.style.background = p.hex;
+        el.querySelector('.rule-title').textContent = p.hex;
+        this.renderer.resetHistory(); this.persist();
+      });
+      el.querySelector('[data-a="del"]').addEventListener('click', () => this.mapping.removePreserve(p.id));
+      const s = el.querySelector('[data-m="rad"]'), v = el.querySelector('[data-mv="rad"]');
+      s.addEventListener('input', () => {
+        p.radius = 0.02 + 0.28*(s.value/100);
+        v.textContent = s.value;
+        this.renderer.resetHistory(); this.persist();
+      });
+    });
+    $('btnPickPreserve').disabled = !this.video.loaded || this.mapping.preserve.length >= MAX_PRESERVE;
+  }
+
+  /* ---------------- render state for the shader ---------------- */
+  renderState(){
+    return {
+      palette: this.palette,
+      clusters: this.clusters,
+      rules: this.mapping.rules,
+      preserve: this.mapping.preserve,
+      settings: this.settings,
+      view: this.view === 'original' ? 0 : this.view === 'split' ? 2 : 1,
+      split: this.split
+    };
+  }
+
+  /* ---------------- main loop ---------------- */
+  previewScale(){
+    return this.quality === 'draft' ? 0.5 : this.quality === 'high' ? 1.0 : 0.75;
+  }
+
+  loop(){
+    const draw = () => {
+      this._raf = requestAnimationFrame(draw);
+      if(!this.video.loaded || !this.renderer.ok) return;
+      if(this.exporter.active) return;   // export owns the video element
+
+      const v = this.video.v;
+      if(v.readyState < 2 && !this.video.isStill) return;
+
+      const scale = this.previewScale();
+      const vw = v.videoWidth || (this.video._stillCanvas && this.video._stillCanvas.width) || 0;
+      const vh = v.videoHeight || (this.video._stillCanvas && this.video._stillCanvas.height) || 0;
+      if(!vw || !vh) return;
+      const w = Math.max(2, Math.round(vw*scale/2)*2);
+      const h = Math.max(2, Math.round(vh*scale/2)*2);
+      this.renderer.resize(w,h);
+      this.renderer.render(v, this.renderState());
+
+      // fps meter
+      const now = performance.now();
+      const dt = now - this.lastFrameTime;
+      this.lastFrameTime = now;
+      if(dt > 0 && dt < 500){
+        this.fpsSamples.push(1000/dt);
+        if(this.fpsSamples.length > 30) this.fpsSamples.shift();
+      }
+      if(now - (this._lastMeter||0) > 400){
+        this._lastMeter = now;
+        const avg = this.fpsSamples.length
+          ? this.fpsSamples.reduce((a,b)=>a+b,0)/this.fpsSamples.length : 0;
+        $('fpsRead').textContent = avg ? avg.toFixed(0)+' fps' : '—';
+        $('resRead').textContent = w+'×'+h;
+      }
+      this.updateTransport();
+    };
+    this._raf = requestAnimationFrame(draw);
+  }
+
+  updateTransport(){
+    const v = this.video.v;
+    if(!isFinite(v.duration)) return;
+    if(!this._scrubbing){
+      $('scrub').value = Math.round((v.currentTime/v.duration)*1000);
+    }
+    $('timeCur').textContent = VideoController.formatTime(v.currentTime);
+    $('frameRead').textContent = `frame ${this.video.frameIndex} / ${this.video.totalFrames}`;
+    const playing = !v.paused && !v.ended;
+    $('icPlay').style.display = playing ? 'none' : 'block';
+    $('icPause').style.display = playing ? 'block' : 'none';
+    $('btnPlay').setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  }
+
+  /* ---------------- video loading ---------------- */
+  async handleFile(file){
+    if(!file) return;
+    // Case-by-case: each import clears prior analysis/mappings for this media
+    this.clusters = [];
+    this.mapping.rules = [];
+    this.mapping.preserve = [];
+    this.renderClusters();
+    this.renderRules();
+    this.renderPreserve();
+    this.renderer.resetHistory();
+
+    const kind = (file.type||'').startsWith('image/') || /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(file.name)
+      ? 'image' : 'video';
+    this.status(kind === 'image' ? 'Reading image…' : 'Reading video…', 'busy');
+    try {
+      await this.video.load(file);
+    } catch(e){
+      this.status(e.message, 'err');
+      this.toast(e.message);
+      return;
+    }
+    $('dropZone').classList.add('hide');
+    ['btnExport','btnPlay','btnPrevFrame','btnNextFrame','btnMute','btnLoop','scrub','btnReanalyze','btnPickPreserve','btnPickRule']
+      .forEach(id => { const el = $(id); if(el) el.disabled = false; });
+    const dur = this.video.v.duration;
+    $('timeDur').textContent = this.video.isStill || !isFinite(dur)
+      ? 'still' : VideoController.formatTime(dur);
+    this.renderer.resetHistory();
+    this.fitStage();
+    const w = this.video.v.videoWidth || (this.video._stillCanvas && this.video._stillCanvas.width) || 0;
+    const h = this.video.v.videoHeight || (this.video._stillCanvas && this.video._stillCanvas.height) || 0;
+    this.status(
+      this.video.isStill
+        ? `Loaded ${file.name} · ${w}×${h} · fresh analysis`
+        : `Loaded ${file.name} · ${w}×${h} · ${this.video.fps} fps · fresh analysis`,
+      'ok'
+    );
+    await this.analyze();
+    if(!this.video.isStill){
+      this.video.play().catch(() => {
+        this.status('Loaded. Press play to start.', 'ok');
+      });
+    }
+  }
+
+  async analyze(){
+    if(!this.video.loaded) return;
+    $('btnReanalyze').disabled = true;
+    this.status('Analyzing color families…', 'busy');
+    $('clusterNote').textContent = this.video.isStill ? 'Sampling image…' : 'Sampling frames…';
+    try {
+      const samples = await this.analyzer.collect(this.video.v, this.video.isStill ? 4 : 12, p => {
+        $('clusterNote').textContent = `Analyzing… ${Math.round(p*100)}%`;
+        this.status(`Analyzing color families… ${Math.round(p*100)}%`, 'busy');
+      });
+      if(!samples.length) throw new Error('No pixels could be sampled.');
+      const found = await this.analyzer.kmeans(samples, MAX_CLUST, p => {
+        $('clusterNote').textContent = `Analyzing… ${Math.round(p*100)}%`;
+      });
+      this.clusters = found.slice(0, MAX_CLUST).map(c => ({
+        lab: c.lab, hex: c.hex, share: c.share,
+        target: this.analyzer.suggest(c, this.palette),
+        strength: 1.0, protect: false
+      }));
+      $('clusterNote').textContent =
+        `${this.clusters.length} color families from this import. Fresh analysis — case by case.`;
+      this.renderClusters();
+      this.renderer.resetHistory();
+      this.persist();
+      this.status('Analysis complete. Recoloring live.', 'ok');
+    } catch(e){
+      $('clusterNote').textContent = 'Analysis failed: ' + e.message;
+      this.status('Analysis failed: ' + e.message, 'err');
+      this.clusters = [];
+      this.renderClusters();
+    }
+    $('btnReanalyze').disabled = false;
+  }
+
+  /* ---------------- stage sizing ---------------- */
+  fitStage(){
+    const stage = $('stage'), inner = $('stageInner');
+    const v = this.video.v;
+    const vw = v.videoWidth || (this.video._stillCanvas && this.video._stillCanvas.width) || 0;
+    const vh = v.videoHeight || (this.video._stillCanvas && this.video._stillCanvas.height) || 0;
+    if(!vw || !vh) return;
+    if(this.fit === 'fill'){ inner.style.width=''; inner.style.height=''; return; }
+    const pad = 28;
+    const aw = stage.clientWidth - pad, ah = stage.clientHeight - pad;
+    if(aw <= 0 || ah <= 0) return;
+    const ar = vw / vh;
+    let w = aw, h = w/ar;
+    if(h > ah){ h = ah; w = h*ar; }
+    inner.style.width = Math.floor(w)+'px';
+    inner.style.height = Math.floor(h)+'px';
+    $('outCanvas').style.width = '100%';
+    $('outCanvas').style.height = '100%';
+  }
+
+  updateSplitUI(){
+    const showSplit = this.view === 'split';
+    $('splitHandle').hidden = !showSplit;
+    $('tagL').hidden = !showSplit;
+    $('tagR').hidden = !showSplit;
+    if(showSplit){
+      $('splitHandle').style.left = (this.split*100)+'%';
+      $('splitHandle').setAttribute('aria-valuenow', Math.round(this.split*100));
+    }
+  }
+
+  /* ---------------- color picking from the preview ---------------- */
+  startPick(mode, clusterIdx){
+    if(!this.video.loaded){ this.toast('Load a video first'); return; }
+    this.pickMode = mode;
+    this.pickClusterIdx = clusterIdx ?? -1;
+    $('stage').classList.add('picking');
+    $('pickHint').hidden = false;
+    $('pickHint').textContent = mode === 'preserve'
+      ? 'Click a color in the preview to preserve it'
+      : 'Click a color in the preview to use as the rule source';
+  }
+  endPick(){
+    this.pickMode = null;
+    $('stage').classList.remove('picking');
+    $('pickHint').hidden = true;
+  }
+  pickAt(clientX, clientY){
+    const canvas = $('outCanvas');
+    const rect = canvas.getBoundingClientRect();
+    const x = (clientX - rect.left)/rect.width;
+    const y = (clientY - rect.top)/rect.height;
+    if(x<0||x>1||y<0||y>1) return null;
+    // Sample the ORIGINAL video, not the recolored output, so rules
+    // reference source colors.
+    const v = this.video.v;
+    const c = document.createElement('canvas');
+    c.width = 1; c.height = 1;
+    const ctx = c.getContext('2d', { willReadFrequently:true });
+    try {
+      ctx.drawImage(v, Math.floor(x*v.videoWidth), Math.floor(y*v.videoHeight), 1, 1, 0, 0, 1, 1);
+      const d = ctx.getImageData(0,0,1,1).data;
+      return ColorMath.rgbToHex(d[0]/255, d[1]/255, d[2]/255);
+    } catch(e){ return null; }
+  }
+
+  /* ---------------- persistence ---------------- */
+  persist(){
+    clearTimeout(this._persistT);
+    this._persistT = setTimeout(() => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.snapshot()));
+      } catch(e){ /* storage may be full or blocked; not fatal */ }
+    }, 250);
+  }
+  snapshot(){
+    return {
+      version: 1,
+      palette: this.palette.colors,
+      settings: this.settings,
+      rules: this.mapping.rules,
+      preserve: this.mapping.preserve,
+      clusters: this.clusters.map(c => ({ lab:c.lab, hex:c.hex, share:c.share, target:c.target, strength:c.strength, protect:c.protect })),
+      view: this.view, quality: this.quality, fit: this.fit, split: this.split
+    };
+  }
+  applySnapshot(s){
+    if(!s || typeof s !== 'object') return false;
+    if(Array.isArray(s.palette) && s.palette.length >= 2){
+      this.palette.colors = s.palette.slice(0, MAX_COLORS).map(c => ({
+        name: String(c.name||'Color'),
+        hex: ColorMath.normalizeHex(c.hex) || '#808080',
+        role: ROLES.includes(c.role) ? c.role : 'Midtone',
+        weight: Math.max(0, Math.min(100, Number(c.weight)||50)),
+        enabled: c.enabled !== false,
+        locked: !!c.locked
+      }));
+    }
+    if(s.settings) SETTING_DEFS.forEach(d => {
+      const v = Number(s.settings[d.key]);
+      if(isFinite(v)) this.settings[d.key] = Math.max(0, Math.min(1, v));
+    });
+    if(Array.isArray(s.rules)) this.mapping.rules = s.rules.slice(0, MAX_RULES).map(r => ({
+      id: r.id || 'r'+Math.random().toString(36).slice(2,8),
+      source: ColorMath.normalizeHex(r.source) || '#808080',
+      target: Number.isInteger(r.target) ? r.target : 0,
+      hueTol: Number(r.hueTol)||0.28, satTol: Number(r.satTol)||0.1,
+      briTol: Number(r.briTol)||0.35, strength: Number(r.strength)??1,
+      feather: Number(r.feather)??0.5, enabled: r.enabled !== false
+    }));
+    if(Array.isArray(s.preserve)) this.mapping.preserve = s.preserve.slice(0, MAX_PRESERVE).map(p => ({
+      id: p.id || 'p'+Math.random().toString(36).slice(2,8),
+      hex: ColorMath.normalizeHex(p.hex) || '#808080',
+      radius: Math.max(0.02, Math.min(0.3, Number(p.radius)||0.1))
+    }));
+    if(Array.isArray(s.clusters)) this.clusters = s.clusters
+      .filter(c => Array.isArray(c.lab) && c.lab.length === 3)
+      .slice(0, MAX_CLUST)
+      .map(c => ({ lab:c.lab.map(Number), hex:c.hex||'#808080', share:Number(c.share)||0,
+                   target:Number.isInteger(c.target)?c.target:-1,
+                   strength:Number(c.strength)??1, protect:!!c.protect }));
+    if(['original','recolored','split'].includes(s.view)) this.view = s.view;
+    if(['draft','standard','high'].includes(s.quality)) this.quality = s.quality;
+    if(['fit','fill'].includes(s.fit)) this.fit = s.fit;
+    if(isFinite(s.split)) this.split = Math.max(0, Math.min(1, Number(s.split)));
+    return true;
+  }
+  restore(){
+    let saved = null;
+    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){ saved = null; }
+    if(!saved) return;
+    // Stored clusters describe a previous video, so drop them.
+    saved.clusters = [];
+    this.applySnapshot(saved);
+    this.syncSettingsUI();
+    this.renderPalette();
+    this.renderRules();
+    this.renderPreserve();
+    this.renderClusters();
+    $('selQuality').value = this.quality;
+    document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === this.view));
+    document.querySelectorAll('[data-fit]').forEach(b => b.classList.toggle('on', b.dataset.fit === this.fit));
+    this.updateSplitUI();
+  }
+  resetAll(){
+    this.palette.reset();
+    SETTING_DEFS.forEach(d => this.settings[d.key] = d.def);
+    this.mapping.rules = []; this.mapping.preserve = [];
+    this.clusters.forEach(c => { c.target = this.analyzer.suggest(c, this.palette); c.strength = 1; c.protect = false; });
+    this.syncSettingsUI();
+    this.renderPalette(); this.renderRules(); this.renderPreserve(); this.renderClusters();
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+    this.renderer.resetHistory();
+    this.toast('Reset to defaults');
+  }
+}
+
+
+/* ============================================================
+   Event binding (attached to UIController prototype)
+   ============================================================ */
+UIController.prototype.bind = function(){
+  const self = this;
+
+  /* ---- collapsible sections ---- */
+  document.querySelectorAll('.section-head').forEach(head => {
+    const toggle = () => {
+      const sec = head.parentElement;
+      sec.classList.toggle('collapsed');
+      head.setAttribute('aria-expanded', String(!sec.classList.contains('collapsed')));
+    };
+    head.addEventListener('click', toggle);
+    head.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+    // apply the initial aria-expanded value from markup
+    if(head.getAttribute('aria-expanded') === 'false') head.parentElement.classList.add('collapsed');
+  });
+
+  /* ---- file input ---- */
+  const openFile = () => $('fileInput').click();
+  $('btnUpload').addEventListener('click', openFile);
+  $('btnUpload2').addEventListener('click', openFile);
+  $('fileInput').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(f) self.handleFile(f);
+  });
+
+  /* ---- drag and drop ---- */
+  const dz = $('stage');
+  ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    $('dropZone').classList.add('over');
+    if(!self.video.loaded) $('dropZone').classList.remove('hide');
+  }));
+  ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => {
+    e.preventDefault(); e.stopPropagation();
+    if(ev === 'dragleave' && dz.contains(e.relatedTarget)) return;
+    $('dropZone').classList.remove('over');
+    if(self.video.loaded) $('dropZone').classList.add('hide');
+  }));
+  dz.addEventListener('drop', e => {
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if(f) self.handleFile(f);
+  });
+
+  /* ---- transport ---- */
+  $('btnPlay').addEventListener('click', () => self.video.toggle());
+  $('btnPrevFrame').addEventListener('click', () => self.video.step(-1));
+  $('btnNextFrame').addEventListener('click', () => self.video.step(1));
+  $('btnMute').addEventListener('click', () => {
+    const v = self.video.v;
+    v.muted = !v.muted;
+    $('icVolOn').style.display = v.muted ? 'none' : 'block';
+    $('icVolOff').style.display = v.muted ? 'block' : 'none';
+    $('btnMute').setAttribute('aria-pressed', String(v.muted));
+    $('btnMute').setAttribute('aria-label', v.muted ? 'Unmute' : 'Mute');
+  });
+  $('btnLoop').addEventListener('click', () => {
+    const v = self.video.v;
+    v.loop = !v.loop;
+    $('btnLoop').setAttribute('aria-pressed', String(v.loop));
+    $('btnLoop').style.background = v.loop ? 'var(--accent-soft)' : '';
+    $('btnLoop').style.borderColor = v.loop ? 'var(--accent)' : '';
+  });
+  $('btnLoop').style.background = 'var(--accent-soft)';
+  $('btnLoop').style.borderColor = 'var(--accent)';
+
+  const scrub = $('scrub');
+  scrub.addEventListener('pointerdown', () => { self._scrubbing = true; });
+  scrub.addEventListener('input', () => { self.video.seekFrac(scrub.value/1000); });
+  const endScrub = () => { self._scrubbing = false; };
+  scrub.addEventListener('pointerup', endScrub);
+  scrub.addEventListener('pointercancel', endScrub);
+  scrub.addEventListener('blur', endScrub);
+  scrub.addEventListener('keyup', endScrub);
+
+  self.video.v.addEventListener('seeked', () => self.renderer.resetHistory());
+  self.video.v.addEventListener('play', () => self.renderer.resetHistory());
+
+  /* ---- view + quality + fit ---- */
+  document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-view]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    self.view = b.dataset.view;
+    self.updateSplitUI();
+    self.renderer.resetHistory();
+    self.persist();
+  }));
+  document.querySelectorAll('[data-fit]').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-fit]').forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    self.fit = b.dataset.fit;
+    $('stage').classList.toggle('fill', self.fit === 'fill');
+    self.fitStage();
+    self.persist();
+  }));
+  $('selQuality').addEventListener('change', e => {
+    self.quality = e.target.value;
+    self.renderer.resetHistory();
+    self.persist();
+  });
+
+  /* ---- split handle ---- */
+  const handle = $('splitHandle');
+  let draggingSplit = false;
+  const moveSplit = clientX => {
+    const rect = $('outCanvas').getBoundingClientRect();
+    self.split = Math.max(0, Math.min(1, (clientX - rect.left)/rect.width));
+    self.updateSplitUI();
+  };
+  handle.addEventListener('pointerdown', e => {
+    draggingSplit = true;
+    handle.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  handle.addEventListener('pointermove', e => { if(draggingSplit) moveSplit(e.clientX); });
+  handle.addEventListener('pointerup', e => {
+    draggingSplit = false;
+    try { handle.releasePointerCapture(e.pointerId); } catch(err){}
+    self.persist();
+  });
+  handle.addEventListener('keydown', e => {
+    const step = e.shiftKey ? 0.1 : 0.02;
+    if(e.key === 'ArrowLeft'){ self.split = Math.max(0, self.split-step); self.updateSplitUI(); e.preventDefault(); }
+    if(e.key === 'ArrowRight'){ self.split = Math.min(1, self.split+step); self.updateSplitUI(); e.preventDefault(); }
+  });
+
+  /* ---- click-to-sample on the preview ---- */
+  $('outCanvas').addEventListener('click', e => {
+    if(!self.pickMode) return;
+    const hex = self.pickAt(e.clientX, e.clientY);
+    if(!hex){ self.toast('Could not read that pixel'); self.endPick(); return; }
+    if(self.pickMode === 'preserve'){
+      if(!self.mapping.addPreserve(hex)) self.toast('Preserve list is full');
+      else self.toast('Preserving ' + hex);
+    } else if(self.pickMode === 'rule'){
+      const r = self.mapping.addRule(hex, 0);
+      if(!r) self.toast('Rule list is full');
+      else self.toast('Rule added from ' + hex);
+    }
+    self.endPick();
+    self.renderer.resetHistory();
+  });
+  $('btnPickRule').addEventListener('click', () => self.startPick('rule'));
+  $('btnPickPreserve').addEventListener('click', () => self.startPick('preserve'));
+
+  /* ---- palette buttons ---- */
+  $('btnAddColor').addEventListener('click', () => {
+    if(!self.palette.add()) self.toast(`Maximum ${MAX_COLORS} colors`);
+  });
+  $('btnResetPalette').addEventListener('click', () => {
+    self.confirm('Reset palette?', 'This restores the eight default brand colors and their weights.', () => {
+      self.palette.reset();
+      self.clusters.forEach(c => c.target = self.analyzer.suggest(c, self.palette));
+      self.renderClusters();
+      self.renderer.resetHistory();
+      self.toast('Palette reset');
+    });
+  });
+  $('btnCopyPalette').addEventListener('click', async () => {
+    const text = self.palette.copyText();
+    try {
+      await navigator.clipboard.writeText(text);
+      self.toast('Copied ' + self.palette.active.length + ' hex values');
+    } catch(e){
+      // clipboard API needs a secure context; fall back to a selection
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); self.toast('Copied'); }
+      catch(err){ self.toast('Copy blocked by the browser'); }
+      document.body.removeChild(ta);
+    }
+  });
+  $('btnImportPalette').addEventListener('click', () => {
+    $('importText').value = '';
+    $('importRead').textContent = 'No valid colors yet';
+    self.openModal('importModal');
+    $('importText').focus();
+  });
+  $('importText').addEventListener('input', e => {
+    const n = (e.target.value.match(/#?[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) || []).length;
+    $('importRead').textContent = n ? `${n} color${n===1?'':'s'} detected` : 'No valid colors yet';
+  });
+  $('importApply').addEventListener('click', () => {
+    const n = self.palette.importHex($('importText').value);
+    if(n === 0){ self.toast('Need at least two valid hex values'); return; }
+    self.clusters.forEach(c => c.target = self.analyzer.suggest(c, self.palette));
+    self.renderClusters();
+    self.closeModal('importModal');
+    self.renderer.resetHistory();
+    self.toast(`Imported ${n} colors`);
+  });
+
+  $('btnReanalyze').addEventListener('click', () => self.analyze());
+  $('btnAddRule').addEventListener('click', () => {
+    if(!self.mapping.addRule('#3A6EA5', 0)) self.toast(`Maximum ${MAX_RULES} rules`);
+  });
+
+  /* ---- preset json ---- */
+  $('btnSavePreset').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(self.snapshot(), null, 2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'palette-recolor-preset.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    self.toast('Preset saved');
+  });
+  $('btnLoadPreset').addEventListener('click', () => $('presetInput').click());
+  $('presetInput').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        self.applySnapshot(data);
+        self.syncSettingsUI();
+        self.renderPalette(); self.renderRules(); self.renderPreserve(); self.renderClusters();
+        $('selQuality').value = self.quality;
+        document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('on', b.dataset.view === self.view));
+        document.querySelectorAll('[data-fit]').forEach(b => b.classList.toggle('on', b.dataset.fit === self.fit));
+        self.updateSplitUI();
+        self.renderer.resetHistory();
+        self.persist();
+        self.toast('Preset loaded');
+      } catch(err){ self.toast('That file is not a valid preset'); }
+    };
+    reader.onerror = () => self.toast('Could not read that file');
+    reader.readAsText(f);
+  });
+
+  /* ---- global reset ---- */
+  $('btnReset').addEventListener('click', () => {
+    self.confirm('Reset everything?',
+      'This restores the default palette, settings, and mappings, and clears saved data. The loaded video stays.',
+      () => self.resetAll());
+  });
+
+  /* ---- modals ---- */
+  document.querySelectorAll('[data-close]').forEach(b =>
+    b.addEventListener('click', () => self.closeModal(b.dataset.close)));
+  document.querySelectorAll('.overlay').forEach(o =>
+    o.addEventListener('click', e => { if(e.target === o) self.closeModal(o.id); }));
+
+  /* ---- export ---- */
+  $('btnExport').addEventListener('click', () => self.openExport());
+  ['expRes','expFps','expQual','expAudio'].forEach(id =>
+    $(id).addEventListener('change', () => self.updateExportReadout()));
+  $('expStart').addEventListener('click', () => self.runExport());
+
+  /* ---- keyboard ---- */
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape'){
+      if(self.pickMode){ self.endPick(); return; }
+      const open = document.querySelector('.overlay:not([hidden])');
+      if(open){ self.closeModal(open.id); return; }
+    }
+    const tag = (e.target.tagName || '').toLowerCase();
+    if(tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if(!self.video.loaded) return;
+    if(e.key === ' '){ e.preventDefault(); self.video.toggle(); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); self.video.step(-1); }
+    else if(e.key === 'ArrowRight'){ e.preventDefault(); self.video.step(1); }
+  });
+
+  /* ---- resize ---- */
+  let rt;
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => self.fitStage(), 100);
+  });
+
+  window.addEventListener('beforeunload', () => {
+    if(self.exporter.active) self.exporter.cancel();
+    self.video.destroy();
+  });
+};
+
+/* ---- modal helpers ---- */
+UIController.prototype.openModal = function(id){
+  const m = $(id);
+  m.hidden = false;
+  this._lastFocus = document.activeElement;
+  const first = m.querySelector('input,select,textarea,button');
+  if(first) first.focus();
+};
+UIController.prototype.closeModal = function(id){
+  $(id).hidden = true;
+  if(id === 'exportModal' && this.exporter.active) this.exporter.cancel();
+  if(this._lastFocus && this._lastFocus.focus) this._lastFocus.focus();
+};
+UIController.prototype.confirm = function(title, body, onOk){
+  $('confirmTitle').textContent = title;
+  $('confirmBody').textContent = body;
+  const ok = $('confirmOk');
+  const fresh = ok.cloneNode(true);
+  ok.parentNode.replaceChild(fresh, ok);
+  fresh.addEventListener('click', () => { this.closeModal('confirmModal'); onOk(); });
+  this.openModal('confirmModal');
+};
+
+/* ---- export flow ---- */
+UIController.prototype.openExport = function(){
+  const mime = ExportManager.pickMime();
+  if(!mime){
+    $('expNote').innerHTML = '<b>Recording is unavailable.</b> This browser does not support MediaRecorder with WebM. Try Chrome, Edge, or Firefox.';
+    $('expStart').disabled = true;
+  } else {
+    $('expStart').disabled = false;
+  }
+  $('expProgWrap').hidden = true;
+  $('expDownload').hidden = true;
+  $('expStart').hidden = false;
+  $('expCancel').textContent = 'Cancel';
+  this.updateExportReadout();
+  this.openModal('exportModal');
+};
+
+UIController.prototype.updateExportReadout = function(){
+  const v = this.video.v;
+  if(!v.videoWidth) return;
+  const [w,h] = ExportManager.targetSize($('expRes').value, v.videoWidth, v.videoHeight);
+  const fps = $('expFps').value === 'original' ? (this.video.fps||30) : parseInt($('expFps').value,10);
+  const mime = ExportManager.pickMime();
+  $('expSizeRead').textContent = w + '×' + h;
+  $('expFpsRead').textContent = fps + ' fps';
+  $('expMime').textContent = mime || 'unavailable';
+  $('expDur').textContent = VideoController.formatTime(v.duration);
+};
+
+UIController.prototype.runExport = function(){
+  const self = this;
+  const opts = {
+    resolution: $('expRes').value,
+    fps: $('expFps').value,
+    quality: $('expQual').value,
+    audio: $('expAudio').checked
+  };
+  $('expProgWrap').hidden = false;
+  $('expStart').hidden = true;
+  $('expDownload').hidden = true;
+  $('expStatus').textContent = 'Rendering in real time…';
+  $('expProg').style.width = '0%';
+  $('expPct').textContent = '0%';
+  this.status('Exporting…', 'busy');
+
+  this.exporter.start(opts,
+    (p, cur, dur) => {
+      const pct = Math.round(p*100);
+      $('expProg').style.width = pct + '%';
+      $('expPct').textContent = pct + '%';
+      $('expStatus').textContent = `Rendering ${VideoController.formatTime(cur)} of ${VideoController.formatTime(dur)}`;
+    },
+    result => {
+      $('expProg').style.width = '100%';
+      $('expPct').textContent = '100%';
+      const mb = (result.blob.size/1048576).toFixed(1);
+      $('expStatus').textContent = `Done · ${mb} MB · ${result.audio ? 'with audio' : 'no audio track'}`;
+      const a = $('expDownload');
+      a.href = result.url;
+      a.download = (self.video.fileName || 'media') + (result.still ? '-recolored.png' : '-recolored.webm');
+      a.hidden = false;
+      $('expCancel').textContent = 'Close';
+      $('expMime').textContent = result.mime;
+      self.status('Export complete.', 'ok');
+      self.renderer.resetHistory();
+    },
+    err => {
+      $('expStatus').textContent = 'Failed: ' + err.message;
+      $('expStart').hidden = false;
+      self.status('Export failed: ' + err.message, 'err');
+    }
+  );
+};
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    window.app = new UIController();
+  } catch(e){
+    document.body.insertAdjacentHTML('afterbegin',
+      `<div style="padding:20px;font:13px system-ui;color:#92001D">
+         Could not start: ${e.message}
+       </div>`);
+    console.error(e);
+  }
+});
+
+
+</script>
+</body>
+</html>
