@@ -121,92 +121,386 @@ a{ color:inherit; text-decoration:none; }
 }
 
 /* --------------------------------------------------------------------------
-   Layout
+   Layout — horizontal menu (Figma 91:3 / 91:58)
    -------------------------------------------------------------------------- */
+:root{
+  --menu-ink:#000000;
+  --menu-muted:#969696;
+  /* Suite type — header, home, Multi-export, etc. unless a tool states otherwise */
+  --suite-fs:15px;
+  --menu-fs:var(--suite-fs);
+  --menu-track:-1px;
+  --menu-pad-x:20px;
+  --menu-pad-y:20px;
+  --menu-rise:620ms;
+  --menu-expand:480ms;
+
+  /* Suite layout grid — Figma Creative Suite (1728×1117, 5×5) */
+  --suite-margin:20px;
+  --suite-gutter:21px;
+}
+
 .layout{
   display:flex;
-  align-items:flex-start;
+  flex-direction:column;
   min-height:100vh;
 }
 
-.panel{
-  position:sticky;
-  top:0;
-  align-self:flex-start;
-  flex:0 0 var(--panel-w);
-  width:var(--panel-w);
-  height:100vh;
-  padding:var(--pad);
-  display:flex;
-  flex-direction:column;
-  gap:9px;
-  background:var(--bg);
+/* ---- Suite 5×5 grid (Figma Creative Suite) — all tool pages ---- */
+body.is-tool{
   overflow:hidden;
-  border-right:var(--hair);
+}
+body.is-tool .layout{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0, 1fr));
+  /*
+    Row 1 = menu track (1fr) — menu sits at the top; leftover space is the
+    vertical gap before controls (Figma equal-row rhythm).
+    Row 2 = controls (auto) — full height, no scroll.
+    Rows 3–5 = drop zone (shares remaining height).
+  */
+  grid-template-rows:minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  column-gap:var(--suite-gutter);
+  row-gap:var(--suite-gutter);
+  padding:var(--suite-margin);
+  height:100vh;
+  min-height:100vh;
+  max-height:100vh;
+  box-sizing:border-box;
+}
+/* Flatten wrappers so brand / cluster / page cells share one grid */
+body.is-tool .menu,
+body.is-tool .main,
+body.is-tool .main > .mx,
+body.is-tool .main > .vl,
+body.is-tool .main > .ada,
+body.is-tool .main > .bb{
+  display:contents;
+}
+body.is-tool .menu__brand{
+  grid-column:1;
+  grid-row:1;
+  margin-right:0;
+  align-self:start;
+  z-index:60;
+  transform:translateY(0);
+}
+body.is-tool .menu__cluster{
+  grid-column:2 / -1;
+  grid-row:1;
+  align-self:start;
+  z-index:60;
+  transform:translateY(0);
+}
+body.is-tool .main > script,
+body.is-tool .main > input[type="file"],
+body.is-tool .main > .canvas-stash{
+  position:fixed !important;
+  left:-9999px !important;
+  width:0 !important;
+  height:0 !important;
+  overflow:hidden !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
 }
 
-.wordmark{
+/* ---- Menu bar ----
+   Figma 91:3 — left-aligned sequence:
+   McCann Design ··· Tools · Information · clock
+   Hover Tools → tool column inserts and Information + clock slide right.
+*/
+.menu{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:0;
+  width:100%;
+  padding:0 var(--menu-pad-x);
+  z-index:50;
+  background:var(--bg);
   font-family:var(--sans);
-  font-weight:600;
-  font-size:var(--fs);
-  line-height:1.25;
-  letter-spacing:0;
-  color:var(--ink);
+  font-size:var(--menu-fs);
+  font-weight:400;
+  letter-spacing:var(--menu-track);
+  line-height:1.2;
+  color:var(--menu-ink);
+  -webkit-font-smoothing:antialiased;
+  transition:
+    top var(--menu-rise) var(--ease),
+    transform var(--menu-rise) var(--ease),
+    padding var(--menu-rise) var(--ease);
+}
+
+.menu__brand,
+.menu__tools-label,
+.menu__tool,
+.menu__info,
+.menu__clock{
+  font-family:var(--sans);
+  font-size:var(--menu-fs);
+  font-weight:400;
+  letter-spacing:var(--menu-track);
+  line-height:1.2;
+}
+
+.menu__brand{
+  flex:0 0 auto;
+  color:var(--menu-ink);
+  white-space:nowrap;
+  margin-right:0;
+}
+
+.menu__cluster{
+  display:flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:0;
+  flex:0 0 auto;
+  min-width:0;
+}
+
+.menu__tools-block{
+  display:flex;
+  align-items:flex-start;
+  gap:0;
+  position:relative;
+}
+
+.menu__tools-label{
+  appearance:none;
+  border:0;
+  background:transparent;
   margin:0;
+  padding:0;
+  font:inherit;
+  letter-spacing:inherit;
+  color:var(--menu-ink);
+  cursor:default;
+  white-space:nowrap;
+  transition:color var(--menu-expand) var(--ease);
+}
+.menu.is-open .menu__tools-label{ color:var(--menu-muted); }
+
+/* Slot expands 0 → content width so Information + clock slide right */
+.menu__tools-slot{
+  display:grid;
+  grid-template-columns:0fr;
+  margin-left:0;
+  transition:
+    grid-template-columns var(--menu-expand) var(--ease),
+    margin-left var(--menu-expand) var(--ease);
+}
+.menu.is-open .menu__tools-slot{
+  grid-template-columns:1fr;
+  margin-left:18px;
 }
 
-.nav-sec{ display:flex; flex-direction:column; gap:3px; }
-.nav-row{
+/* Navigating: snap Tools shut — no retract animation fighting the rise */
+.menu.is-leaving .menu__tools-label,
+.menu.is-leaving .menu__tools-slot{
+  transition:none !important;
+}
+.menu.is-leaving .menu__tools-inner{
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+
+.menu__tools-inner{
+  min-width:0;
+  overflow:hidden;
+  height:1.2em; /* keep bar one line; list paints below */
+}
+.menu.is-open .menu__tools-inner{
+  min-width:max-content;
+  overflow:visible;
+}
+
+.menu__tools{
+  list-style:none;
+  margin:0;
+  padding:0;
   display:flex;
   flex-direction:column;
-  gap:2px;
-  line-height:1.25;
-}
-.nav-row .sec__title{
-  font-weight:400;
-  color:var(--muted);
-  font-size:var(--fs);
-  text-transform:none;
-  letter-spacing:0;
-}
-.nav-list{
-  display:flex;
-  flex-direction:column;
-  gap:1px;
+  gap:0;
+  background:var(--bg);
+  padding-right:4px;
+  padding-bottom:4px;
 }
 
-.nav-item{
-  font-family:var(--sans);
-  font-weight:600;
-  font-size:var(--fs);
-  line-height:1.25;
-  color:var(--muted);
-  cursor:pointer;
-  width:max-content;
-  transition:color .15s var(--ease);
+.menu__tools li{
+  white-space:nowrap;
+  line-height:1.2;
 }
-.nav-item:hover,
-.nav-item.is-active{ color:var(--ink); }
-.nav-item--soon{ cursor:default; opacity:.55; }
-.nav-item--soon:hover{ color:var(--muted); }
 
-.nav-clock{
-  margin-top:5px;
-  font-family:var(--sans);
-  font-weight:400;
-  font-size:var(--fs);
-  line-height:1.35;
-  letter-spacing:0;
-  color:var(--muted);
+.menu__tool{
+  color:var(--menu-muted);
+  white-space:nowrap;
+  display:block;
+  line-height:1.2;
+  padding:0;
+  transition:color .18s var(--ease);
+}
+.menu__tool:hover,
+.menu__tool:focus-visible,
+.menu__tool.is-active{
+  color:#000000;
+}
+
+.menu__info{
+  margin-left:18px;
+  color:var(--menu-ink);
+  white-space:nowrap;
+  cursor:default;
+  flex-shrink:0;
+}
+
+.menu__clock{
+  margin-left:18px;
+  color:var(--menu-ink);
+  white-space:nowrap;
   font-variant-numeric:tabular-nums;
+  flex-shrink:0;
 }
-.nav-clock .clock-date,
-.nav-clock .clock-time{ line-height:1.35; }
+
+/* Home: same 5 columns as tools; bar vertically centered */
+body.is-home .layout{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0, 1fr));
+  grid-template-rows:1fr;
+  column-gap:var(--suite-gutter);
+  padding:var(--suite-margin);
+  height:100vh;
+  min-height:100vh;
+  box-sizing:border-box;
+}
+body.is-home .menu{
+  display:contents;
+}
+body.is-home .main{
+  display:none;
+}
+body.is-home .menu__brand{
+  grid-column:1;
+  align-self:center;
+  z-index:60;
+  transform:translateY(0);
+  transition:transform var(--menu-rise) var(--ease);
+}
+body.is-home .menu__cluster{
+  grid-column:2 / -1;
+  align-self:center;
+  z-index:60;
+  transform:translateY(0);
+  transition:transform var(--menu-rise) var(--ease);
+}
+/* Rise on leave: slide toward the top of the viewport (transform is animatable) */
+body.is-home.is-rising .menu__brand,
+body.is-home.is-rising .menu__cluster{
+  transform:translateY(calc(-50vh + var(--suite-margin) + 0.6em));
+}
+
+/* Legacy centered class — map onto suite columns (no fixed split layout) */
+body.is-home .menu.is-centered{
+  position:static;
+  transform:none;
+  padding:0;
+}
+
+/* Tool pages: docked class is a no-op for layout; enter uses transform rise */
+body.is-tool .menu.is-docked,
+body.is-tool .menu.is-centered{
+  position:static;
+  transform:none;
+  padding:0;
+  top:auto;
+}
+
+/* Enter tool: start mid-viewport, then ease up into the docked row */
+body.is-tool .menu.is-centered:not(.is-rising) .menu__brand,
+body.is-tool .menu.is-centered:not(.is-rising) .menu__cluster{
+  transform:translateY(var(--menu-enter-from, 38vh));
+  transition:none;
+}
+body.is-tool .menu.is-centered.is-rising .menu__brand,
+body.is-tool .menu.is-centered.is-rising .menu__cluster{
+  transform:translateY(0);
+  transition:transform var(--menu-rise) var(--ease);
+}
 
 .main{
   flex:1 1 auto;
   min-width:0;
   padding:clamp(10px, 2vw, 24px) clamp(10px, 1.5vw, 20px) 32px;
+}
+body.is-tool .main{
+  padding:0;
+}
+/* Page cells fade in once the suite shell is ready */
+body.is-tool .mx__title,
+body.is-tool .mx__band,
+body.is-tool .mx__stage,
+body.is-tool .vl__title,
+body.is-tool .vl__band,
+body.is-tool .vl__stage,
+body.is-tool .ada__title,
+body.is-tool .ada__band,
+body.is-tool .ada__stage,
+body.is-tool .bb__title,
+body.is-tool .bb__band,
+body.is-tool .bb__stage{
+  opacity:0;
+}
+body.is-tool.is-ready .mx__title,
+body.is-tool.is-ready .mx__band,
+body.is-tool.is-ready .mx__stage,
+body.is-tool.is-ready .vl__title,
+body.is-tool.is-ready .vl__band,
+body.is-tool.is-ready .vl__stage,
+body.is-tool.is-ready .ada__title,
+body.is-tool.is-ready .ada__band,
+body.is-tool.is-ready .ada__stage,
+body.is-tool.is-ready .bb__title,
+body.is-tool.is-ready .bb__band,
+body.is-tool.is-ready .bb__stage{
+  opacity:1;
+  transition:opacity 420ms var(--ease);
+}
+
+@media (prefers-reduced-motion:reduce){
+  .menu,
+  .menu__tools-slot,
+  .menu__tools-label,
+  .menu__info,
+  .menu__clock,
+  .menu__tool,
+  .menu__brand,
+  .menu__cluster,
+  .main{
+    transition:none !important;
+  }
+  body.is-home.is-rising .menu__brand,
+  body.is-home.is-rising .menu__cluster,
+  body.is-tool .menu.is-centered:not(.is-rising) .menu__brand,
+  body.is-tool .menu.is-centered:not(.is-rising) .menu__cluster,
+  body.is-tool .menu.is-centered.is-rising .menu__brand,
+  body.is-tool .menu.is-centered.is-rising .menu__cluster{
+    transform:none !important;
+  }
+}
+
+@media (max-width:900px){
+  .menu__brand{ margin-right:clamp(32px, 8vw, 205px); }
+}
+@media (max-width:720px){
+  .menu{
+    flex-wrap:wrap;
+    row-gap:10px;
+  }
+  .menu__brand{ margin-right:32px; }
+  .menu__cluster{
+    flex-wrap:wrap;
+  }
 }
 
 /* --------------------------------------------------------------------------

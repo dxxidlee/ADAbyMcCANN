@@ -5,192 +5,446 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <base target="_top">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<title>EXPORT — McCANN Design</title>
+<title>Multi-export — McCann Design</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link rel="stylesheet" href="assets/design.css">
 <style>
-  .exp-top{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:clamp(24px,3vw,44px); align-items:start; }
-  @media(max-width:1100px){ .exp-top{ grid-template-columns:1fr; gap:28px; } }
+/* Multi-export — Figma 95:90 on suite 5×5 grid (cells on .layout) */
+.mx{
+  --mx-fs:var(--suite-fs);
+  --mx-track:-1px;
+  --mx-label:#969696;
+  --mx-chip:#757575;
+  --mx-fill:#F4F4F4;
+  --mx-radius:5px;
+  --mx-drop-radius:10px;
+  --mx-drop-stroke:2px solid var(--mx-fill);
+  display:contents;
+}
 
-  .uploadCol{ display:flex; flex-direction:column; gap:0; }
-  .drop{
-    min-height:130px; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; gap:3px; padding:12px; cursor:pointer;
-    transition:background-color .18s var(--ease);
+.mx__title,
+.mx__band,
+.mx__desc,
+.mx__stage,
+.mx__drop{
+  font-family:var(--sans);
+  font-size:var(--mx-fs);
+  font-weight:400;
+  letter-spacing:var(--mx-track);
+  line-height:1.2;
+  color:#000;
+}
+
+/* Suite rows: 1=menu · 2=title/controls · 3–5=drop */
+.mx__title{
+  grid-column:1;
+  grid-row:2;
+  margin:0;
+  padding:0;
+  font-family:var(--sans);
+  font-size:var(--mx-fs);
+  font-weight:400;
+  letter-spacing:var(--mx-track);
+  line-height:1.2;
+  color:#000000;
+  white-space:nowrap;
+  align-self:start;
+  z-index:2;
+}
+
+.mx__band{
+  grid-column:2 / -1;
+  grid-row:2;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-width:0;
+  align-self:start;
+  z-index:2;
+}
+
+.mx__desc{
+  margin:0;
+  padding:0;
+  font-size:var(--mx-fs);
+  font-weight:400;
+  letter-spacing:var(--mx-track);
+  line-height:1.2;
+  color:var(--mx-label);
+  flex:0 0 auto;
+}
+
+/* Shared two-row track so Color-space chips ↔ Raster size share one baseline */
+.mx__controls{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  grid-template-rows:auto auto;
+  column-gap:var(--suite-gutter);
+  row-gap:15px;
+  align-items:start;
+  flex:0 0 auto;
+  min-height:0;
+}
+
+.mx__group{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+.mx__group--formats{ grid-column:1; grid-row:1; }
+.mx__group--space{ grid-column:1; grid-row:2; }
+.mx__group--treat{ grid-column:2; grid-row:1; }
+.mx__group--raster{ grid-column:2; grid-row:2; }
+.mx__group--export{ grid-column:3; grid-row:1 / -1; }
+
+.mx__label{
+  margin:0;
+  color:var(--mx-label);
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1.2;
+}
+
+.mx__pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  align-items:center;
+  min-height:34px;
+}
+
+.mx__pill{
+  appearance:none;
+  border:0;
+  margin:0;
+  padding:5px 10px;
+  height:34px;
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1;
+  color:var(--mx-chip);
+  background:transparent;
+  border-radius:var(--mx-radius);
+  cursor:pointer;
+  transition:background .15s var(--ease), color .15s var(--ease);
+}
+.mx__pill:hover{ color:#000; }
+.mx__pill.is-active{
+  background:var(--mx-fill);
+  color:var(--mx-chip);
+}
+.mx__pill.is-active:hover{ color:#000; }
+.mx__pill:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+
+.mx__size{
+  display:flex;
+  align-items:center;
+  gap:0;
+  color:var(--mx-chip);
+  flex-wrap:wrap;
+  min-height:34px; /* match chip row → aligns with cmyk */
+  box-sizing:border-box;
+}
+.mx__size input{
+  font:inherit;
+  letter-spacing:inherit;
+  color:var(--mx-chip);
+  background:transparent;
+  border:0;
+  border-bottom:1px solid var(--mx-chip);
+  outline:none;
+  width:3.2em;
+  padding:0;
+  text-align:left;
+  -moz-appearance:textfield;
+}
+.mx__size input::-webkit-outer-spin-button,
+.mx__size input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.mx__size input:focus{ color:#000; border-bottom-color:#000; }
+.mx__size-unit{ color:var(--mx-chip); }
+
+.mx__status{
+  margin:0;
+  color:var(--mx-label);
+  min-height:2.4em;
+}
+
+/* Stage: Source logo + drop across suite cols 2–5, rows 3–5 */
+.mx__stage{
+  grid-column:2 / -1;
+  grid-row:3 / -1;
+  display:flex;
+  flex-direction:column;
+  gap:var(--suite-gutter);
+  min-width:0;
+  min-height:0;
+  align-self:stretch;
+  justify-self:stretch;
+  z-index:1;
+}
+
+.mx__source-head{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  column-gap:var(--suite-gutter);
+  align-items:center;
+  flex:0 0 auto;
+  min-width:0;
+  /* Reserve chip-row height so the drop zone never resizes when tags appear */
+  min-height:34px;
+}
+.mx__source-head .mx__label{
+  grid-column:1;
+  align-self:center;
+}
+.mx__meta{
+  grid-column:2 / -1;
+  display:none;
+  flex-wrap:wrap;
+  gap:5px;
+  align-items:center;
+  min-width:0;
+}
+.mx__meta.is-on{ display:flex; }
+
+.mx__tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:34px;
+  padding:5px 10px;
+  box-sizing:border-box;
+  background:var(--mx-fill);
+  border-radius:var(--mx-radius);
+  color:var(--mx-chip);
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1;
+  white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:0;
+  transform:translateY(6px);
+  will-change:opacity, transform;
+}
+.mx__meta.is-on .mx__tag{
+  animation:mxTagIn 520ms var(--ease) forwards;
+}
+.mx__meta.is-on .mx__tag:nth-child(1){ animation-delay:60ms; }
+.mx__meta.is-on .mx__tag:nth-child(2){ animation-delay:180ms; }
+.mx__meta.is-on .mx__tag:nth-child(3){ animation-delay:300ms; }
+
+@keyframes mxTagIn{
+  from{ opacity:0; transform:translateY(6px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .mx__tag{
+    opacity:1;
+    transform:none;
+    will-change:auto;
   }
-  .drop:hover{ background:rgba(0,0,0,.03); }
-  .drop.drag{ background:rgba(0,0,0,.06); }
-  .drop .big{ font-family:var(--sans); font-weight:600; font-size:var(--fs); }
-  .drop .sub{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); }
-  .drop.has{ padding:0; }
-  .preview{ width:100%; flex:1 1 auto; min-height:130px; display:flex; align-items:center; justify-content:center;
-    background:repeating-conic-gradient(rgba(0,0,0,.05) 0% 25%,transparent 0% 50%) 50%/10px 10px; }
-  .preview img{ max-width:86%; max-height:86%; object-fit:contain; }
-  .filemeta{ display:flex; justify-content:space-between; align-items:center; gap:9px; }
-  .filemeta #fileinfo{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); }
+  .mx__meta.is-on .mx__tag{
+    animation:none;
+  }
+}
 
-  .optionsCol{ display:flex; flex-direction:column; gap:6px; }
-  .sizefield{ display:flex; align-items:baseline; gap:6px; line-height:1; }
-  .sizefield input{ font-family:var(--sans); font-weight:400; font-size:var(--fs); width:75px;
-    border:0; border-bottom:1px solid var(--ink); background:transparent; color:var(--ink); outline:none; padding:1px 0; }
-  .sizefield .note{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); text-transform:none; }
+/* Drop: stroke only, no fill — Figma 112:280 */
+.mx__drop{
+  position:relative;
+  flex:1 1 auto;
+  min-width:0;
+  min-height:0;
+  background:transparent;
+  border:var(--mx-drop-stroke);
+  border-radius:var(--mx-drop-radius);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  transition:border-color .15s var(--ease);
+  overflow:hidden;
+}
+.mx__drop:hover{ border-color:#e4e4e4; }
+.mx__drop.is-drag{ border-color:#cfcfcf; }
+.mx__drop-hint{
+  margin:0;
+  color:var(--mx-chip);
+  font:inherit;
+  letter-spacing:inherit;
+  pointer-events:none;
+}
+.mx__drop.has .mx__drop-hint{ display:none; }
+.mx__drop .mx__preview{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  box-sizing:border-box;
+}
+.mx__drop .mx__preview img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
 
-  .status{ font-family:var(--sans); font-weight:400; font-size:var(--fs); color:var(--dim); min-height:var(--fs); margin-top:4px; text-transform:none; }
+.canvas-stash{
+  position:fixed;
+  left:-9999px;
+  top:0;
+  width:0;
+  height:0;
+  overflow:hidden;
+  pointer-events:none;
+}
 
-  .tree{ font-family:var(--sans); font-weight:400; font-size:var(--fs); line-height:1.25; white-space:pre; margin:0; padding:6px; overflow:auto; }
-  .tree .muted{ color:var(--dim); }
-
-  .canvas-stash{ position:absolute; left:-9999px; top:-9999px; }
+/* Remove broken @supports fallback that fought the suite grid */
 </style>
 </head>
 <body>
 
-  <div class="sec page-head">
-    <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
-    <div class="sec-row">
-      <span class="sec__mark">II</span>
-      <span class="sec__title">EXPORT</span>
-    </div>
-  </div>
+<div class="mx">
+  <h1 class="mx__title">Multi-export</h1>
 
-  <div class="exp-top">
-    <!-- LEFT — upload -->
-    <div class="uploadCol">
-      <div class="sec">
-        <div class="sec__bar"></div>
-        <div class="sec-row">
-          <span class="sec__mark" aria-hidden="true"></span>
-          <span class="sec__title">SOURCE LOGO</span>
+  <div class="mx__band">
+    <p class="mx__desc">This tool allows the user to export a design to multiple formats and sizes at once.</p>
+
+    <div class="mx__controls">
+      <div class="mx__group mx__group--formats">
+        <div class="mx__label">File formats</div>
+        <div class="mx__pills" id="fmtOpts">
+          <button type="button" class="mx__pill" data-fmt="png" aria-pressed="false">.png</button>
+          <button type="button" class="mx__pill" data-fmt="jpg" aria-pressed="false">.jpg</button>
+          <button type="button" class="mx__pill" data-fmt="svg" aria-pressed="false">.svg</button>
+          <button type="button" class="mx__pill" data-fmt="eps" aria-pressed="false">.eps</button>
         </div>
       </div>
-      <div class="box drop" id="drop">
-        <div class="big">DROP A LOGO HERE</div>
-        <div class="sub">PNG · JPG · SVG</div>
-      </div>
-      <input type="file" id="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" style="display:none">
-      <div class="filemeta" id="filemeta" style="display:none">
-        <span id="fileinfo"></span>
-        <button id="clearBtn" class="btn">REMOVE</button>
-      </div>
-    </div>
-
-    <!-- RIGHT — options -->
-    <div class="optionsCol">
-      <div class="sec">
-        <div class="sec__bar"></div>
-        <div class="sec-row">
-          <span class="sec__mark" aria-hidden="true"></span>
-          <div class="sec__body">
-            <div class="sec__title">FILE FORMATS</div>
-            <div class="opts" id="fmtOpts">
-              <button class="opt is-active" data-fmt="png">PNG</button>
-              <button class="opt is-active" data-fmt="jpg">JPG</button>
-              <button class="opt is-active" data-fmt="svg">SVG</button>
-              <button class="opt is-active" data-fmt="eps">EPS</button>
-            </div>
-          </div>
+      <div class="mx__group mx__group--space">
+        <div class="mx__label">Color space</div>
+        <div class="mx__pills" id="spaceOpts">
+          <button type="button" class="mx__pill is-active" data-space="rgb" aria-pressed="true">rgb</button>
+          <button type="button" class="mx__pill is-active" data-space="cmyk" aria-pressed="true">cmyk</button>
         </div>
       </div>
 
-      <div class="sec">
-        <div class="sec__bar"></div>
-        <div class="sec-row">
-          <span class="sec__mark" aria-hidden="true"></span>
-          <div class="sec__body">
-            <div class="sec__title">COLOR SPACE</div>
-            <div class="opts" id="spaceOpts">
-              <button class="opt is-active" data-space="rgb">RGB</button>
-              <button class="opt is-active" data-space="cmyk">CMYK</button>
-            </div>
-          </div>
+      <div class="mx__group mx__group--treat">
+        <div class="mx__label">Treatment</div>
+        <div class="mx__pills" id="treatOpts">
+          <button type="button" class="mx__pill is-active" data-treat="color" aria-pressed="true">Color</button>
+          <button type="button" class="mx__pill is-active" data-treat="grayscale" aria-pressed="true">Grayscale</button>
+        </div>
+      </div>
+      <div class="mx__group mx__group--raster">
+        <div class="mx__label">Raster size</div>
+        <div class="mx__size">
+          <input type="number" id="size" value="2000" min="64" max="6000" step="1" aria-label="Raster size in pixels">
+          <span class="mx__size-unit">&nbsp;px longest edge</span>
         </div>
       </div>
 
-      <div class="sec">
-        <div class="sec__bar"></div>
-        <div class="sec-row">
-          <span class="sec__mark" aria-hidden="true"></span>
-          <div class="sec__body">
-            <div class="sec__title">TREATMENT</div>
-            <div class="opts" id="treatOpts">
-              <button class="opt is-active" data-treat="color">COLOR</button>
-              <button class="opt is-active" data-treat="grayscale">GRAYSCALE</button>
-            </div>
-          </div>
+      <div class="mx__group mx__group--export">
+        <div class="mx__label">Export</div>
+        <div class="mx__pills">
+          <button type="button" class="mx__pill is-active" id="runBtn" disabled>.zip</button>
         </div>
-      </div>
-
-      <div class="sec">
-        <div class="sec__bar"></div>
-        <div class="sec-row">
-          <span class="sec__mark" aria-hidden="true"></span>
-          <div class="sec__body">
-            <div class="sec__title">RASTER SIZE</div>
-            <div class="sizefield">
-              <input type="number" id="size" value="2000" min="64" max="6000" step="1">
-              <span class="note">px longest edge</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sec">
-        <div class="sec__bar"></div>
-        <div class="sec-row">
-          <span class="sec__mark" aria-hidden="true"></span>
-          <div class="sec__body">
-            <div class="sec__title">GENERATE</div>
-            <button id="runBtn" class="btn" disabled>GENERATE ZIP</button>
-            <div class="status" id="status"></div>
-          </div>
-        </div>
+        <p class="mx__status" id="status" role="status" aria-live="polite"></p>
       </div>
     </div>
   </div>
 
-  <div class="divider"></div>
-
-  <div class="sec">
-    <div class="sec__bar sec__bar--thin" style="max-width:161px"></div>
-    <div class="sec-row">
-      <span class="sec__mark" aria-hidden="true"></span>
-      <span class="sec__title">PACKAGE</span>
+  <div class="mx__stage">
+    <div class="mx__source-head">
+      <p class="mx__label">Source logo</p>
+      <div class="mx__meta" id="meta" aria-live="polite">
+        <span class="mx__tag" id="metaName"></span>
+        <span class="mx__tag" id="metaDims"></span>
+        <span class="mx__tag" id="metaBytes"></span>
+      </div>
     </div>
-    <div class="box"><pre class="tree" id="treeView"></pre></div>
+    <div class="mx__drop" id="drop" role="button" tabindex="0" aria-label="Drop a file here">
+      <p class="mx__drop-hint">Drop the file here (.png, .jpg, .svg)</p>
+    </div>
   </div>
+</div>
 
-  <div class="canvas-stash" id="stash"></div>
-
-  <script src="assets/nav.js"></script>
+<input type="file" id="file" accept=".png,.jpg,.jpeg,.svg,image/png,image/jpeg,image/svg+xml" hidden>
+<div class="canvas-stash" id="stash"></div>
+<script src="assets/nav.js"></script>
 
 <script>
 let uploaded=null; // {name, type, dataUrl, isSvg, svgText, img}
 
 const drop=document.getElementById("drop");
 const fileInput=document.getElementById("file");
-const fileMeta=document.getElementById("filemeta");
-const fileInfo=document.getElementById("fileinfo");
 const runBtn=document.getElementById("runBtn");
 const statusEl=document.getElementById("status");
+const metaEl=document.getElementById("meta");
+const metaName=document.getElementById("metaName");
+const metaDims=document.getElementById("metaDims");
+const metaBytes=document.getElementById("metaBytes");
 
-/* ---------- Upload handling ---------- */
+function formatBytes(n){
+  if(!Number.isFinite(n) || n < 0) return "—";
+  if(n < 1024) return n + " B";
+  const kb = n / 1024;
+  if(kb < 1024) return (kb < 10 ? kb.toFixed(1) : Math.round(kb)) + " KB";
+  const mb = kb / 1024;
+  return (mb < 10 ? mb.toFixed(1) : Math.round(mb)) + " MB";
+}
+
+function clearMeta(){
+  metaEl.classList.remove("is-on");
+  metaName.textContent="";
+  metaDims.textContent="";
+  metaBytes.textContent="";
+}
+
+function showMeta(fileName, w, h, bytes){
+  metaEl.classList.remove("is-on");
+  metaName.textContent=fileName;
+  metaName.title=fileName;
+  metaDims.textContent=w + "x" + h;
+  metaBytes.textContent=formatBytes(bytes);
+  void metaEl.offsetWidth; /* restart stagger on replace */
+  metaEl.classList.add("is-on");
+}
+
+/* ---------- Upload ---------- */
 drop.addEventListener("click",()=>fileInput.click());
-drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("drag");});
-drop.addEventListener("dragleave",()=>drop.classList.remove("drag"));
-drop.addEventListener("drop",e=>{e.preventDefault();drop.classList.remove("drag");
-  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);});
+drop.addEventListener("keydown",e=>{
+  if(e.key==="Enter"||e.key===" "){ e.preventDefault(); fileInput.click(); }
+});
+drop.addEventListener("dragover",e=>{e.preventDefault();drop.classList.add("is-drag");});
+drop.addEventListener("dragleave",()=>drop.classList.remove("is-drag"));
+drop.addEventListener("drop",e=>{
+  e.preventDefault(); drop.classList.remove("is-drag");
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
 fileInput.addEventListener("change",e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
-document.getElementById("clearBtn").addEventListener("click",e=>{e.stopPropagation();reset();});
 
 function reset(){
   uploaded=null; fileInput.value="";
   drop.classList.remove("has");
-  drop.innerHTML='<div class="big">DROP A LOGO HERE</div><div class="sub">PNG · JPG · SVG</div>';
-  fileMeta.style.display="none"; runBtn.disabled=true; statusEl.textContent="";
-  updateTree();
+  drop.innerHTML='<p class="mx__drop-hint">Drop the file here (.png, .jpg, .svg)</p>';
+  runBtn.disabled=true;
+  statusEl.textContent="";
+  clearMeta();
 }
 
 function handleFile(f){
@@ -198,7 +452,16 @@ function handleFile(f){
   const reader=new FileReader();
   reader.onload=()=>{
     const result=reader.result;
-    const obj={name:f.name.replace(/\.[^.]+$/,"")||"logo", type:f.type, isSvg, svgText:null, dataUrl:null, img:null};
+    const obj={
+      name:f.name.replace(/\.[^.]+$/,"")||"logo",
+      fileName:f.name,
+      fileSize:f.size,
+      type:f.type,
+      isSvg,
+      svgText:null,
+      dataUrl:null,
+      img:null
+    };
     if(isSvg){
       obj.svgText = (typeof result==="string" && result.indexOf("<svg")>=0) ? result : null;
       obj.dataUrl = "data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(obj.svgText||"")));
@@ -206,60 +469,42 @@ function handleFile(f){
       obj.dataUrl = result;
     }
     const img=new Image();
-    img.onload=()=>{ obj.img=img; uploaded=obj; showPreview(f, img); runBtn.disabled=false; updateTree(); };
-    img.onerror=()=>{ statusEl.textContent="COULD NOT READ THAT IMAGE. TRY A PNG, JPG, OR SVG."; };
+    img.onload=()=>{
+      obj.img=img;
+      uploaded=obj;
+      showPreview();
+      showMeta(obj.fileName, img.naturalWidth||img.width, img.naturalHeight||img.height, obj.fileSize);
+      runBtn.disabled=false;
+      statusEl.textContent="";
+    };
+    img.onerror=()=>{ statusEl.textContent="Could not read that image. Try a PNG, JPG, or SVG."; };
     img.src=obj.dataUrl;
   };
   if(isSvg) reader.readAsText(f); else reader.readAsDataURL(f);
 }
 
-function showPreview(f, img){
+function showPreview(){
   drop.classList.add("has");
-  drop.innerHTML='<div class="preview"><img src="'+(uploaded.dataUrl)+'" alt="preview"></div>';
-  const kb=(f.size/1024).toFixed(0);
-  fileInfo.textContent = f.name+" · "+img.naturalWidth+"×"+img.naturalHeight+" · "+kb+" KB"+(uploaded.isSvg?" · vector":"");
-  fileMeta.style.display="flex";
+  drop.innerHTML='<div class="mx__preview"><img src="'+uploaded.dataUrl+'" alt="Preview"></div>';
 }
 
-/* ---------- Option reading ---------- */
+/* ---------- Options ---------- */
 function opts(){
-  const get=(attr)=>[...document.querySelectorAll('.opt.is-active[data-'+attr+']')].map(c=>c.dataset[attr]);
-  return { fmts:get("fmt"), spaces:get("space"), treats:get("treat"), size:Math.max(64,Math.min(6000,parseInt(document.getElementById("size").value)||2000)) };
+  const get=(attr)=>[...document.querySelectorAll('.mx__pill.is-active[data-'+attr+']')].map(c=>c.dataset[attr]);
+  return {
+    fmts:get("fmt"),
+    spaces:get("space"),
+    treats:get("treat"),
+    size:Math.max(64,Math.min(6000,parseInt(document.getElementById("size").value)||2000))
+  };
 }
-// toggle behaviour for the option pills
-document.querySelectorAll("#fmtOpts .opt, #spaceOpts .opt, #treatOpts .opt").forEach(b=>{
-  b.setAttribute("aria-pressed", b.classList.contains("is-active"));
-  b.addEventListener("click",()=>{ b.classList.toggle("is-active"); b.setAttribute("aria-pressed", b.classList.contains("is-active")); updateTree(); });
-});
-document.getElementById("size").addEventListener("input",updateTree);
 
-/* ---------- Tree preview ---------- */
-function updateTree(){
-  const tv=document.getElementById("treeView");
-  if(!tv) return;
-  if(!uploaded){ tv.innerHTML='<span class="muted">UPLOAD A LOGO AND PICK OPTIONS TO PREVIEW THE FOLDER TREE.</span>'; return; }
-  const {fmts,spaces,treats}=opts();
-  if(!fmts.length||!spaces.length||!treats.length){ tv.innerHTML='<span class="muted">SELECT AT LEAST ONE FORMAT, COLOR SPACE, AND TREATMENT.</span>'; return; }
-  const base=uploaded.name;
-  let out=base+"-Exports/\n";
-  const spaceLabel={rgb:"RGB",cmyk:"CMYK"}, treatLabel={color:"COLOR",grayscale:"GRAYSCALE"};
-  spaces.forEach((sp,si)=>{
-    const last=si===spaces.length-1;
-    out+=(last?"└─ ":"├─ ")+spaceLabel[sp]+"/\n";
-    treats.forEach((tr,ti)=>{
-      const tlast=ti===treats.length-1;
-      const pad=last?"   ":"│  ";
-      out+=pad+(tlast?"└─ ":"├─ ")+treatLabel[tr]+"/\n";
-      fmts.forEach((fm,fi)=>{
-        const flast=fi===fmts.length-1;
-        const pad2=pad+(tlast?"   ":"│  ");
-        out+=pad2+(flast?"└─ ":"├─ ")+base+"-"+spaceLabel[sp].toLowerCase()+"-"+treatLabel[tr].toLowerCase()+"."+fm+"\n";
-      });
-    });
+document.querySelectorAll("#fmtOpts .mx__pill, #spaceOpts .mx__pill, #treatOpts .mx__pill").forEach(b=>{
+  b.addEventListener("click",()=>{
+    b.classList.toggle("is-active");
+    b.setAttribute("aria-pressed", b.classList.contains("is-active"));
   });
-  out+="README.txt";
-  tv.textContent=out;
-}
+});
 
 /* ---------- Raster helpers ---------- */
 function drawToCanvas(img, size, {gray=false, matte=null}={}){
@@ -493,14 +738,18 @@ showpage
   return new Blob([head],{type:"application/postscript"});
 }
 
-/* ---------- Main generate ---------- */
-document.getElementById("runBtn").addEventListener("click",generate);
+/* ---------- Generate ZIP ---------- */
+runBtn.addEventListener("click",generate);
 
 async function generate(){
   if(!uploaded) return;
   const {fmts,spaces,treats,size}=opts();
-  if(!fmts.length||!spaces.length||!treats.length){ statusEl.textContent="PICK AT LEAST ONE FORMAT, COLOR SPACE, AND TREATMENT."; return; }
-  runBtn.disabled=true; statusEl.textContent="RENDERING…";
+  if(!fmts.length||!spaces.length||!treats.length){
+    statusEl.textContent="Pick at least one format, color space, and treatment.";
+    return;
+  }
+  runBtn.disabled=true;
+  statusEl.textContent="Rendering…";
 
   try{
     const zip=new JSZip();
@@ -545,16 +794,17 @@ async function generate(){
     }
 
     root.file("README.txt", readmeText(base));
-    statusEl.textContent="PACKAGING "+count+" FILES…";
+    statusEl.textContent="Packaging…";
     const blob=await zip.generateAsync({type:"blob"},meta=>{
-      statusEl.textContent="PACKAGING… "+Math.round(meta.percent)+"%";
+      statusEl.textContent="Packaging… "+Math.round(meta.percent)+"%";
     });
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob); a.download=base+"-Exports.zip"; a.click();
-    statusEl.textContent="DONE. "+count+" FILES ACROSS "+(spaces.length*treats.length)+" FOLDERS.";
+    const folders=spaces.length*treats.length;
+    statusEl.innerHTML="Export completed,<br>"+count+" files across "+folders+" folders.";
   }catch(err){
     console.error(err);
-    statusEl.textContent="SOMETHING WENT WRONG WHILE GENERATING. CHECK THE CONSOLE.";
+    statusEl.textContent="Something went wrong while generating.";
   }finally{
     runBtn.disabled=false;
   }
@@ -593,8 +843,6 @@ IMPORTANT LIMITS (please read)
 Treat this package as a fast first pass for screen and layout use. Anything
 going to press should be finalized in Adobe tools against the right profile.`;
 }
-
-updateTree();
 </script>
 </body>
 </html>

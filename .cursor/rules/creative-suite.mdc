@@ -21,22 +21,26 @@ Source of truth: Figma **Creative Suite** (`mH4MAAEe27RAt2W7jo8Aio`), from redes
 | Rail radius | `3.75px` (Figma 7.5 × 0.5) |
 | Box border | `1px solid #EDEDED` (Figma 2 × 0.5) |
 | Typeface | **Inter only** (400 labels / 600 active) |
-| Type size | **`12.5px` everywhere** (`--fs`) — Figma 25 × 0.5. No second size. |
+| Type size (suite) | **`15px`** (`--suite-fs`) — header, home, Multi-export, Logo-variant, Color-check, Mesh-gradient, and new UI unless stated otherwise |
+| Type size (legacy tool chrome) | **`12.5px`** (`--fs`) — Figma 25 × 0.5 on older tool panels until redesigned |
 
 ## Hard rules
 
-- **One type size**: wordmark, nav, labels, options, stats, fields, matrix, modals — all `var(--fs)` / `12.5px`. Do not introduce larger display sizes.
+- **Suite type default**: Inter **15px** (`--suite-fs`), tracking `-1px` where the menu/Multi-export language applies. Use this for header, home, Multi-export, Logo-variant, Color-check, Mesh-gradient, and new suite screens unless a design states otherwise.
+- **Legacy tool chrome**: older tools still use `var(--fs)` / `12.5px` for panel UI until redesigned.
 - **Inter by default**: no monospace UI chrome; `--mono` aliases to Inter. Chart-font overrides are opt-in only.
 - **Rail selectors**: `--rail-w: 7.5px` track + thumb; active `#333` semibold, inactive `#696969`.
 - **Chips**: `--chip-h: 22.5px`, soft `#EDEDED`, `2.5px` radius.
 - **Sentence case** labels (`Standard`, `Show only`).
-- **Tools**: ADA, Export, Brandboard (gradient), Varlogo — same shell + tokens.
-- When reading new Figma: take artboard values and **× 0.5**, then flatten all type to `--fs`.
+- **Menu**: horizontal bar (Figma `91:3` / `91:58`). Inter **15px** (`--suite-fs`), tracking `-1px`, ink `#000`, muted `#969696`. Tools hover expands so Information + clock slide right. Tool hover → `#000`. Click → bar rises; Information is coming soon (still `#000`).
+- **Suite grid**: **5 columns** (margin `20px`, gutter `21px`). Tool rows: menu track `1fr` (bar at top → vertical gap) · controls `auto` · drop `1fr×3`. Home: same columns, bar vertically centered.
+- **Tools**: Color-check → ADA · Multi-export → Export · Mesh-gradient → Brandboard · Logo-variant → Varlogo · Color-swap → Recolor.
+- When reading new Figma: honor the frame’s layout grid; menu/home/suite screens default to **15px** unless the frame specifies otherwise.
 
 ## Adaptation workflow
 
 1. `get_design_context` on the Figma node (design-to-code skill).
 2. Map into `.box`, `.rail-*`, `.stat-row`, `.chip`, `.opt` in `design.css`.
-3. Scale Figma px × 0.5; force type to `--fs` + Inter.
+3. Scale Figma px × 0.5; default suite type to `--suite-fs` (15px); legacy tool chrome may still use `--fs` (12.5px) until redesigned.
 4. Extend tokens/rule if a new pattern appears — don’t fork a one-off look.
 5. Avoid naming collisions with shell classes (`.panel` is the left nav — use a scoped name for tool-local panels).
