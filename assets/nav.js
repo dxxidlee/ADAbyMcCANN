@@ -185,6 +185,8 @@
     layout.appendChild(main);
     body.appendChild(layout);
 
+    document.dispatchEvent(new CustomEvent('suite:mounted'));
+
     if (isHome) {
       // Centered entrance — bar stays mid-viewport
       menu.classList.add('is-centered');

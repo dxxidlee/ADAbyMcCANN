@@ -138,6 +138,10 @@ a{ color:inherit; text-decoration:none; }
   /* Suite layout grid — Figma Creative Suite (1728×1117, 5×5) */
   --suite-margin:20px;
   --suite-gutter:21px;
+
+  /* Home work gallery */
+  --gal-gap:var(--suite-gutter);
+  --gal-fill:var(--surface);
 }
 
 .layout{
@@ -380,24 +384,102 @@ body.is-home .menu{
 body.is-home .main{
   display:none;
 }
+/* Rows are explicit so the gallery in columns 4–5 can't displace the bar
+   through auto-placement. */
 body.is-home .menu__brand{
   grid-column:1;
+  grid-row:1;
   align-self:center;
   z-index:60;
   transform:translateY(0);
   transition:transform var(--menu-rise) var(--ease);
 }
 body.is-home .menu__cluster{
-  grid-column:2 / -1;
+  grid-column:2 / 4;
+  grid-row:1;
   align-self:center;
   z-index:60;
   transform:translateY(0);
   transition:transform var(--menu-rise) var(--ease);
 }
+/* No gallery — cluster keeps the full run of columns */
+@media (max-width:1100px){
+  body.is-home .menu__cluster{ grid-column:2 / -1; }
+}
 /* Rise on leave: slide toward the top of the viewport (transform is animatable) */
 body.is-home.is-rising .menu__brand,
 body.is-home.is-rising .menu__cluster{
   transform:translateY(calc(-50vh + var(--suite-margin) + 0.6em));
+}
+
+/* --------------------------------------------------------------------------
+   Home gallery — auto-scrolling work preview, suite columns 4–5
+   Seamless loop: track holds two identical lanes and shifts by one lane
+   height + gap, so the clone is always in position when the cycle restarts.
+   -------------------------------------------------------------------------- */
+body.is-home .gal{
+  grid-column:4 / -1;
+  grid-row:1;
+  align-self:stretch;
+  min-width:0;
+  overflow:hidden;
+  opacity:0;
+  transition:opacity 520ms var(--ease);
+}
+body.is-home .gal.is-in{ opacity:1; }
+/* Clear out with the menu on the way into a tool */
+body.is-home.is-rising .gal{
+  opacity:0;
+  transition:opacity 300ms var(--ease);
+}
+
+.gal__track{
+  display:flex;
+  flex-direction:column;
+  row-gap:var(--gal-gap);
+  will-change:transform;
+  animation:gal-scroll var(--gal-dur, 40s) linear infinite;
+}
+.gal__lane{
+  display:flex;
+  flex-direction:column;
+  row-gap:var(--gal-gap);
+}
+@keyframes gal-scroll{
+  from{ transform:translate3d(0,0,0); }
+  to{ transform:translate3d(0, calc(var(--gal-shift, 0px) * -1), 0); }
+}
+/* Hold still for a closer look */
+.gal:hover .gal__track,
+.gal:focus-within .gal__track{ animation-play-state:paused; }
+
+.gal__item{ margin:0; }
+.gal__media{
+  display:block;
+  width:100%;
+  aspect-ratio:16 / 9;
+  background:var(--gal-fill);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.gal__media img,
+.gal__media video{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* No motion: drop the clone and let the column scroll by hand */
+@media (prefers-reduced-motion:reduce){
+  .gal__track{ animation:none; }
+  body.is-home .gal{ overflow-y:auto; }
+  .gal__lane + .gal__lane{ display:none; }
+}
+
+/* Expanded Tools reaches column 4 below this, so the gallery stands down */
+@media (max-width:1100px){
+  body.is-home .gal{ display:none; }
 }
 
 /* Legacy centered class — map onto suite columns (no fixed split layout) */
