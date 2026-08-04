@@ -140,7 +140,8 @@ a{ color:inherit; text-decoration:none; }
   --suite-gutter:21px;
 
   /* Home work gallery */
-  --gal-gap:var(--suite-gutter);
+  --gal-gap:0px;              /* 0 = one continuous strip; var(--suite-gutter) to space them */
+  --gal-radius:0px;           /* square while butted; var(--radius) if gaps come back */
   --gal-fill:var(--surface);
   /* Tile width relative to its 2-column grid area; grows leftward */
   --gal-scale:1.25;
@@ -424,13 +425,13 @@ body.is-home .gal{
   grid-column:4 / -1;
   grid-row:1;
   align-self:stretch;
-  /* Right edge stays on the page margin; extra width grows leftward */
+  /* Extra width grows leftward from the right edge */
   justify-self:end;
   width:calc(100% * var(--gal-scale));
-  /* Bleed past the top and bottom margins so the crop reads as intentional
-     rather than as a stray band above a sliced tile */
+  /* Bleed past all three margins so the strip touches top, right and bottom */
   margin-top:calc(-1 * var(--suite-margin));
   margin-bottom:calc(-1 * var(--suite-margin));
+  margin-right:calc(-1 * var(--suite-margin));
   overflow:hidden;
   opacity:0;
   transition:opacity 520ms var(--ease);
@@ -467,7 +468,7 @@ body.is-home.is-rising .gal{
   width:100%;
   aspect-ratio:16 / 9;
   background:var(--gal-fill);
-  border-radius:var(--radius);
+  border-radius:var(--gal-radius);
   overflow:hidden;
 }
 .gal__media img,

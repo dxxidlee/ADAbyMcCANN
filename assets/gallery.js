@@ -2,9 +2,9 @@
    McCANN Design Suite — home work gallery
    Auto-scrolling vertical marquee in suite columns 4–5. Home page only.
 
-   FILES is the display order — keep it in the numerical order of the files
-   in assets/gallery/. Add or remove entries there and the lane rebuilds.
-   An entry may also be an object for a muted looping video:
+   FILES is the inventory, not the running order — it gets shuffled on every
+   page load so no two visits pace the work the same way. Keep it numerical
+   for legibility. An entry may also be an object for a muted looping video:
 
      { src:'assets/gallery/38.mp4', type:'video', alt:'TV spot' }
 
@@ -25,6 +25,16 @@
   var ITEMS = FILES.map(function (f) {
     return typeof f === 'string' ? { src: DIR + f } : f;
   });
+
+  /* Fisher–Yates, once per load. Shuffling here rather than per rebuild keeps
+     the order stable while resizing, and keeps both lanes identical so the
+     loop seam stays invisible. */
+  for (var i = ITEMS.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var swap = ITEMS[i];
+    ITEMS[i] = ITEMS[j];
+    ITEMS[j] = swap;
+  }
 
   var DRIFT = 90;        /* idle scroll speed, px per second */
   var WHEEL_GAIN = 2.2;  /* how hard one wheel/trackpad notch pushes */
