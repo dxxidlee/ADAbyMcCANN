@@ -9,7 +9,8 @@
     { id: 'multi-export', label: 'Multi-export' },
     { id: 'mesh-gradient', label: 'Mesh-gradient' },
     { id: 'logo-variant', label: 'Logo-variant' },
-    { id: 'color-swap',   label: 'Color-swap' }
+    { id: 'color-swap',   label: 'Color-swap' },
+    { id: 'glyph-trace',  label: 'Glyph-trace' }
   ];
 
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

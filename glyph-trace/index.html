@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<base target="_top">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<title>Glyph-trace — McCann Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/design.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/0.6.5/opentype.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="../assets/fit-curve.js"></script>
+<style>
+/* Glyph-trace — suite language (same rules as Multi-export / Logo-variant) */
+.gt{
+  --gt-fs:var(--suite-fs);
+  --gt-track:-1px;
+  --gt-label:#969696;
+  --gt-chip:#757575;
+  --gt-fill:#F4F4F4;
+  --gt-radius:5px;
+  --gt-stage-radius:10px;
+  --gt-stage-stroke:2px solid var(--gt-fill);
+  --gt-alert:#B93D3D;
+  display:contents;
+}
+
+.gt__title,
+.gt__band,
+.gt__desc,
+.gt__stage{
+  font-family:var(--sans);
+  font-size:var(--gt-fs);
+  font-weight:400;
+  letter-spacing:var(--gt-track);
+  line-height:1.2;
+  color:#000;
+}
+
+/* Suite rows: 1=menu · 2=title/controls · 3–5=stage */
+.gt__title{
+  grid-column:1;
+  grid-row:2;
+  margin:0;
+  padding:0;
+  color:#000000;
+  white-space:nowrap;
+  align-self:start;
+  z-index:2;
+}
+
+.gt__band{
+  grid-column:2 / -1;
+  grid-row:2;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  min-width:0;
+  align-self:start;
+  z-index:2;
+}
+
+.gt__desc{
+  margin:0;
+  padding:0;
+  color:var(--gt-label);
+  flex:0 0 auto;
+}
+
+.gt__controls{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  grid-template-rows:auto auto;
+  column-gap:var(--suite-gutter);
+  row-gap:15px;
+  align-items:start;
+  flex:0 0 auto;
+  min-width:0;
+}
+
+.gt__group{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+.gt__group--word{ grid-column:1; grid-row:1; }
+.gt__group--guide{ grid-column:1; grid-row:2; }
+.gt__group--trace{ grid-column:2; grid-row:1 / -1; gap:5px; }
+.gt__group--type{ grid-column:3; grid-row:1 / -1; gap:5px; }
+.gt__group--export{ grid-column:4; grid-row:1 / -1; }
+
+.gt__label{
+  margin:0;
+  color:var(--gt-label);
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1.2;
+}
+
+.gt__note{
+  margin:0;
+  color:var(--gt-label);
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1.35;
+  max-width:28em;
+}
+
+/* ---- pills ---- */
+.gt__pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  align-items:center;
+  min-height:34px;
+}
+
+.gt__pill{
+  appearance:none;
+  border:0;
+  margin:0;
+  padding:5px 10px;
+  height:34px;
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1;
+  color:var(--gt-chip);
+  background:transparent;
+  border-radius:var(--gt-radius);
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s var(--ease), color .15s var(--ease);
+}
+.gt__pill:hover{ color:#000; }
+.gt__pill.is-active{
+  background:var(--gt-fill);
+  color:var(--gt-chip);
+}
+.gt__pill.is-active:hover{ color:#000; }
+.gt__pill:disabled{
+  opacity:.4;
+  cursor:not-allowed;
+}
+.gt__pill--small{ height:28px; padding:4px 9px; }
+
+/* ---- underlined text / number fields ---- */
+.gt__input{
+  font:inherit;
+  letter-spacing:inherit;
+  color:var(--gt-chip);
+  background:transparent;
+  border:0;
+  border-bottom:1px solid var(--gt-chip);
+  outline:none;
+  padding:0;
+  min-width:0;
+  -moz-appearance:textfield;
+}
+.gt__input::-webkit-outer-spin-button,
+.gt__input::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+.gt__input:focus{ color:#000; border-bottom-color:#000; }
+.gt__input::placeholder{ color:var(--gt-label); }
+.gt__input--word{ width:9em; letter-spacing:.04em; }
+.gt__input--text{ flex:1 1 auto; width:100%; }
+.gt__input--num{ width:3.6em; text-align:left; }
+
+/* ---- slider / checkbox rows ---- */
+.gt__row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font:inherit;
+  letter-spacing:inherit;
+  color:var(--gt-chip);
+  min-height:18px;
+}
+.gt__row > span:first-child{
+  width:70px;
+  flex:none;
+  color:var(--gt-label);
+}
+.gt__row input[type=range]{
+  -webkit-appearance:none;
+  appearance:none;
+  flex:1;
+  min-width:0;
+  height:18px;
+  margin:0;
+  padding:0;
+  background:transparent;
+  cursor:pointer;
+  --gt-range-p:0%;
+}
+.gt__row input[type=range]:focus{ outline:none; }
+
+/* Track: soft fill + ink progress */
+.gt__row input[type=range]::-webkit-slider-runnable-track{
+  height:2px;
+  border-radius:1px;
+  background:
+    linear-gradient(var(--gt-chip), var(--gt-chip)) 0 / var(--gt-range-p) 100% no-repeat,
+    var(--gt-fill);
+}
+.gt__row input[type=range]::-moz-range-track{
+  height:2px;
+  border:0;
+  border-radius:1px;
+  background:var(--gt-fill);
+}
+.gt__row input[type=range]::-moz-range-progress{
+  height:2px;
+  border-radius:1px;
+  background:var(--gt-chip);
+}
+
+/* Thumb: soft fill disc */
+.gt__row input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:9px;
+  height:9px;
+  margin-top:-3.5px;
+  border-radius:50%;
+  background:var(--gt-fill);
+  border:1.5px solid var(--gt-chip);
+  transition:transform .15s var(--ease), border-color .15s var(--ease);
+}
+.gt__row input[type=range]::-moz-range-thumb{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--gt-fill);
+  border:1.5px solid var(--gt-chip);
+  transition:transform .15s var(--ease), border-color .15s var(--ease);
+}
+.gt__row input[type=range]:hover::-webkit-slider-thumb,
+.gt__row input[type=range]:hover::-moz-range-thumb{
+  transform:scale(1.12);
+  border-color:#000;
+}
+.gt__row input[type=range]:focus-visible::-webkit-slider-thumb,
+.gt__row input[type=range]:focus-visible::-moz-range-thumb{
+  outline:2px solid var(--gt-chip);
+  outline-offset:2px;
+}
+
+.gt__val{
+  width:30px;
+  text-align:right;
+  color:var(--gt-chip);
+  flex:none;
+  font-variant-numeric:tabular-nums;
+}
+
+.gt__check{
+  -webkit-appearance:none;
+  appearance:none;
+  width:14px;
+  height:14px;
+  margin:0;
+  flex:none;
+  border:1.5px solid var(--gt-chip);
+  border-radius:3px;
+  background:transparent;
+  cursor:pointer;
+  position:relative;
+  transition:background .15s var(--ease), border-color .15s var(--ease);
+}
+.gt__check:hover{ border-color:#000; }
+.gt__check:checked{ background:#000; border-color:#000; }
+.gt__check:checked::after{
+  content:"";
+  position:absolute;
+  left:3.5px; top:1px;
+  width:4px; height:7px;
+  border:solid #fff;
+  border-width:0 1.5px 1.5px 0;
+  transform:rotate(45deg);
+}
+
+.gt__status{
+  margin:0;
+  color:var(--gt-label);
+  min-height:3.6em;
+  line-height:1.35;
+}
+.gt__status.is-alert{ color:var(--gt-alert); }
+
+.gt__mini{
+  color:var(--gt-label);
+  min-height:1.2em;
+  display:block;
+}
+.gt__spinner{
+  display:inline-block;
+  width:9px; height:9px;
+  border:1.5px solid var(--gt-fill);
+  border-top-color:var(--gt-chip);
+  border-radius:50%;
+  animation:gtSpin .7s linear infinite;
+  vertical-align:-1px;
+  margin-right:6px;
+}
+@keyframes gtSpin{ to{ transform:rotate(360deg); } }
+
+/* ---- stage: source image + letters, suite cols 2–5, rows 3–5 ---- */
+.gt__stage{
+  grid-column:2 / -1;
+  grid-row:3 / -1;
+  display:flex;
+  flex-direction:column;
+  gap:var(--suite-gutter);
+  min-width:0;
+  min-height:0;
+  align-self:stretch;
+  justify-self:stretch;
+  z-index:1;
+}
+
+.gt__source-head{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  column-gap:var(--suite-gutter);
+  align-items:center;
+  flex:0 0 auto;
+  min-width:0;
+  /* Reserve chip-row height so the stage never resizes when tags appear */
+  min-height:34px;
+}
+.gt__source-head .gt__label{ grid-column:1; align-self:center; }
+
+.gt__meta{
+  grid-column:2 / -1;
+  display:none;
+  flex-wrap:wrap;
+  gap:5px;
+  align-items:center;
+  min-width:0;
+}
+.gt__meta.is-on{ display:flex; }
+
+.gt__tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:34px;
+  padding:5px 10px;
+  box-sizing:border-box;
+  background:var(--gt-fill);
+  border-radius:var(--gt-radius);
+  color:var(--gt-chip);
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1;
+  white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  opacity:0;
+  transform:translateY(6px);
+  will-change:opacity, transform;
+}
+.gt__meta.is-on .gt__tag{ animation:gtTagIn 520ms var(--ease) forwards; }
+.gt__meta.is-on .gt__tag:nth-child(1){ animation-delay:60ms; }
+.gt__meta.is-on .gt__tag:nth-child(2){ animation-delay:180ms; }
+.gt__meta.is-on .gt__tag:nth-child(3){ animation-delay:300ms; }
+
+@keyframes gtTagIn{
+  from{ opacity:0; transform:translateY(6px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .gt__tag{ opacity:1; transform:none; will-change:auto; }
+  .gt__meta.is-on .gt__tag{ animation:none; }
+  .gt__spinner{ animation:none; }
+}
+
+.gt__split{
+  flex:1 1 auto;
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) 260px;
+  column-gap:var(--suite-gutter);
+  min-width:0;
+  min-height:0;
+}
+
+/* Drop / trace surface: stroke only, no fill — Figma 112:280 */
+.gt__drop{
+  position:relative;
+  min-width:0;
+  min-height:0;
+  background:transparent;
+  border:var(--gt-stage-stroke);
+  border-radius:var(--gt-stage-radius);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:20px;
+  overflow:hidden;
+  transition:border-color .15s var(--ease);
+}
+.gt__drop:not(.has){ cursor:pointer; }
+.gt__drop:not(.has):hover{ border-color:#e4e4e4; }
+.gt__drop.is-drag{ border-color:#cfcfcf; }
+.gt__drop-hint{
+  margin:0;
+  color:var(--gt-chip);
+  font:inherit;
+  letter-spacing:inherit;
+  line-height:1.35;
+  pointer-events:none;
+}
+.gt__drop-hint span{ color:var(--gt-label); }
+.gt__drop.has .gt__drop-hint{ display:none; }
+
+.gt__figure{
+  position:relative;
+  display:none;
+  line-height:0;
+}
+.gt__drop.has .gt__figure{ display:block; }
+.gt__figure canvas{ display:block; }
+.gt__figure svg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  touch-action:none;
+}
+
+/* Letters column */
+.gt__letters{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+  min-height:0;
+}
+.gt__letters-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:5px;
+  flex-wrap:wrap;
+  flex:0 0 auto;
+}
+.gt__tiles{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:10px;
+  border:var(--gt-stage-stroke);
+  border-radius:var(--gt-stage-radius);
+}
+.gt__tiles::-webkit-scrollbar{ width:6px; }
+.gt__tiles::-webkit-scrollbar-thumb{ background:var(--gt-fill); border-radius:3px; }
+.gt__tiles::-webkit-scrollbar-track{ background:transparent; }
+
+.gt__tile{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px;
+  border:1px solid var(--gt-fill);
+  border-radius:var(--gt-radius);
+  flex:0 0 auto;
+  transition:border-color .15s var(--ease);
+}
+.gt__tile.is-active{ border-color:var(--gt-chip); }
+.gt__thumb{
+  width:44px;
+  height:44px;
+  flex:none;
+  background:var(--gt-fill);
+  border-radius:3px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.gt__thumb svg{ width:78%; height:78%; }
+.gt__char{
+  width:30px;
+  flex:none;
+  text-align:center;
+  font:inherit;
+  letter-spacing:inherit;
+  color:#000;
+  background:transparent;
+  border:0;
+  border-bottom:1px solid var(--gt-chip);
+  outline:none;
+  padding:0 0 2px;
+}
+.gt__char:focus{ border-bottom-color:#000; }
+.gt__char::placeholder{ color:var(--gt-label); }
+.gt__tile-meta{
+  flex:1 1 auto;
+  min-width:0;
+  color:var(--gt-label);
+  line-height:1.35;
+}
+.gt__empty{
+  margin:0;
+  color:var(--gt-label);
+  line-height:1.35;
+}
+
+/* ---- point editor ---- */
+.gt__overlay{
+  position:fixed;
+  inset:0;
+  z-index:1200;
+  background:rgba(255,255,255,.84);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.gt__overlay.is-open{ display:flex; }
+
+.gt__editor{
+  background:var(--bg);
+  border:var(--gt-stage-stroke);
+  border-radius:var(--gt-stage-radius);
+  padding:16px;
+  width:min(560px, 96vw);
+  max-height:calc(100vh - 40px);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  font-family:var(--sans);
+  font-size:var(--gt-fs);
+  letter-spacing:var(--gt-track);
+  color:#000;
+}
+.gt__editor-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.gt__editor-tools{ display:flex; gap:5px; flex-wrap:wrap; }
+.gt__editor-canvas{
+  display:block;
+  width:100%;
+  height:auto;
+  aspect-ratio:520 / 560;
+  max-height:58vh;
+  min-height:0;
+  background-color:var(--bg);
+  background-image:
+    linear-gradient(var(--gt-fill) 1px, transparent 1px),
+    linear-gradient(90deg, var(--gt-fill) 1px, transparent 1px);
+  background-size:26px 26px;
+  border:1px solid var(--gt-fill);
+  border-radius:var(--gt-radius);
+  touch-action:none;
+}
+.gt__editor-hint{
+  margin:0;
+  color:var(--gt-label);
+  line-height:1.35;
+}
+
+@media (max-width:1100px){
+  .gt__controls{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .gt__group--word{ grid-column:1; grid-row:1; }
+  .gt__group--trace{ grid-column:2; grid-row:1; }
+  .gt__group--type{ grid-column:1; grid-row:2; }
+  .gt__group--export{ grid-column:2; grid-row:2; }
+  .gt__group--guide{ display:none; }
+  .gt__split{ grid-template-columns:minmax(0, 1fr) 210px; }
+}
+@media (max-width:700px){
+  .gt__controls{ grid-template-columns:1fr; }
+  .gt__group--word,
+  .gt__group--trace,
+  .gt__group--type,
+  .gt__group--export{ grid-column:1; grid-row:auto; }
+  .gt__split{ grid-template-columns:1fr; }
+  .gt__letters{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="gt">
+  <h1 class="gt__title">Glyph-trace</h1>
+
+  <div class="gt__band">
+    <p class="gt__desc">This tool traces a word or single-letter image into bezier outlines and exports them as an OTF typeface.</p>
+
+    <div class="gt__controls">
+      <div class="gt__group gt__group--word">
+        <div class="gt__label">Word in image</div>
+        <div class="gt__pills">
+          <input type="text" class="gt__input gt__input--word" id="wordInput" placeholder="Acne Studios"
+                 autocomplete="off" spellcheck="false" aria-label="Word or letters shown in the image">
+          <button type="button" class="gt__pill" id="pickBtn">Choose image</button>
+          <button type="button" class="gt__pill" id="ocrBtn">Guess with OCR</button>
+          <button type="button" class="gt__pill is-active" id="splitBtn">Split &amp; trace</button>
+        </div>
+        <span class="gt__mini" id="miniStatus" aria-live="polite"></span>
+      </div>
+
+      <div class="gt__group gt__group--guide">
+        <div class="gt__label">Guide</div>
+        <p class="gt__note">Type the word, mind the case, then split and trace. Non-touching letters split on their own; drag the dashed crop edges to separate letters that touch. The black outline is the fitted bezier — click a tile to edit its points.</p>
+      </div>
+
+      <div class="gt__group gt__group--trace">
+        <div class="gt__label">Trace</div>
+        <div class="gt__row">
+          <span>Threshold</span>
+          <input type="range" id="threshold" min="1" max="254" value="128" aria-label="Threshold">
+          <span class="gt__val" id="thresholdVal">128</span>
+        </div>
+        <div class="gt__row">
+          <span>Detail</span>
+          <input type="range" id="detail" min="1" max="30" step="0.5" value="10" aria-label="Detail">
+          <span class="gt__val" id="detailVal">10</span>
+        </div>
+        <div class="gt__row">
+          <span>Despeckle</span>
+          <input type="range" id="turdsize" min="0" max="40" value="6" aria-label="Despeckle">
+          <span class="gt__val" id="turdsizeVal">6</span>
+        </div>
+        <div class="gt__row">
+          <span>Color pick</span>
+          <input type="range" id="colorMode" min="0" max="2" step="1" value="0" aria-label="Color pick">
+          <span class="gt__val" id="colorModeVal">Lum</span>
+        </div>
+        <div class="gt__row">
+          <span>Invert</span>
+          <input type="checkbox" class="gt__check" id="invert" aria-label="Invert, light ink on a dark background">
+        </div>
+      </div>
+
+      <div class="gt__group gt__group--type">
+        <div class="gt__label">Typeface</div>
+        <div class="gt__row">
+          <span>Family</span>
+          <input type="text" class="gt__input gt__input--text" id="familyName" value="My Typeface" aria-label="Family name">
+        </div>
+        <div class="gt__row">
+          <span>Style</span>
+          <input type="text" class="gt__input gt__input--text" id="styleName" value="Regular" aria-label="Style name">
+        </div>
+        <div class="gt__label" style="margin-top:6px">Metrics</div>
+        <div class="gt__row">
+          <span>Units/em</span>
+          <input type="number" class="gt__input gt__input--num" id="unitsPerEm" value="1000" step="100" aria-label="Units per em">
+        </div>
+        <div class="gt__row">
+          <span>Ascender</span>
+          <input type="number" class="gt__input gt__input--num" id="ascender" value="800" step="10" aria-label="Ascender">
+        </div>
+        <div class="gt__row">
+          <span>Descender</span>
+          <input type="number" class="gt__input gt__input--num" id="descender" value="-200" step="10" aria-label="Descender">
+        </div>
+        <div class="gt__row">
+          <span>Cap height</span>
+          <input type="number" class="gt__input gt__input--num" id="capHeight" value="700" step="10" aria-label="Cap height">
+        </div>
+        <div class="gt__row">
+          <span>Bearing</span>
+          <input type="number" class="gt__input gt__input--num" id="sideBearing" value="40" step="5" aria-label="Side bearing">
+        </div>
+      </div>
+
+      <div class="gt__group gt__group--export">
+        <div class="gt__label">Export</div>
+        <div class="gt__pills">
+          <button type="button" class="gt__pill is-active" id="exportBtn" disabled>.otf</button>
+        </div>
+        <div class="gt__row">
+          <span>Merge duplicates</span>
+          <input type="checkbox" class="gt__check" id="mergeDup" aria-label="Merge duplicate characters into one glyph">
+        </div>
+        <p class="gt__status" id="status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="gt__stage">
+    <div class="gt__source-head">
+      <p class="gt__label">Source image</p>
+      <div class="gt__meta" id="meta" aria-live="polite">
+        <span class="gt__tag" id="metaName"></span>
+        <span class="gt__tag" id="metaDims"></span>
+        <span class="gt__tag" id="metaLetters"></span>
+      </div>
+    </div>
+
+    <div class="gt__split">
+      <div class="gt__drop" id="drop" role="button" tabindex="0" aria-label="Drop an image here">
+        <p class="gt__drop-hint">
+          Drop a word or single-letter image here (.png, .jpg)<br>
+          <span>A whole word like &ldquo;Acne Studios&rdquo; is split into letters</span>
+        </p>
+        <div class="gt__figure" id="figure">
+          <canvas id="srcCanvas"></canvas>
+          <svg id="overlaySvg" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+      </div>
+
+      <div class="gt__letters">
+        <div class="gt__letters-head">
+          <p class="gt__label">Letters (<span id="letterCount">0</span>)</p>
+          <div class="gt__pills" style="min-height:0">
+            <button type="button" class="gt__pill gt__pill--small" id="addCutBtn">Add split</button>
+            <button type="button" class="gt__pill gt__pill--small" id="retraceBtn">Re-trace</button>
+          </div>
+        </div>
+        <div class="gt__tiles" id="letters">
+          <p class="gt__empty">No letters yet. Drop an image, type what it says, then split and trace.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="gt__overlay" id="editorWrap" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+  <div class="gt__editor">
+    <div class="gt__editor-head">
+      <span class="gt__label" id="editorTitle" style="color:#000">Editing</span>
+      <div class="gt__editor-tools">
+        <button type="button" class="gt__pill gt__pill--small" id="nodeType">Smooth / corner</button>
+        <button type="button" class="gt__pill gt__pill--small" id="deleteNode">Delete point</button>
+        <button type="button" class="gt__pill gt__pill--small" id="resetLetter">Reset letter</button>
+        <button type="button" class="gt__pill gt__pill--small is-active" id="closeEditor">Done</button>
+      </div>
+    </div>
+    <svg class="gt__editor-canvas" id="editorSvg" viewBox="0 0 520 560" xmlns="http://www.w3.org/2000/svg"></svg>
+    <p class="gt__editor-hint">Drag the squares to move points, the small circles to bend the curve. Drag a box over several points to select them, or shift-click, then move or delete them together. Points snap to align with others and a red guide shows the match. Double-click the outline to add a point. Square node is a corner, round is smooth.</p>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" hidden>
+
+<script src="../assets/nav.js"></script>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const drop=$('drop'),fileInput=$('fileInput'),figure=$('figure'),
+        srcCanvas=$('srcCanvas'),overlay=$('overlaySvg'),
+        wordInput=$('wordInput'),pickBtn=$('pickBtn'),ocrBtn=$('ocrBtn'),splitBtn=$('splitBtn'),
+        thresholdEl=$('threshold'),invertEl=$('invert'),colorModeEl=$('colorMode'),
+        detailEl=$('detail'),turdsizeEl=$('turdsize'),
+        addCutBtn=$('addCutBtn'),retraceBtn=$('retraceBtn'),miniStatus=$('miniStatus'),
+        lettersEl=$('letters'),letterCountEl=$('letterCount'),
+        exportBtn=$('exportBtn'),statusEl=$('status'),mergeDupEl=$('mergeDup'),
+        metaEl=$('meta'),metaName=$('metaName'),metaDims=$('metaDims'),metaLetters=$('metaLetters'),
+        editorWrap=$('editorWrap'),editorSvg=$('editorSvg'),editorTitle=$('editorTitle'),
+        closeEditorBtn=$('closeEditor'),
+        nodeTypeBtn=$('nodeType'),deleteNodeBtn=$('deleteNode'),resetLetterBtn=$('resetLetter');
+  const fitCurve=window.fitCurve;
+  const COLOR=['Lum','Red','Sat'];
+
+  /* Suite ink — the trace overlay and editor stay monochrome */
+  const INK='#000000', MUTED='#969696', CHIP='#757575', FILL='#F4F4F4', ALERT='#B93D3D';
+
+  // letter model: {box:{x0,y0,x1,y1} editable crop, contours:[[node,...]], char, edited}
+  const S={img:null,w:0,h:0,grid:null,col:null,inkX0:0,inkX1:0,letters:[],
+           editing:-1,sel:null,dragKind:null, boxDrag:null, fileName:''};
+  const setStatus=(m,alert)=>{statusEl.textContent=m||'';statusEl.classList.toggle('is-alert',!!alert);};
+  const setMini=m=>{miniStatus.innerHTML=m||'';};
+
+  /* ============ range track fill ============ */
+  function paintRange(el){
+    const min=+el.min||0,max=+el.max||100,v=+el.value;
+    el.style.setProperty('--gt-range-p',((v-min)/(max-min||1))*100+'%');
+  }
+  [thresholdEl,detailEl,turdsizeEl,colorModeEl].forEach(el=>{
+    paintRange(el);
+    el.addEventListener('input',()=>paintRange(el));
+  });
+
+  /* ============ meta tags ============ */
+  function clearMeta(){
+    metaEl.classList.remove('is-on');
+    metaName.textContent='';metaDims.textContent='';metaLetters.textContent='';
+  }
+  function showMeta(){
+    if(!S.img){clearMeta();return;}
+    const wasOn=metaEl.classList.contains('is-on');
+    metaName.textContent=S.fileName;metaName.title=S.fileName;
+    metaDims.textContent=S.w+'x'+S.h;
+    metaLetters.textContent=S.letters.length+(S.letters.length===1?' letter':' letters');
+    if(!wasOn){void metaEl.offsetWidth;metaEl.classList.add('is-on');}
+  }
+
+  /* ============ load ============ */
+  function openPicker(){fileInput.click();}
+  pickBtn.addEventListener('click',openPicker);
+  drop.addEventListener('click',()=>{if(!S.img)openPicker();});
+  drop.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();openPicker();}
+  });
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('is-drag');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('is-drag');}));
+  drop.addEventListener('drop',e=>{const f=e.dataTransfer.files&&e.dataTransfer.files[0];if(f)loadFile(f);});
+  fileInput.addEventListener('change',e=>{const f=e.target.files[0];if(f)loadFile(f);});
+
+  function loadFile(file){
+    if(!file.type.startsWith('image/')){setStatus('That is not an image file.',true);return;}
+    const rd=new FileReader();
+    rd.onload=e=>{const img=new Image();
+      img.onload=()=>{
+        let w=img.naturalWidth,h=img.naturalHeight;const MAX=1400;
+        if(Math.max(w,h)>MAX){const s=MAX/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+        S.img=img;S.w=w;S.h=h;S.fileName=file.name;
+        srcCanvas.width=w;srcCanvas.height=h;overlay.setAttribute('viewBox',`0 0 ${w} ${h}`);
+        srcCanvas.getContext('2d').drawImage(img,0,0,w,h);
+        drop.classList.add('has');
+        fitFigure();
+        S.letters=[];closeEditor();
+        autoDetect();buildGrid();drawOverlay();renderLetters();showMeta();
+        setStatus('Loaded. Type the word, mind the case, then split and trace.');
+      };
+      img.onerror=()=>setStatus('Could not load that image.',true);
+      img.src=e.target.result;
+    };
+    rd.readAsDataURL(file);
+  }
+
+  /* Size the canvas to fit the stage so the SVG overlay stays pixel-aligned */
+  function fitFigure(){
+    if(!S.img)return;
+    const cs=getComputedStyle(drop);
+    const availW=drop.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+    const availH=drop.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+    if(availW<=0||availH<=0)return;
+    const scale=Math.min(availW/S.w,availH/S.h,1);
+    srcCanvas.style.width=Math.max(1,Math.round(S.w*scale))+'px';
+    srcCanvas.style.height=Math.max(1,Math.round(S.h*scale))+'px';
+  }
+  window.addEventListener('resize',fitFigure);
+
+  /* ============ threshold / color ============ */
+  function autoDetect(){
+    const {w,h}=S,d=srcCanvas.getContext('2d').getImageData(0,0,w,h).data,n=w*h;
+    const hist=new Array(256).fill(0);
+    for(let i=0;i<n;i++)hist[Math.round(0.299*d[i*4]+0.587*d[i*4+1]+0.114*d[i*4+2])]++;
+    let sum=0;for(let t=0;t<256;t++)sum+=t*hist[t];
+    let sB=0,wB=0,mx=0,thr=128;
+    for(let t=0;t<256;t++){wB+=hist[t];if(!wB)continue;const wF=n-wB;if(!wF)break;sB+=t*hist[t];
+      const mB=sB/wB,mF=(sum-sB)/wF,bt=wB*wF*(mB-mF)*(mB-mF);if(bt>mx){mx=bt;thr=t;}}
+    let satHi=0,satN=0,rM=0,gM=0,bM=0;
+    for(let i=0;i<n;i+=7){const r=d[i*4],g=d[i*4+1],b=d[i*4+2],mxc=Math.max(r,g,b),mnc=Math.min(r,g,b);
+      if(mxc&&(mxc-mnc)/mxc>0.35)satHi++;satN++;rM+=r;gM+=g;bM+=b;}
+    const colourful=satHi/satN>0.15;
+    const corners=[0,(w-1),(h-1)*w,(h-1)*w+(w-1)];let cavg=0;
+    corners.forEach(ci=>cavg+=0.299*d[ci*4]+0.587*d[ci*4+1]+0.114*d[ci*4+2]);cavg/=4;
+    if(colourful){rM/=(n/7);gM/=(n/7);bM/=(n/7);colorModeEl.value=(rM>gM&&rM>bM)?1:2;thresholdEl.value=140;invertEl.checked=false;}
+    else{colorModeEl.value=0;thresholdEl.value=thr;invertEl.checked=cavg<thr;}
+    $('colorModeVal').textContent=COLOR[+colorModeEl.value];$('thresholdVal').textContent=thresholdEl.value;
+    paintRange(thresholdEl);paintRange(colorModeEl);
+  }
+  function fgVal(r,g,b){const m=+colorModeEl.value;if(m===1)return r;if(m===2){const mx=Math.max(r,g,b),mn=Math.min(r,g,b);return mx?255*(mx-mn)/mx:0;}return 0.299*r+0.587*g+0.114*b;}
+  function buildGrid(){
+    const {w,h}=S,d=srcCanvas.getContext('2d').getImageData(0,0,w,h).data;
+    const thr=+thresholdEl.value,inv=invertEl.checked,m=+colorModeEl.value;
+    const grid=new Uint8Array(w*h),col=new Float32Array(w);
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];const v=fgVal(r,g,b);
+      let fg=m===0?(inv?v>thr:v<thr):v>thr;if(m===1)fg=r>thr&&r>b+20;if(a<128)fg=false;if(fg){grid[y*w+x]=1;col[x]++;}}
+    S.grid=grid;S.col=col;
+    let x0=0,x1=w-1;const mc=Math.max.apply(null,Array.from(col));
+    while(x0<w&&col[x0]<=mc*0.02)x0++;while(x1>0&&col[x1]<=mc*0.02)x1--;S.inkX0=x0;S.inkX1=x1;
+  }
+  function inkRuns(){const {col,w}=S,mc=Math.max.apply(null,Array.from(col));const on=x=>col[x]>mc*0.02;
+    const runs=[];let s=null;for(let x=0;x<w;x++){if(on(x)&&s===null)s=x;else if(!on(x)&&s!==null){runs.push([s,x-1]);s=null;}}
+    if(s!==null)runs.push([s,w-1]);return runs.filter(r=>r[1]-r[0]>=2);}
+
+  /* ============ raw boundary extraction ============ */
+  function rawLoopsInBox(bx0,by0,bx1,by1){
+    const {grid,w,h}=S;
+    const ox=bx0-1,oy=by0-1,bw=(bx1-bx0)+3,bh=(by1-by0)+3;
+    const g=(x,y)=>{const ax=x+ox,ay=y+oy;return (ax>=bx0&&ay>=by0&&ax<=bx1&&ay<=by1&&ax>=0&&ay>=0&&ax<w&&ay<h)?grid[ax+ay*w]:0;};
+    const out=new Map();const add=(a,b,c,d)=>{const k=a+'_'+b;let s=out.get(k);if(!s){s=[];out.set(k,s);}s.push([c,d]);};
+    for(let y=0;y<=bh;y++)for(let x=0;x<=bw;x++){
+      if(g(x,y)&&!g(x,y-1))add(x,y,x+1,y);if(g(x,y-1)&&!g(x,y))add(x+1,y,x,y);
+      if(g(x-1,y)&&!g(x,y))add(x,y,x,y+1);if(g(x,y)&&!g(x-1,y))add(x,y+1,x,y);}
+    const loops=[];for(const [start,arr] of out){while(arr.length){const [sx,sy]=start.split('_').map(Number);let cx=sx,cy=sy;const lp=[[cx,cy]];let gu=0;
+      while(gu++<800000){const a=out.get(cx+'_'+cy);if(!a||!a.length)break;const nx=a.pop();cx=nx[0];cy=nx[1];if(cx===sx&&cy===sy)break;lp.push([cx,cy]);}
+      if(lp.length>=6)loops.push(lp.map(p=>({x:p[0]+ox,y:p[1]+oy})));}}
+    return loops;
+  }
+  function smoothPoly(poly,passes){let p=poly.slice();for(let k=0;k<passes;k++){const q=[];const m=p.length;for(let i=0;i<m;i++){const a=p[(i-1+m)%m],b=p[i],c=p[(i+1)%m];q.push({x:(a.x+2*b.x+c.x)/4,y:(a.y+2*b.y+c.y)/4});}p=q;}return p;}
+  function resample(poly,step){const out=[poly[0]];let acc=0;for(let i=1;i<=poly.length;i++){const a=poly[i-1],b=poly[i%poly.length];const d=Math.hypot(b.x-a.x,b.y-a.y);acc+=d;if(acc>=step){out.push({x:b.x,y:b.y});acc=0;}}return out.length>=6?out:poly;}
+  function findCorners(poly,angDeg,win){const n=poly.length;const idx=[];
+    for(let i=0;i<n;i++){const a={x:poly[i].x-poly[(i-win+n)%n].x,y:poly[i].y-poly[(i-win+n)%n].y};const b={x:poly[(i+win)%n].x-poly[i].x,y:poly[(i+win)%n].y-poly[i].y};
+      const la=Math.hypot(a.x,a.y),lb=Math.hypot(b.x,b.y);if(!la||!lb)continue;let d=(a.x*b.x+a.y*b.y)/(la*lb);d=Math.max(-1,Math.min(1,d));if(Math.acos(d)*180/Math.PI>angDeg)idx.push(i);}
+    const dedup=[];for(const i of idx){if(!dedup.length||i-dedup[dedup.length-1]>win)dedup.push(i);}return dedup;}
+
+  function fitLoopToNodes(poly,err,angDeg){
+    const cs=findCorners(poly,angDeg,4);
+    const beziers=[];
+    if(cs.length<2){const pts=poly.concat([poly[0]]).map(p=>[p.x,p.y]);try{for(const b of fitCurve(pts,err))beziers.push(b);}catch(e){}}
+    else{for(let ci=0;ci<cs.length;ci++){const start=cs[ci],end=cs[(ci+1)%cs.length];const run=[];let i=start;while(true){run.push([poly[i].x,poly[i].y]);if(i===end)break;i=(i+1)%poly.length;}
+      if(run.length>=2){try{for(const b of fitCurve(run,err))beziers.push(b);}catch(e){}}}}
+    if(!beziers.length)return null;
+    // beziers -> nodes
+    const n=beziers.length;const nodes=[];
+    for(let i=0;i<n;i++){const seg=beziers[i],prev=beziers[(i-1+n)%n];
+      const anchor={x:seg[0][0],y:seg[0][1]},hOut={x:seg[1][0],y:seg[1][1]},hIn={x:prev[2][0],y:prev[2][1]};
+      let type='corner';const a={x:anchor.x-hIn.x,y:anchor.y-hIn.y},b={x:hOut.x-anchor.x,y:hOut.y-anchor.y};
+      const la=Math.hypot(a.x,a.y),lb=Math.hypot(b.x,b.y);if(la>0.5&&lb>0.5&&(a.x*b.x+a.y*b.y)/(la*lb)>0.9)type='smooth';
+      nodes.push({x:anchor.x,y:anchor.y,type,hIn,hOut});}
+    return nodes;
+  }
+
+  /* ============ geometry helpers (winding) ============ */
+  function sarea(nodes){let a=0;for(let i=0;i<nodes.length;i++){const p=nodes[i],q=nodes[(i+1)%nodes.length];a+=p.x*q.y-q.x*p.y;}return a/2;}
+  function bboxN(nodes){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const p of nodes){if(p.x<x0)x0=p.x;if(p.x>x1)x1=p.x;if(p.y<y0)y0=p.y;if(p.y>y1)y1=p.y;}return{x0,y0,x1,y1};}
+  function contInside(inn,out){const b=bboxN(inn),ob=bboxN(out);return b.x0>=ob.x0&&b.y0>=ob.y0&&b.x1<=ob.x1&&b.y1<=ob.y1&&Math.abs(sarea(inn))<Math.abs(sarea(out));}
+  function reverseNodes(nodes){const n=nodes.length;const r=[];for(let i=n-1;i>=0;i--){const nd=nodes[i];r.push({x:nd.x,y:nd.y,type:nd.type,hIn:nd.hOut?{...nd.hOut}:null,hOut:nd.hIn?{...nd.hIn}:null});}return r;}
+  function fixWinding(conts){if(conts.length<2)return conts;const areas=conts.map(sarea);let oi=0;for(let i=1;i<areas.length;i++)if(Math.abs(areas[i])>Math.abs(areas[oi]))oi=i;const os=Math.sign(areas[oi])||1;
+    return conts.map((c,i)=>{const isHole=conts.some((o,j)=>j!==i&&contInside(c,o));const want=isHole?-os:os;return Math.sign(areas[i])!==want?reverseNodes(c):c;});}
+
+  /* ============ trace a letter within its crop box ============ */
+  function traceBox(box){
+    const err=parseFloat(detailEl.value); // fit error tolerance (px). higher = fewer points
+    const turd=parseInt(turdsizeEl.value,10);
+    const loops=rawLoopsInBox(box.x0,box.y0,box.x1,box.y1).filter(l=>{
+      // drop tiny speckles by bounding area
+      const b=bboxN(l);return (b.x1-b.x0)*(b.y1-b.y0)>turd*turd;
+    });
+    if(!loops.length)return null;
+    const prepped=loops.map(l=>resample(smoothPoly(l,2),3));
+    let conts=prepped.map(l=>fitLoopToNodes(l,err,55)).filter(Boolean);
+    if(!conts.length)return null;
+    conts=fixWinding(conts);
+    return conts;
+  }
+
+  /* ============ split into letters with editable crop boxes ============ */
+  function autoSplit(){
+    if(!S.img){setStatus('Drop an image first.',true);return;}
+    buildGrid();closeEditor();
+    const raw=(wordInput.value||'');const letters=raw.replace(/\s+/g,'').split('');const words=raw.trim().split(/\s+/).filter(Boolean);
+    const runs=inkRuns();if(!runs.length){setStatus('No ink detected. Adjust threshold, color pick, or invert.',true);return;}
+    // full vertical extent per run
+    function vext(x0,x1){let y0=S.h,y1=0;for(let y=0;y<S.h;y++)for(let x=x0;x<=x1;x++)if(S.grid[y*S.w+x]){if(y<y0)y0=y;if(y>y1)y1=y;}return[y0,y1];}
+    // allocate letters to runs by width when counts differ
+    let alloc;
+    if(letters.length===runs.length)alloc=runs.map(()=>1);
+    else if(letters.length>0){const total=runs.reduce((a,r)=>a+(r[1]-r[0]),0);alloc=runs.map(r=>Math.max(1,Math.round(letters.length*(r[1]-r[0])/total)));
+      let sum=alloc.reduce((a,b)=>a+b,0);while(sum>letters.length){const i=alloc.indexOf(Math.max.apply(null,alloc));alloc[i]--;sum--;}while(sum<letters.length){let wi=0,ww=-1;runs.forEach((r,i)=>{const w=(r[1]-r[0])/alloc[i];if(w>ww){ww=w;wi=i;}});alloc[wi]++;sum++;}}
+    else alloc=runs.map(()=>1);
+    // build boxes
+    const boxes=[];
+    for(let ri=0;ri<runs.length;ri++){const [a,b]=runs[ri],k=alloc[ri];const [y0,y1]=vext(a,b);
+      if(k<=1){boxes.push({x0:a,y0,x1:b,y1});continue;}
+      // subdivide by valley
+      const bounds=[a];const span=b-a,ideal=span/k;
+      for(let j=1;j<k;j++){const center=Math.round(a+ideal*j),win=Math.round(ideal*0.4);let best=center,bv=Infinity;for(let x=center-win;x<=center+win;x++){if(x<=a||x>=b)continue;if(S.col[x]<bv){bv=S.col[x];best=x;}}bounds.push(best);}
+      bounds.push(b);
+      for(let j=0;j<bounds.length-1;j++){const sx0=bounds[j],sx1=bounds[j+1];const[vy0,vy1]=vext(sx0,sx1);boxes.push({x0:sx0,y0:vy0,x1:sx1,y1:vy1});}
+    }
+    boxes.sort((p,q)=>p.x0-q.x0);
+    S.letters=[];
+    boxes.forEach((box,i)=>{const conts=traceBox(box);if(!conts)return;S.letters.push({box,contours:conts,char:letters[S.letters.length]||'',edited:false});});
+    drawOverlay();renderLetters();showMeta();
+    const noteSpace=words.length>1?` across ${words.length} words`:'';
+    setStatus(`Traced ${S.letters.length} letters${noteSpace}. Drag the dashed crop edges to separate letters that touch, or click a tile to edit its points.`);
+  }
+
+  /* ============ path from nodes ============ */
+  function nodesPath(contours,ox,oy,scale){ox=ox||0;oy=oy||0;scale=scale||1;
+    const T=(x,y)=>`${((x-ox)*scale).toFixed(2)} ${((y-oy)*scale).toFixed(2)}`;let d='';
+    for(const c of contours){const n=c.length;if(!n)continue;d+=`M ${T(c[0].x,c[0].y)} `;
+      for(let i=0;i<n;i++){const A=c[i],B=c[(i+1)%n];const ao=A.hOut||{x:A.x,y:A.y},bi=B.hIn||{x:B.x,y:B.y};d+=`C ${T(ao.x,ao.y)} ${T(bi.x,bi.y)} ${T(B.x,B.y)} `;}d+='Z ';}
+    return d;}
+
+  /* ============ overlay: letters + editable crop boxes ============ */
+  function drawOverlay(){
+    let svg='';
+    S.letters.forEach((L,i)=>{
+      svg+=`<path d="${nodesPath(L.contours,0,0,1)}" fill="rgba(0,0,0,0.07)" stroke="${INK}" stroke-width="1.4" vector-effect="non-scaling-stroke" fill-rule="nonzero"/>`;
+      const b=L.box;
+      svg+=`<rect x="${b.x0}" y="${b.y0}" width="${b.x1-b.x0}" height="${b.y1-b.y0}" fill="none" stroke="${MUTED}" stroke-width="1.3" stroke-dasharray="5 4" vector-effect="non-scaling-stroke"/>`;
+      // edge grips (left/right/top/bottom)
+      svg+=`<rect data-box="${i}" data-edge="L" x="${b.x0-6}" y="${b.y0}" width="12" height="${b.y1-b.y0}" fill="transparent" style="cursor:ew-resize"/>`;
+      svg+=`<rect data-box="${i}" data-edge="R" x="${b.x1-6}" y="${b.y0}" width="12" height="${b.y1-b.y0}" fill="transparent" style="cursor:ew-resize"/>`;
+      svg+=`<rect data-box="${i}" data-edge="T" x="${b.x0}" y="${b.y0-6}" width="${b.x1-b.x0}" height="12" fill="transparent" style="cursor:ns-resize"/>`;
+      svg+=`<rect data-box="${i}" data-edge="B" x="${b.x0}" y="${b.y1-6}" width="${b.x1-b.x0}" height="12" fill="transparent" style="cursor:ns-resize"/>`;
+    });
+    overlay.innerHTML=svg;
+  }
+  const toImg=(cx,cy)=>{const r=overlay.getBoundingClientRect();return {x:(cx-r.left)/r.width*S.w,y:(cy-r.top)/r.height*S.h};};
+  overlay.addEventListener('pointerdown',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.box!=null){S.boxDrag={i:+t.dataset.box,edge:t.dataset.edge};overlay.setPointerCapture(e.pointerId);e.preventDefault();e.stopPropagation();}});
+  overlay.addEventListener('pointermove',e=>{if(!S.boxDrag)return;const p=toImg(e.clientX,e.clientY);const L=S.letters[S.boxDrag.i];const b=L.box;
+    if(S.boxDrag.edge==='L')b.x0=Math.max(0,Math.min(b.x1-4,Math.round(p.x)));
+    else if(S.boxDrag.edge==='R')b.x1=Math.min(S.w-1,Math.max(b.x0+4,Math.round(p.x)));
+    else if(S.boxDrag.edge==='T')b.y0=Math.max(0,Math.min(b.y1-4,Math.round(p.y)));
+    else if(S.boxDrag.edge==='B')b.y1=Math.min(S.h-1,Math.max(b.y0+4,Math.round(p.y)));
+    drawOverlay();});
+  overlay.addEventListener('pointerup',()=>{if(!S.boxDrag)return;const L=S.letters[S.boxDrag.i];S.boxDrag=null;const c=traceBox(L.box);if(c){L.contours=c;L.edited=false;}drawOverlay();renderLetters();});
+
+  addCutBtn.addEventListener('click',()=>{if(!S.img||!S.letters.length)return;
+    // split the widest letter box in half
+    let wi=0,ww=-1;S.letters.forEach((L,i)=>{const w=L.box.x1-L.box.x0;if(w>ww){ww=w;wi=i;}});
+    const L=S.letters[wi],mid=Math.round((L.box.x0+L.box.x1)/2);
+    const right={x0:mid+1,y0:L.box.y0,x1:L.box.x1,y1:L.box.y1};L.box.x1=mid;
+    const cL=traceBox(L.box);if(cL)L.contours=cL;
+    const cR=traceBox(right);const nl={box:right,contours:cR||[],char:'',edited:false};
+    S.letters.splice(wi+1,0,nl);drawOverlay();renderLetters();showMeta();});
+  retraceBtn.addEventListener('click',()=>{if(!S.img)return;buildGrid();S.letters.forEach(L=>{const c=traceBox(L.box);if(c){L.contours=c;L.edited=false;}});drawOverlay();renderLetters();});
+
+  /* ============ letter tiles ============ */
+  function tileThumb(L){const b=bboxAll(L.contours);const w=b.x1-b.x0,h=b.y1-b.y0;
+    return `<svg viewBox="${b.x0-2} ${b.y0-2} ${w+4} ${h+4}" xmlns="http://www.w3.org/2000/svg"><path d="${nodesPath(L.contours,0,0,1)}" fill="${INK}" fill-rule="nonzero"/></svg>`;}
+  function bboxAll(conts){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const c of conts)for(const n of c){if(n.x<x0)x0=n.x;if(n.x>x1)x1=n.x;if(n.y<y0)y0=n.y;if(n.y>y1)y1=n.y;}if(x0>x1){x0=0;y0=0;x1=1;y1=1;}return{x0,y0,x1,y1};}
+  function renderLetters(){
+    letterCountEl.textContent=S.letters.length;
+    if(!S.letters.length){
+      lettersEl.innerHTML='<p class="gt__empty">No letters yet. Drop an image, type what it says, then split and trace.</p>';
+      exportBtn.disabled=true;return;
+    }
+    lettersEl.innerHTML='';
+    S.letters.forEach((L,i)=>{const row=document.createElement('div');row.className='gt__tile'+(S.editing===i?' is-active':'');
+      const pts=L.contours.reduce((a,c)=>a+c.length,0);const holes=L.contours.length-1;
+      row.innerHTML=`<div class="gt__thumb" title="Click to edit points">${tileThumb(L)}</div>
+        <input class="gt__char" maxlength="1" value="${L.char?L.char.replace(/"/g,'&quot;'):''}" placeholder="?" aria-label="Character for letter ${i+1}">
+        <div class="gt__tile-meta">${pts} points${L.edited?' · edited':''}<br>${holes>0?holes+(holes===1?' hole':' holes'):'No holes'}</div>`;
+      row.querySelector('.gt__thumb').addEventListener('click',()=>openEditor(i));
+      const inp=row.querySelector('input.gt__char');inp.addEventListener('input',()=>{L.char=inp.value;exportBtn.disabled=!S.letters.some(l=>l.char);});
+      lettersEl.appendChild(row);});
+    exportBtn.disabled=!S.letters.some(l=>l.char);
+  }
+
+  /* ============ POINT EDITOR (multi-select, snapping, marquee) ============ */
+  const EDW=520,EDH=560,PAD=48;let edView=null;
+  const SNAP=6; // snap distance in image px
+  S.selSet=[]; // array of {c,n}
+  S.marquee=null; // {x0,y0,x1,y1} in svg px while dragging
+  S.snapGuides=[]; // {type:'v'|'h', at} in image coords, drawn during drag
+  function selHas(c,n){return S.selSet.some(s=>s.c===c&&s.n===n);}
+  function selAdd(c,n){if(!selHas(c,n))S.selSet.push({c,n});}
+  function selClear(){S.selSet=[];}
+  function openEditor(i){S.editing=i;selClear();S.sel=null;const L=S.letters[i];editorTitle.textContent=`Editing "${L.char||'?'}"`;editorWrap.classList.add('is-open');
+    const b=bboxAll(L.contours),bw=Math.max(1,b.x1-b.x0),bh=Math.max(1,b.y1-b.y0);const scale=Math.min((EDW-PAD*2)/bw,(EDH-PAD*2)/bh);
+    edView={scale,ox:b.x0,oy:b.y0,offX:(EDW-bw*scale)/2,offY:(EDH-bh*scale)/2};drawEditor();renderLetters();}
+  function closeEditor(){S.editing=-1;selClear();S.sel=null;S.marquee=null;S.snapGuides=[];editorWrap.classList.remove('is-open');}
+  closeEditorBtn.addEventListener('click',()=>{closeEditor();renderLetters();});
+  editorWrap.addEventListener('pointerdown',e=>{if(e.target===editorWrap){closeEditor();renderLetters();}});
+  function E(x,y){return [edView.offX+(x-edView.ox)*edView.scale, edView.offY+(y-edView.oy)*edView.scale];}
+  function invE(px,py){return {x:(px-edView.offX)/edView.scale+edView.ox, y:(py-edView.offY)/edView.scale+edView.oy};}
+  function svgXY(e){const r=editorSvg.getBoundingClientRect();return {px:(e.clientX-r.left)/r.width*EDW,py:(e.clientY-r.top)/r.height*EDH};}
+
+  function drawEditor(){if(S.editing<0)return;const L=S.letters[S.editing];let svg='';
+    let d='';for(const c of L.contours){const n=c.length;if(!n)continue;const s0=E(c[0].x,c[0].y);d+=`M ${s0[0].toFixed(1)} ${s0[1].toFixed(1)} `;
+      for(let k=0;k<n;k++){const A=c[k],B=c[(k+1)%n];const ao=A.hOut||A,bi=B.hIn||B;const p1=E(ao.x,ao.y),p2=E(bi.x,bi.y),p3=E(B.x,B.y);d+=`C ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} ${p3[0].toFixed(1)} ${p3[1].toFixed(1)} `;}d+='Z ';}
+    svg+=`<path d="${d}" fill="rgba(0,0,0,0.06)" stroke="${INK}" stroke-width="1.6"/>`;
+    // snap guides
+    for(const g of S.snapGuides){if(g.type==='v'){const x=E(g.at,0)[0];svg+=`<line x1="${x}" y1="0" x2="${x}" y2="${EDH}" stroke="${ALERT}" stroke-width="1" stroke-dasharray="3 3"/>`;}else{const y=E(0,g.at)[1];svg+=`<line x1="0" y1="${y}" x2="${EDW}" y2="${y}" stroke="${ALERT}" stroke-width="1" stroke-dasharray="3 3"/>`;}}
+    // handles only when exactly one anchor selected
+    const single=S.selSet.length===1?S.selSet[0]:null;
+    if(single){const nd=L.contours[single.c][single.n];const p=E(nd.x,nd.y);
+      if(nd.hIn){const h=E(nd.hIn.x,nd.hIn.y);svg+=`<line x1="${p[0]}" y1="${p[1]}" x2="${h[0]}" y2="${h[1]}" stroke="${MUTED}" stroke-width="1"/><circle data-h="in" data-c="${single.c}" data-n="${single.n}" cx="${h[0]}" cy="${h[1]}" r="5" fill="${CHIP}" style="cursor:grab"/>`;}
+      if(nd.hOut){const h=E(nd.hOut.x,nd.hOut.y);svg+=`<line x1="${p[0]}" y1="${p[1]}" x2="${h[0]}" y2="${h[1]}" stroke="${MUTED}" stroke-width="1"/><circle data-h="out" data-c="${single.c}" data-n="${single.n}" cx="${h[0]}" cy="${h[1]}" r="5" fill="${CHIP}" style="cursor:grab"/>`;}}
+    L.contours.forEach((c,ci)=>{c.forEach((nd,ni)=>{const p=E(nd.x,nd.y);const sel=selHas(ci,ni);
+      const corner=nd.type==='corner';svg+=`<rect data-a="1" data-c="${ci}" data-n="${ni}" x="${p[0]-4.5}" y="${p[1]-4.5}" width="9" height="9" rx="${corner?1:4.5}" fill="${sel?INK:'#fff'}" stroke="${sel?INK:CHIP}" stroke-width="1.5" style="cursor:grab"/>`;});});
+    // marquee
+    if(S.marquee){const m=S.marquee;const x=Math.min(m.x0,m.x1),y=Math.min(m.y0,m.y1),w=Math.abs(m.x1-m.x0),h=Math.abs(m.y1-m.y0);
+      svg+=`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="rgba(0,0,0,0.05)" stroke="${MUTED}" stroke-width="1" stroke-dasharray="4 3"/>`;}
+    editorSvg.innerHTML=svg;}
+
+  // collect all anchor positions except the ones being dragged, for snapping
+  function snapTargets(L,exclude){const xs=[],ys=[];L.contours.forEach((c,ci)=>c.forEach((nd,ni)=>{if(exclude.some(s=>s.c===ci&&s.n===ni))return;xs.push(nd.x);ys.push(nd.y);}));return {xs,ys};}
+  function applySnap(val,targets){let best=val,bd=SNAP,hit=null;for(const t of targets){const d=Math.abs(val-t);if(d<bd){bd=d;best=t;hit=t;}}return {val:best,hit};}
+
+  editorSvg.addEventListener('pointerdown',e=>{const t=e.target;
+    if(t&&t.dataset&&t.dataset.h){S.sel={c:+t.dataset.c,n:+t.dataset.n};S.dragKind='h'+t.dataset.h;editorSvg.setPointerCapture(e.pointerId);e.preventDefault();return;}
+    if(t&&t.dataset&&t.dataset.a){const c=+t.dataset.c,n=+t.dataset.n;
+      if(e.shiftKey){if(selHas(c,n))S.selSet=S.selSet.filter(s=>!(s.c===c&&s.n===n));else selAdd(c,n);}
+      else{if(!selHas(c,n)){selClear();selAdd(c,n);}}
+      S.dragKind='anchor';S.dragStart=svgXY(e);S.dragMoved=false;editorSvg.setPointerCapture(e.pointerId);drawEditor();e.preventDefault();return;}
+    // empty space -> start marquee (clears unless shift)
+    if(!e.shiftKey)selClear();
+    const {px,py}=svgXY(e);S.marquee={x0:px,y0:py,x1:px,y1:py};S.dragKind='marquee';editorSvg.setPointerCapture(e.pointerId);drawEditor();e.preventDefault();});
+
+  editorSvg.addEventListener('pointermove',e=>{if(!S.dragKind||S.editing<0)return;const {px,py}=svgXY(e);const pt=invE(px,py);const L=S.letters[S.editing];
+    if(S.dragKind==='marquee'){S.marquee.x1=px;S.marquee.y1=py;drawEditor();return;}
+    if(S.dragKind==='anchor'){
+      // move all selected together, by delta of the grabbed pointer
+      if(!S.dragStart)S.dragStart={px,py};
+      const startImg=invE(S.dragStart.px,S.dragStart.py);
+      let dx=pt.x-startImg.x,dy=pt.y-startImg.y;
+      if(Math.abs(dx)>0.5||Math.abs(dy)>0.5)S.dragMoved=true;
+      // snapping: use the "leader" (first selected) target position after delta
+      S.snapGuides=[];
+      if(S.selSet.length){const lead=L.contours[S.selSet[0].c][S.selSet[0].n];const tg=snapTargets(L,S.selSet);
+        const nx=lead._ox!=null?lead._ox+dx:lead.x+dx, ny=lead._oy!=null?lead._oy+dy:lead.y+dy;
+        const sx=applySnap(nx,tg.xs),sy=applySnap(ny,tg.ys);
+        if(sx.hit!=null){dx+=sx.val-nx;S.snapGuides.push({type:'v',at:sx.val});}
+        if(sy.hit!=null){dy+=sy.val-ny;S.snapGuides.push({type:'h',at:sy.val});}
+      }
+      // store originals on first move
+      for(const s of S.selSet){const nd=L.contours[s.c][s.n];if(nd._ox==null){nd._ox=nd.x;nd._oy=nd.y;if(nd.hIn){nd._hix=nd.hIn.x;nd._hiy=nd.hIn.y;}if(nd.hOut){nd._hox=nd.hOut.x;nd._hoy=nd.hOut.y;}}}
+      for(const s of S.selSet){const nd=L.contours[s.c][s.n];nd.x=nd._ox+dx;nd.y=nd._oy+dy;if(nd.hIn){nd.hIn.x=nd._hix+dx;nd.hIn.y=nd._hiy+dy;}if(nd.hOut){nd.hOut.x=nd._hox+dx;nd.hOut.y=nd._hoy+dy;}}
+      L.edited=true;drawEditor();return;}
+    // handle drag (single)
+    const nd=L.contours[S.sel.c][S.sel.n];
+    if(S.dragKind==='hin'){nd.hIn={x:pt.x,y:pt.y};if(nd.type==='smooth'&&nd.hOut){const vx=nd.x-pt.x,vy=nd.y-pt.y;const lo=Math.hypot(nd.hOut.x-nd.x,nd.hOut.y-nd.y),lv=Math.hypot(vx,vy)||1;nd.hOut={x:nd.x+vx/lv*lo,y:nd.y+vy/lv*lo};}}
+    else if(S.dragKind==='hout'){nd.hOut={x:pt.x,y:pt.y};if(nd.type==='smooth'&&nd.hIn){const vx=nd.x-pt.x,vy=nd.y-pt.y;const li=Math.hypot(nd.hIn.x-nd.x,nd.hIn.y-nd.y),lv=Math.hypot(vx,vy)||1;nd.hIn={x:nd.x+vx/lv*li,y:nd.y+vy/lv*li};}}
+    L.edited=true;drawEditor();});
+
+  editorSvg.addEventListener('pointerup',()=>{if(!S.dragKind)return;const L=S.editing>=0?S.letters[S.editing]:null;
+    if(S.dragKind==='marquee'&&L){const m=S.marquee;const x0=Math.min(m.x0,m.x1),y0=Math.min(m.y0,m.y1),x1=Math.max(m.x0,m.x1),y1=Math.max(m.y0,m.y1);
+      // if it was basically a click (tiny), just clear; else select points inside
+      if(Math.abs(x1-x0)>3||Math.abs(y1-y0)>3){L.contours.forEach((c,ci)=>c.forEach((nd,ni)=>{const p=E(nd.x,nd.y);if(p[0]>=x0&&p[0]<=x1&&p[1]>=y0&&p[1]<=y1)selAdd(ci,ni);}));}
+      S.marquee=null;}
+    // clear drag originals
+    if(L)for(const c of L.contours)for(const nd of c){delete nd._ox;delete nd._oy;delete nd._hix;delete nd._hiy;delete nd._hox;delete nd._hoy;}
+    S.snapGuides=[];S.dragKind=null;S.dragStart=null;drawEditor();drawOverlay();renderLettersThrottled();});
+
+  editorSvg.addEventListener('dblclick',e=>{if(S.editing<0)return;const {px,py}=svgXY(e);const pt=invE(px,py);const L=S.letters[S.editing];
+    let best=null,bestD=1e9;L.contours.forEach((c,ci)=>{const n=c.length;for(let k=0;k<n;k++){const A=c[k],B=c[(k+1)%n];const ao=A.hOut||A,bi=B.hIn||B;
+      for(let t=0.1;t<1;t+=0.1){const s=1-t;const bx=s*s*s*A.x+3*s*s*t*ao.x+3*s*t*t*bi.x+t*t*t*B.x,by=s*s*s*A.y+3*s*s*t*ao.y+3*s*t*t*bi.y+t*t*t*B.y;const dd=Math.hypot(bx-pt.x,by-pt.y);if(dd<bestD){bestD=dd;best={ci,k,x:bx,y:by};}}}});
+    if(best&&bestD<20){const c=L.contours[best.ci];c.splice(best.k+1,0,{x:best.x,y:best.y,type:'smooth',hIn:{x:best.x,y:best.y},hOut:{x:best.x,y:best.y}});L.edited=true;drawEditor();drawOverlay();}});
+
+  // keyboard delete for multi-select
+  window.addEventListener('keydown',e=>{if(S.editing<0||!editorWrap.classList.contains('is-open'))return;
+    if(e.key==='Escape'){e.preventDefault();closeEditor();renderLetters();return;}
+    if((e.key==='Delete'||e.key==='Backspace')&&S.selSet.length){e.preventDefault();deleteSelected();}});
+
+  function deleteSelected(){if(S.editing<0||!S.selSet.length)return;const L=S.letters[S.editing];
+    // group by contour, delete high indices first
+    const byC={};for(const s of S.selSet){(byC[s.c]=byC[s.c]||[]).push(s.n);}
+    Object.keys(byC).map(Number).forEach(ci=>{const idxs=byC[ci].sort((a,b)=>b-a);const c=L.contours[ci];
+      for(const ni of idxs){if(c.length<=3)break;c.splice(ni,1);}});
+    selClear();L.edited=true;drawEditor();drawOverlay();renderLetters();}
+
+  nodeTypeBtn.addEventListener('click',()=>{if(!S.selSet.length||S.editing<0)return;const L=S.letters[S.editing];
+    for(const s of S.selSet){const nd=L.contours[s.c][s.n];nd.type=nd.type==='smooth'?'corner':'smooth';}L.edited=true;drawEditor();drawOverlay();renderLetters();});
+  deleteNodeBtn.addEventListener('click',deleteSelected);
+  resetLetterBtn.addEventListener('click',()=>{if(S.editing<0)return;const L=S.letters[S.editing];const c=traceBox(L.box);if(c){L.contours=c;L.edited=false;selClear();S.sel=null;const b=bboxAll(L.contours),bw=Math.max(1,b.x1-b.x0),bh=Math.max(1,b.y1-b.y0);const scale=Math.min((EDW-PAD*2)/bw,(EDH-PAD*2)/bh);edView={scale,ox:b.x0,oy:b.y0,offX:(EDW-bw*scale)/2,offY:(EDH-bh*scale)/2};drawEditor();drawOverlay();renderLetters();}});
+  let rlt=null;function renderLettersThrottled(){if(rlt)return;rlt=setTimeout(()=>{rlt=null;renderLetters();},120);}
+
+  /* ============ controls ============ */
+  function reAll(){S.letters.forEach(L=>{const c=traceBox(L.box);if(c){L.contours=c;L.edited=false;}});}
+  thresholdEl.addEventListener('input',()=>{$('thresholdVal').textContent=thresholdEl.value;if(!S.img)return;buildGrid();if(S.letters.length)reAll();drawOverlay();renderLetters();closeEditor();});
+  invertEl.addEventListener('change',()=>{if(!S.img)return;buildGrid();if(S.letters.length)reAll();drawOverlay();renderLetters();closeEditor();});
+  colorModeEl.addEventListener('input',()=>{$('colorModeVal').textContent=COLOR[+colorModeEl.value];if(!S.img)return;buildGrid();if(S.letters.length)reAll();drawOverlay();renderLetters();closeEditor();});
+  detailEl.addEventListener('input',()=>{$('detailVal').textContent=parseFloat(detailEl.value).toFixed(1);if(S.letters.length){reAll();drawOverlay();renderLetters();closeEditor();}});
+  turdsizeEl.addEventListener('input',()=>{$('turdsizeVal').textContent=turdsizeEl.value;});
+  splitBtn.addEventListener('click',autoSplit);
+  wordInput.addEventListener('keydown',e=>{if(e.key==='Enter')autoSplit();});
+
+  /* ============ OCR ============ */
+  ocrBtn.addEventListener('click',async()=>{if(!S.img){setStatus('Drop an image first.',true);return;}
+    if(typeof Tesseract==='undefined'){setStatus('The OCR library did not load. Type the word manually.',true);return;}
+    ocrBtn.disabled=true;setMini('<span class="gt__spinner"></span>Starting OCR…');
+    try{const worker=await Tesseract.createWorker('eng',1,{logger:m=>{if(m.status&&m.progress!=null)setMini(`<span class="gt__spinner"></span>${m.status} ${Math.round(m.progress*100)}%`);}});
+      const {data}=await worker.recognize(srcCanvas);await worker.terminate();
+      const guess=(data.text||'').replace(/[^A-Za-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+      if(guess){wordInput.value=guess;setStatus(`OCR read "${guess}". Check the case, then split and trace.`);}
+      else setStatus('OCR could not read it. Type the word manually.',true);
+      setMini('');
+    }catch(err){console.error(err);setStatus('OCR failed: '+err.message+'. Type the word manually.',true);setMini('');}
+    finally{ocrBtn.disabled=false;}});
+
+  /* ============ export ============ */
+  const gname=u=>{const c=String.fromCharCode(u);if(/[A-Za-z0-9]/.test(c))return c;if(c===' ')return 'space';return 'uni'+u.toString(16).toUpperCase().padStart(4,'0');};
+  function vBounds(L){let minY=1e9,maxY=-1e9;for(const c of L.contours)for(const nd of c)for(const p of[nd,nd.hIn,nd.hOut]){if(!p)continue;if(p.y<minY)minY=p.y;if(p.y>maxY)maxY=p.y;}return{minY,maxY};}
+  function hBounds(L){let minX=1e9,maxX=-1e9;for(const c of L.contours)for(const nd of c)for(const p of[nd,nd.hIn,nd.hOut]){if(!p)continue;if(p.x<minX)minX=p.x;if(p.x>maxX)maxX=p.x;}return{minX,maxX};}
+  exportBtn.addEventListener('click',()=>{try{
+      const unitsPerEm=+$('unitsPerEm').value||1000,ascender=+$('ascender').value||800,descender=+$('descender').value||-200,
+            capH=+$('capHeight').value||700,sb=parseFloat($('sideBearing').value)||0,
+            familyName=$('familyName').value||'My Typeface',styleName=$('styleName').value||'Regular';
+      const mergeDup=mergeDupEl?mergeDupEl.checked:false;
+      let chosen;
+      if(mergeDup){const seen=new Set();chosen=[];for(const L of S.letters){const ch=(L.char||'').trim();if(!ch||seen.has(ch))continue;seen.add(ch);chosen.push(L);}}
+      else{const byChar=new Map();for(const L of S.letters){const ch=(L.char||'').trim();if(!ch)continue;byChar.set(ch,L);}chosen=[...byChar.values()];}
+      if(!chosen.length){setStatus('Assign at least one character before exporting.',true);return;}
+      const all=S.letters.filter(l=>(l.char||'').trim());let gB=-1e9,gT=1e9;for(const L of all){const vb=vBounds(L);if(vb.maxY>gB)gB=vb.maxY;if(vb.minY<gT)gT=vb.minY;}
+      const scale=capH/Math.max(1,(gB-gT));
+      const nd=new opentype.Path();const m=Math.round(unitsPerEm*0.05),bx=Math.round(unitsPerEm*0.45);
+      nd.moveTo(m,0);nd.lineTo(bx,0);nd.lineTo(bx,bx*1.4);nd.lineTo(m,bx*1.4);nd.close();
+      const glyphs=[new opentype.Glyph({name:'.notdef',unicode:0,advanceWidth:Math.round(unitsPerEm*0.5),path:nd})];
+      if(![...chosen].some(L=>L.char===' '))glyphs.push(new opentype.Glyph({name:'space',unicode:32,advanceWidth:Math.round(unitsPerEm/3),path:new opentype.Path()}));
+      let built=0;
+      for(const L of chosen){const hb=hBounds(L);const path=new opentype.Path();const tf=(x,y)=>[(x-hb.minX)*scale+sb,(gB-y)*scale];
+        for(const c of L.contours){const n=c.length;if(!n)continue;const s0=tf(c[0].x,c[0].y);path.moveTo(s0[0],s0[1]);
+          for(let i=0;i<n;i++){const A=c[i],B=c[(i+1)%n];const ao=A.hOut||A,bi=B.hIn||B;const c1=tf(ao.x,ao.y),c2=tf(bi.x,bi.y),e=tf(B.x,B.y);path.curveTo(c1[0],c1[1],c2[0],c2[1],e[0],e[1]);}path.close();}
+        const advanceWidth=Math.round((hb.maxX-hb.minX)*scale+sb*2);const u=L.char.charCodeAt(0);
+        glyphs.push(new opentype.Glyph({name:gname(u),unicode:u,advanceWidth,path}));built++;}
+      const font=new opentype.Font({familyName,styleName,unitsPerEm,ascender,descender,glyphs});
+      let buffer;if(typeof font.toArrayBuffer==='function')buffer=font.toArrayBuffer();else{font.download((familyName.replace(/\s+/g,'-')||'typeface')+'.otf');setStatus('Font downloaded.');return;}
+      const blob=new Blob([buffer],{type:'font/otf'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=(familyName.replace(/\s+/g,'-')||'typeface')+'.otf';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+      setStatus(`Exported ${familyName}, ${built} glyph${built===1?'':'s'}. Points, holes, and heights are preserved.`);
+    }catch(err){console.error(err);setStatus('Export failed: '+err.message,true);}});
+
+  /* Stage size depends on the suite grid, so re-fit once the shell settles */
+  document.addEventListener('suite:mounted',()=>requestAnimationFrame(fitFigure));
+})();
+</script>
+</body>
+</html>

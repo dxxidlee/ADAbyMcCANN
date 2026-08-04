@@ -180,7 +180,8 @@ body.is-tool .main,
 body.is-tool .main > .mx,
 body.is-tool .main > .vl,
 body.is-tool .main > .ada,
-body.is-tool .main > .bb{
+body.is-tool .main > .bb,
+body.is-tool .main > .gt{
   display:contents;
 }
 body.is-tool .menu__brand{
@@ -536,7 +537,10 @@ body.is-tool .ada__band,
 body.is-tool .ada__stage,
 body.is-tool .bb__title,
 body.is-tool .bb__band,
-body.is-tool .bb__stage{
+body.is-tool .bb__stage,
+body.is-tool .gt__title,
+body.is-tool .gt__band,
+body.is-tool .gt__stage{
   opacity:0;
 }
 body.is-tool.is-ready .mx__title,
@@ -550,7 +554,10 @@ body.is-tool.is-ready .ada__band,
 body.is-tool.is-ready .ada__stage,
 body.is-tool.is-ready .bb__title,
 body.is-tool.is-ready .bb__band,
-body.is-tool.is-ready .bb__stage{
+body.is-tool.is-ready .bb__stage,
+body.is-tool.is-ready .gt__title,
+body.is-tool.is-ready .gt__band,
+body.is-tool.is-ready .gt__stage{
   opacity:1;
   transition:opacity 420ms var(--ease);
 }
