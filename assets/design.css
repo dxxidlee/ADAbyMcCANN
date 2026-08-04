@@ -142,6 +142,8 @@ a{ color:inherit; text-decoration:none; }
   /* Home work gallery */
   --gal-gap:var(--suite-gutter);
   --gal-fill:var(--surface);
+  /* Tile width relative to its 2-column grid area; grows leftward */
+  --gal-scale:1.25;
 }
 
 .layout{
@@ -421,12 +423,23 @@ body.is-home .gal{
   grid-column:4 / -1;
   grid-row:1;
   align-self:stretch;
-  min-width:0;
+  /* Right edge stays on the page margin; extra width grows leftward */
+  justify-self:end;
+  width:calc(100% * var(--gal-scale));
+  /* Bleed past the top and bottom margins so the crop reads as intentional
+     rather than as a stray band above a sliced tile */
+  margin-top:calc(-1 * var(--suite-margin));
+  margin-bottom:calc(-1 * var(--suite-margin));
   overflow:hidden;
   opacity:0;
   transition:opacity 520ms var(--ease);
 }
 body.is-home .gal.is-in{ opacity:1; }
+/* Recede while Tools is open — keeps the bar legible as it slides right */
+body.is-home .menu.is-open ~ .gal.is-in{
+  opacity:.12;
+  transition:opacity 240ms var(--ease);
+}
 /* Clear out with the menu on the way into a tool */
 body.is-home.is-rising .gal{
   opacity:0;
