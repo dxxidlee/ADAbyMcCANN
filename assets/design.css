@@ -446,25 +446,19 @@ body.is-home.is-rising .gal{
   transition:opacity 300ms var(--ease);
 }
 
+/* Driven frame by frame in gallery.js so wheel input can scrub it — a CSS
+   animation would win over the inline transform and can't be nudged. */
 .gal__track{
   display:flex;
   flex-direction:column;
   row-gap:var(--gal-gap);
   will-change:transform;
-  animation:gal-scroll var(--gal-dur, 40s) linear infinite;
 }
 .gal__lane{
   display:flex;
   flex-direction:column;
   row-gap:var(--gal-gap);
 }
-@keyframes gal-scroll{
-  from{ transform:translate3d(0,0,0); }
-  to{ transform:translate3d(0, calc(var(--gal-shift, 0px) * -1), 0); }
-}
-/* Hold still for a closer look */
-.gal:hover .gal__track,
-.gal:focus-within .gal__track{ animation-play-state:paused; }
 
 .gal__item{ margin:0; }
 .gal__media{
@@ -485,7 +479,6 @@ body.is-home.is-rising .gal{
 
 /* No motion: drop the clone and let the column scroll by hand */
 @media (prefers-reduced-motion:reduce){
-  .gal__track{ animation:none; }
   body.is-home .gal{ overflow-y:auto; }
   .gal__lane + .gal__lane{ display:none; }
 }

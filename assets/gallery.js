@@ -26,7 +26,12 @@
     return typeof f === 'string' ? { src: DIR + f } : f;
   });
 
-  var SPEED = 30;        /* scroll speed, px per second */
+  var DRIFT = 90;        /* idle scroll speed, px per second */
+  var WHEEL_GAIN = 2.2;  /* how hard one wheel/trackpad notch pushes */
+  var DAMPING = 2.8;     /* how quickly that push bleeds back to DRIFT, per second */
+  var MAX_BOOST = 4800;  /* ceiling on flung velocity, px per second */
+  var MAX_STEP = 0.05;   /* clamp dt so a stalled tab can't jump the strip */
+
   var RATIO = 9 / 16;    /* tile height ÷ width */
   var MIN_TILES = 3;
 
@@ -86,6 +91,11 @@
     layout.appendChild(gal);
 
     var tiles = 0;
+    var shift = 1;   /* travel of one full pass: lane height + gap */
+    var offset = 0;  /* current px scrolled, always wrapped into [0, shift) */
+    var boost = 0;   /* velocity from wheel input, decays back to DRIFT */
+    var last = 0;
+    var loop = 0;
 
     /* One lane must be at least as tall as the frame, otherwise the clone
        runs out of content before the loop resets. */
@@ -111,24 +121,105 @@
         track.appendChild(lane(count, true));
       }
 
-      var laneH = track.firstChild.offsetHeight;
-      var shift = laneH + gap;
-      gal.style.setProperty('--gal-shift', shift + 'px');
-      gal.style.setProperty('--gal-dur', (shift / SPEED).toFixed(2) + 's');
+      /* Fractional height — offsetHeight rounds, which would leave a
+         sub-pixel seam at every wrap. */
+      shift = track.firstChild.getBoundingClientRect().height + gap;
+      offset = wrap(offset);
+      draw();
     }
+
+    function wrap(v) {
+      return ((v % shift) + shift) % shift;
+    }
+
+    function draw() {
+      track.style.transform = 'translate3d(0,' + -offset + 'px,0)';
+    }
+
+    function frame(now) {
+      loop = requestAnimationFrame(frame);
+
+      /* First frame after a start has no reference point — don't integrate. */
+      var dt = last ? Math.min((now - last) / 1000, MAX_STEP) : 0;
+      last = now;
+      if (!dt) return;
+
+      boost *= Math.exp(-DAMPING * dt);
+      if (Math.abs(boost) < 0.5) boost = 0;
+
+      offset = wrap(offset + (DRIFT + boost) * dt);
+      draw();
+    }
+
+    function start() {
+      if (!loop && !reduced()) {
+        last = 0;
+        loop = requestAnimationFrame(frame);
+      }
+    }
+
+    function stop() {
+      if (loop) {
+        cancelAnimationFrame(loop);
+        loop = 0;
+      }
+    }
+
+    /* Wheel and trackpad add momentum; scrolling back runs the strip in
+       reverse. deltaMode normalises line- and page-based wheels. */
+    gal.addEventListener('wheel', function (e) {
+      if (reduced() || e.ctrlKey) return;   /* leave pinch-zoom alone */
+      e.preventDefault();
+
+      var d = e.deltaY;
+      if (e.deltaMode === 1) d *= 16;
+      else if (e.deltaMode === 2) d *= gal.clientHeight;
+
+      boost += d * WHEEL_GAIN;
+      if (boost > MAX_BOOST) boost = MAX_BOOST;
+      else if (boost < -MAX_BOOST) boost = -MAX_BOOST;
+
+      start();
+    }, { passive: false });
 
     measure();
     requestAnimationFrame(function () { gal.classList.add('is-in'); });
+    start();
+
+    /* Don't burn frames on a hidden tab, and don't let the gap turn into a jump. */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      var onPref = function () {
+        if (reduced()) {
+          stop();
+          offset = 0;
+          track.style.transform = '';
+        } else {
+          start();
+        }
+      };
+      if (mq.addEventListener) mq.addEventListener('change', onPref);
+      else if (mq.addListener) mq.addListener(onPref);
+    }
 
     if (window.ResizeObserver) {
-      var raf = 0;
+      var pending = 0;
       new ResizeObserver(function () {
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(measure);
+        cancelAnimationFrame(pending);
+        pending = requestAnimationFrame(measure);
       }).observe(gal);
     } else {
       window.addEventListener('resize', measure);
     }
+  }
+
+  function reduced() {
+    return window.matchMedia
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }
 
   /* nav.js rebuilds body into .layout — wait for it. */
