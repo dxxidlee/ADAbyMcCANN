@@ -183,13 +183,6 @@
   min-height:2.4em;
 }
 
-.mx__note{
-  margin:0;
-  color:var(--mx-label);
-  line-height:1.3;
-  max-width:26em;
-}
-
 /* Stage: Source logo + drop across suite cols 2–5, rows 3–5 */
 .mx__stage{
   grid-column:2 / -1;
@@ -333,7 +326,7 @@
   <h1 class="mx__title">Multi-export</h1>
 
   <div class="mx__band">
-    <p class="mx__desc">This tool allows the user to export a design to multiple formats and sizes at once.</p>
+    <p class="mx__desc">This tool lets you export a design to multiple formats and sizes at once, with cmyk only available for .jpg and .eps.</p>
 
     <div class="mx__controls">
       <div class="mx__group mx__group--formats">
@@ -351,7 +344,6 @@
           <button type="button" class="mx__pill is-active" data-space="rgb" aria-pressed="true">rgb</button>
           <button type="button" class="mx__pill is-active" data-space="cmyk" aria-pressed="true">cmyk</button>
         </div>
-        <p class="mx__note" id="spaceNote">CMYK applies to .jpg and .eps. PNG and SVG have no CMYK model.</p>
       </div>
 
       <div class="mx__group mx__group--treat">
@@ -500,6 +492,8 @@ function showPreview(){
 }
 
 /* ---------- Options ---------- */
+const CMYK_FORMATS=new Set(["jpg","eps"]);
+
 function opts(){
   const get=(attr)=>[...document.querySelectorAll('.mx__pill.is-active[data-'+attr+']')].map(c=>c.dataset[attr]);
   return {
@@ -839,18 +833,24 @@ async function generate(){
     const img=uploaded.img;
     const spaceLabel={rgb:"RGB",cmyk:"CMYK"}, treatLabel={color:"COLOR",grayscale:"GRAYSCALE"};
 
-    let count=0;
+    let count=0, folders=0;
     for(const sp of spaces){
       const cmyk = sp==="cmyk";
+      /* PNG has no CMYK color model and SVG colors are sRGB by definition,
+         so the CMYK folder only gets the formats that can really carry ink. */
+      const spaceFmts = cmyk ? fmts.filter(f=>CMYK_FORMATS.has(f)) : fmts;
+      if(!spaceFmts.length) continue;
+
       for(const tr of treats){
         const gray = tr==="grayscale";
         const dir=root.folder(spaceLabel[sp]).folder(treatLabel[tr]);
         const stem=base+"-"+spaceLabel[sp].toLowerCase()+"-"+treatLabel[tr].toLowerCase();
+        folders++;
 
         const cvPng=drawToCanvas(img,size,{gray});
         const cvJpg=drawToCanvas(img,size,{gray,matte:"#ffffff"});
 
-        for(const fm of fmts){
+        for(const fm of spaceFmts){
           if(fm==="png"){ dir.file(stem+".png", await canvasBlob(cvPng,"image/png")); }
           else if(fm==="jpg"){
             if(cmyk){
@@ -883,6 +883,11 @@ async function generate(){
       }
     }
 
+    if(!count){
+      statusEl.textContent="Nothing to export — cmyk only covers .jpg and .eps. Add one of those, or turn rgb on.";
+      return;
+    }
+
     root.file("README.txt", readmeText(base));
     statusEl.textContent="Packaging…";
     const blob=await zip.generateAsync({type:"blob"},meta=>{
@@ -890,7 +895,6 @@ async function generate(){
     });
     const a=document.createElement("a");
     a.href=URL.createObjectURL(blob); a.download=base+"-Exports.zip"; a.click();
-    const folders=spaces.length*treats.length;
     statusEl.innerHTML="Export completed,<br>"+count+" files across "+folders+" folders.";
   }catch(err){
     console.error(err);
@@ -908,7 +912,7 @@ FOLDER STRUCTURE
   ${base}-Exports/
     RGB/ and CMYK/      -> color space
       COLOR/ GRAYSCALE/ -> treatment
-        .png .jpg .svg .eps -> formats
+        .png .jpg .svg .eps -> formats (CMYK holds .jpg and .eps only)
 
 WHAT IS REAL
   PNG   Real raster, transparent background.
@@ -922,15 +926,18 @@ WHAT IS REAL
         tracing). For best EPS results, upload vector SVG.
   GRAYSCALE  Real luminance conversion (Rec. 709 weights).
 
-WHAT THE CMYK FOLDER ACTUALLY CONTAINS
-  JPG   TRUE CMYK. Four-channel JPEG with an Adobe APP14 marker; Photoshop
-        opens it as a CMYK document, no conversion step.
-  EPS   TRUE CMYK. Vector art writes ink values through setcmykcolor;
-        embedded rasters write a four-component DeviceCMYK image.
-  PNG   RGB. The PNG format has no CMYK color model at all — there is no
-        such thing as a CMYK PNG. Use the JPG or EPS for press.
-  SVG   RGB. SVG colors are sRGB by definition. (SVG 1.2 had an icc-color
-        hint, but nothing implements it usefully.)
+THE CMYK FOLDER
+  Only .jpg and .eps appear here, because they are the only two formats that
+  can carry ink values. Both are the real thing:
+  JPG   Four-channel JPEG with an Adobe APP14 marker. Photoshop opens it as
+        a CMYK document with no conversion step.
+  EPS   Vector art writes ink values through setcmykcolor; embedded rasters
+        write a four-component DeviceCMYK image.
+
+  PNG and SVG are deliberately absent rather than quietly duplicated as RGB.
+  PNG has no CMYK color model at all, and SVG colors are sRGB by definition,
+  so a "CMYK" copy of either would just be a mislabeled RGB file. Take those
+  two from the RGB folder.
 
 IMPORTANT LIMITS (please read)
   CMYK  The separation uses the standard uncalibrated formula, NOT an ICC
