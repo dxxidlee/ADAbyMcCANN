@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="../assets/cmyk-jpeg.js"></script>
 <link rel="stylesheet" href="../assets/design.css">
 <style>
 /* Multi-export — Figma 95:90 on suite 5×5 grid (cells on .layout) */
@@ -182,6 +183,13 @@
   min-height:2.4em;
 }
 
+.mx__note{
+  margin:0;
+  color:var(--mx-label);
+  line-height:1.3;
+  max-width:26em;
+}
+
 /* Stage: Source logo + drop across suite cols 2–5, rows 3–5 */
 .mx__stage{
   grid-column:2 / -1;
@@ -343,6 +351,7 @@
           <button type="button" class="mx__pill is-active" data-space="rgb" aria-pressed="true">rgb</button>
           <button type="button" class="mx__pill is-active" data-space="cmyk" aria-pressed="true">cmyk</button>
         </div>
+        <p class="mx__note" id="spaceNote">CMYK applies to .jpg and .eps. PNG and SVG have no CMYK model.</p>
       </div>
 
       <div class="mx__group mx__group--treat">
@@ -528,23 +537,86 @@ function drawToCanvas(img, size, {gray=false, matte=null}={}){
   return cv;
 }
 function canvasBlob(cv,type,q){ return new Promise(res=>cv.toBlob(res,type,q)); }
+function nextFrame(){ return new Promise(res=>requestAnimationFrame(()=>res())); }
 
 /* ---------- SVG helpers ---------- */
-function svgGrayWrap(innerSvgOrImg, isVector, dataUrl, w, h){
-  const filter='<filter id="g"><feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0"/></filter>';
-  if(isVector && innerSvgOrImg){
-    let s=innerSvgOrImg;
-    if(/<svg[^>]*>/i.test(s)){
-      s=s.replace(/<svg([^>]*)>/i,'<svg$1><defs>'+filter+'</defs><g filter="url(#g)">');
-      s=s.replace(/<\/svg>\s*$/i,'</g></svg>');
-    }
-    return s;
-  }
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs>${filter}</defs><image filter="url(#g)" width="${w}" height="${h}" href="${dataUrl}"/></svg>`;
+const SVG_NS="http://www.w3.org/2000/svg";
+const XLINK_NS="http://www.w3.org/1999/xlink";
+const XMLNS_NS="http://www.w3.org/2000/xmlns/";
+const GRAY_MATRIX="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0";
+
+function serializeSvg(svgEl){
+  svgEl.setAttribute("xmlns",SVG_NS);
+  return '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(svgEl);
 }
-function svgColorWrap(isVector, svgText, dataUrl, w, h){
-  if(isVector && svgText) return svgText;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><image width="${w}" height="${h}" href="${dataUrl}"/></svg>`;
+
+function grayFilter(doc){
+  const filter=doc.createElementNS(SVG_NS,"filter");
+  filter.setAttribute("id","mx-gray");
+  filter.setAttribute("color-interpolation-filters","sRGB");
+  const fe=doc.createElementNS(SVG_NS,"feColorMatrix");
+  fe.setAttribute("type","matrix");
+  fe.setAttribute("values",GRAY_MATRIX);
+  filter.appendChild(fe);
+  return filter;
+}
+
+/* Raster embedded in an SVG wrapper. Illustrator and Photoshop implement
+   SVG 1.1, where an <image> is only linked through xlink:href — a bare SVG 2
+   href parses but resolves to nothing, which is why these opened blank. */
+function svgFromRaster(dataUrl, w, h, gray){
+  const doc=document.implementation.createDocument(SVG_NS,"svg",null);
+  const svg=doc.documentElement;
+  svg.setAttributeNS(XMLNS_NS,"xmlns:xlink",XLINK_NS);
+  svg.setAttribute("width",w);
+  svg.setAttribute("height",h);
+  svg.setAttribute("viewBox","0 0 "+w+" "+h);
+  if(gray){
+    const defs=doc.createElementNS(SVG_NS,"defs");
+    defs.appendChild(grayFilter(doc));
+    svg.appendChild(defs);
+  }
+  const image=doc.createElementNS(SVG_NS,"image");
+  image.setAttribute("x","0");
+  image.setAttribute("y","0");
+  image.setAttribute("width",w);
+  image.setAttribute("height",h);
+  image.setAttributeNS(XLINK_NS,"xlink:href",dataUrl);
+  if(gray) image.setAttribute("filter","url(#mx-gray)");
+  svg.appendChild(image);
+  return serializeSvg(svg);
+}
+
+/* Returns null when the upload can't be reparsed, so the caller can fall
+   back to the raster wrapper instead of writing a broken file. */
+function svgFromVector(svgText, gray){
+  let text=svgText;
+  if(!/<svg[^>]*\sxmlns\s*=/i.test(text)) text=text.replace(/<svg\b/i,'<svg xmlns="'+SVG_NS+'"');
+  const doc=new DOMParser().parseFromString(text,"image/svg+xml");
+  if(doc.getElementsByTagName("parsererror").length) return null;
+  const svg=doc.documentElement;
+  if(!svg || svg.localName.toLowerCase()!=="svg") return null;
+
+  const vb=(svg.getAttribute("viewBox")||"").trim().split(/[\s,]+/).map(Number);
+  const hasVb=vb.length===4 && vb.every(n=>Number.isFinite(n));
+  if(hasVb){
+    if(!svg.getAttribute("width")) svg.setAttribute("width",vb[2]);
+    if(!svg.getAttribute("height")) svg.setAttribute("height",vb[3]);
+  } else {
+    const w=parseFloat(svg.getAttribute("width")), h=parseFloat(svg.getAttribute("height"));
+    if(Number.isFinite(w)&&Number.isFinite(h)) svg.setAttribute("viewBox","0 0 "+w+" "+h);
+  }
+
+  if(gray){
+    const defs=doc.createElementNS(SVG_NS,"defs");
+    defs.appendChild(grayFilter(doc));
+    const g=doc.createElementNS(SVG_NS,"g");
+    g.setAttribute("filter","url(#mx-gray)");
+    while(svg.firstChild) g.appendChild(svg.firstChild);
+    svg.appendChild(defs);
+    svg.appendChild(g);
+  }
+  return serializeSvg(svg);
 }
 
 /* ---------- EPS generation ---------- */
@@ -720,20 +792,27 @@ function epsFromCanvas(cv, cmyk){
   }
   const w=src.width,h=src.height;
   const data=src.getContext("2d").getImageData(0,0,w,h).data;
-  let hex="";
-  for(let i=0;i<data.length;i+=4){
-    hex+=data[i].toString(16).padStart(2,"0")+data[i+1].toString(16).padStart(2,"0")+data[i+2].toString(16).padStart(2,"0");
+  const hx=v=>v.toString(16).padStart(2,"0");
+  const parts=[];
+  if(cmyk){
+    /* colorimage keys the color space off the component count, so four
+       channels of ink here is a genuine DeviceCMYK raster. */
+    const ink=CmykJpeg.rgbaToCmyk(data);
+    for(let i=0;i<ink.length;i+=4) parts.push(hx(ink[i])+hx(ink[i+1])+hx(ink[i+2])+hx(ink[i+3]));
+  } else {
+    for(let i=0;i<data.length;i+=4) parts.push(hx(data[i])+hx(data[i+1])+hx(data[i+2]));
   }
   const head=`%!PS-Adobe-3.0 EPSF-3.0
 %%Creator: McCANN Export (embedded raster)
-%%Title: raster EPS${cmyk?" (CMYK intent — see README)":""}
+%%Title: raster EPS — ${cmyk?"CMYK (uncalibrated, see README)":"RGB"}
 %%BoundingBox: 0 0 ${w} ${h}
 %%LanguageLevel: 2
+%%DocumentProcessColors: ${cmyk?"Cyan Magenta Yellow Black":"(RGB)"}
 %%EndComments
 gsave
 ${w} ${h} scale
 ${w} ${h} 8 [${w} 0 0 -${h} 0 ${h}]
-{<${hex}>} false 3 colorimage
+{<${parts.join("")}>} false ${cmyk?4:3} colorimage
 grestore
 showpage
 %%EOF`;
@@ -773,13 +852,22 @@ async function generate(){
 
         for(const fm of fmts){
           if(fm==="png"){ dir.file(stem+".png", await canvasBlob(cvPng,"image/png")); }
-          else if(fm==="jpg"){ dir.file(stem+".jpg", await canvasBlob(cvJpg,"image/jpeg",0.92)); }
+          else if(fm==="jpg"){
+            if(cmyk){
+              statusEl.textContent="Encoding CMYK JPEG…";
+              await nextFrame();
+              const id=cvJpg.getContext("2d").getImageData(0,0,cvJpg.width,cvJpg.height);
+              const ink=CmykJpeg.rgbaToCmyk(id.data);
+              dir.file(stem+".jpg", CmykJpeg.encode(ink,cvJpg.width,cvJpg.height,92));
+              statusEl.textContent="Rendering…";
+            } else {
+              dir.file(stem+".jpg", await canvasBlob(cvJpg,"image/jpeg",0.92));
+            }
+          }
           else if(fm==="svg"){
-            const w=cvPng.width,h=cvPng.height;
-            const pngUrl=cvPng.toDataURL("image/png");
-            const svg = gray
-              ? svgGrayWrap(uploaded.svgText, uploaded.isSvg, pngUrl, w, h)
-              : svgColorWrap(uploaded.isSvg, uploaded.svgText, pngUrl, w, h);
+            let svg=null;
+            if(uploaded.isSvg && uploaded.svgText) svg=svgFromVector(uploaded.svgText, gray);
+            if(!svg) svg=svgFromRaster(cvPng.toDataURL("image/png"), cvPng.width, cvPng.height, gray);
             dir.file(stem+".svg", svg);
           }
           else if(fm==="eps"){
@@ -834,13 +922,22 @@ WHAT IS REAL
         tracing). For best EPS results, upload vector SVG.
   GRAYSCALE  Real luminance conversion (Rec. 709 weights).
 
+WHAT THE CMYK FOLDER ACTUALLY CONTAINS
+  JPG   TRUE CMYK. Four-channel JPEG with an Adobe APP14 marker; Photoshop
+        opens it as a CMYK document, no conversion step.
+  EPS   TRUE CMYK. Vector art writes ink values through setcmykcolor;
+        embedded rasters write a four-component DeviceCMYK image.
+  PNG   RGB. The PNG format has no CMYK color model at all — there is no
+        such thing as a CMYK PNG. Use the JPG or EPS for press.
+  SVG   RGB. SVG colors are sRGB by definition. (SVG 1.2 had an icc-color
+        hint, but nothing implements it usefully.)
+
 IMPORTANT LIMITS (please read)
-  CMYK  EPS (from an SVG upload) writes true four-channel ink values via the
-        PostScript setcmykcolor operator, but from a standard uncalibrated
-        formula — NOT an ICC press profile. Always soft-proof in Illustrator
-        against your actual profile (SWOP, GRACoL, Fogra39) before output.
-        PNG / JPG / SVG / raster EPS stay RGB — convert rasters in
-        Photoshop/Illustrator against your print profile.
+  CMYK  The separation uses the standard uncalibrated formula, NOT an ICC
+        press profile, so the ink split is naive — rich blacks in particular
+        become K-only. Always soft-proof in Photoshop or Illustrator against
+        your actual profile (SWOP, GRACoL, Fogra39) and re-separate there
+        before sending anything to press.
 
 Treat this package as a fast first pass for screen and layout use. Anything
 going to press should be finalized in Adobe tools against the right profile.`;
