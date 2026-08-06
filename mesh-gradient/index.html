@@ -421,15 +421,6 @@
 const app=document.getElementById('app');
 
 const PALETTES={
-  /* Truth reference looks — stop positions matter for bands/fade */
-  cells  :['#f462ab','#f0a070','#c27c5e','#cd503a','#3f35da','#2a2880'],
-  warp   :['#667ff7','#74b88c','#154da0','#9b3b57','#a0a2d5','#217fbe','#582856'],
-  bands  :['#1a0508','#2b0c14','#4014ba','#9d6bb0','#c5d8ff','#ab50a7','#180f2d','#c90713','#e01062'],
-  fade   :['#f83bb4','#f8634d','#f82e13','#c9202e','#782872','#131a50','#06174a'],
-  scales :['#c00818','#b178ed','#7a5ae0','#0c1a90','#132174','#0710ad'],
-  streaks:['#1e47ab','#ea94e9','#ffb0a0','#c04030','#0a080d','#5b32a6','#1761e0'],
-  split  :['#0664ef','#050709','#c35f43','#f87b9d','#f748d2','#e10675','#750f28'],
-  /* shared */
   electric:['#12082e','#2b2be6','#7b5cff','#ff2e7e','#ff4d3d'],
   sunset  :['#3a0d0d','#d94a2a','#ecdcc4','#0b1a5e','#2b6bff'],
   aura    :['#2540ff','#ff3ea5','#ff8a4c','#ffd6a8','#fff2e0'],
@@ -439,26 +430,18 @@ const PALETTES={
   moss    :['#b7e26a','#6d8f7b','#3d3f8f','#8a2be2','#c77dff'],
   bloom   :['#1a0620','#6b1d5c','#d43f8d','#ff9ec4','#ffe8f2'],
 };
-/* Uneven stop positions for Truth styles that need them */
-const PALETTE_TS={
-  bands:[0,.05,.14,.28,.4,.46,.56,.76,1],
-  fade:[0,.18,.32,.48,.62,.8,1],
-  split:[0,.18,.35,.5,.62,.78,1],
-};
 
-/* Truth = grainy structured styles (cells/warp/bands/scales/streaks/split)
-   WELL  = rectangular family, TOLD = sphere family */
+/* corrected family mapping:
+   TRUTH = conic family, WELL = rectangular family, TOLD = sphere family */
 const FAM={
-  TRUTH:{vars:['cells','warp','bands','scales','streaks','split'],
-         blur:{cells:.4,warp:.45,bands:.35,scales:.25,streaks:1.8,split:.0},
-         ctrl:{cells:'none',warp:'dir',bands:'dir',scales:'none',streaks:'none',split:'center'},
-         pal:{cells:'cells',warp:'warp',bands:'bands',scales:'scales',streaks:'streaks',split:'split'}},
+  TRUTH:{vars:['conic','sweep','radial','bloom'],blur:{conic:1.0,sweep:1.3,radial:1.0,bloom:1.8},
+         ctrl:{conic:'center',sweep:'center',radial:'center',bloom:'center'}},
   WELL :{vars:['horizon','columns','stripes','weave'],blur:{horizon:.9,columns:.5,stripes:.7,weave:.5},
          ctrl:{horizon:'dir',columns:'dir',stripes:'dir',weave:'center'}},
   TOLD :{vars:['spheres','aura','mesh','orbit'],blur:{spheres:.14,aura:1.5,mesh:2.6,orbit:.9},
          ctrl:{spheres:'none',aura:'none',mesh:'none',orbit:'center'}},
 };
-const ELEMENTAL=['spheres','aura','mesh','orbit','radial','bloom','columns','stripes','weave','scales','cells'];
+const ELEMENTAL=['spheres','aura','mesh','orbit','radial','bloom','columns','stripes','weave'];
 
 const controls=document.getElementById('controls');
 
@@ -489,8 +472,8 @@ controls.innerHTML=`
     <div class="row"><span>Density</span><input type="range" id="den" min="1" max="12" step=".5" value="5"><span class="val" id="den-v">5</span></div>
     <div class="row"><span>Angle</span><input type="range" id="ang" min="0" max="360" value="90"><span class="val" id="ang-v">90</span></div>
     <div class="lbl">Finish</div>
-    <div class="row"><span>Blur</span><input type="range" id="soft" min="0" max="100" value="18"><span class="val" id="soft-v">18</span></div>
-    <div class="row"><span>Grain</span><input type="range" id="grain" min="0" max="100" value="68"><span class="val" id="grain-v">68</span></div>
+    <div class="row"><span>Blur</span><input type="range" id="soft" min="0" max="100" value="14"><span class="val" id="soft-v">14</span></div>
+    <div class="row"><span>Grain</span><input type="range" id="grain" min="0" max="100" value="55"><span class="val" id="grain-v">55</span></div>
   </div>
 
   <div class="grp grp--motion">
@@ -521,11 +504,7 @@ const mix=(a,b,t)=>{const A=hexToRgb(a),B=hexToRgb(b);return rgbToHex(A.r+(B.r-A
 const hexA=(h,a)=>{const{r,g,b}=hexToRgb(h);return`rgba(${r},${g},${b},${a})`};
 const $=id=>document.getElementById(id);
 const sentence=s=>s.charAt(0).toUpperCase()+s.slice(1).toLowerCase();
-const mkStops=(cols,key)=>{
-  const ts=key&&PALETTE_TS[key];
-  if(ts&&ts.length===cols.length)return cols.map((c,i)=>({t:ts[i],color:c}));
-  return cols.map((c,i)=>({t:i/(cols.length-1),color:c}));
-};
+const mkStops=cols=>cols.map((c,i)=>({t:i/(cols.length-1),color:c}));
 const clone=st=>st.map(s=>({...s}));
 function rgbToHsv(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;let h=0;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360}return{h,s:mx?d/mx:0,v:mx}}
 function hsvToRgb(h,s,v){h=((h%360)+360)%360;const c=v*s,x=c*(1-Math.abs((h/60)%2-1)),m=v-c;let r,g,b;if(h<60)[r,g,b]=[c,x,0];else if(h<120)[r,g,b]=[x,c,0];else if(h<180)[r,g,b]=[0,c,x];else if(h<240)[r,g,b]=[0,x,c];else if(h<300)[r,g,b]=[x,0,c];else[r,g,b]=[c,0,x];return{r:(r+m)*255,g:(g+m)*255,b:(b+m)*255}}
@@ -537,8 +516,8 @@ const LOOP_S=2;
 
 /* ---------- state ---------- */
 const state={
-  fam:'TRUTH', variant:'cells', palette:'cells', seed:42,
-  base:mkStops(PALETTES.cells,'cells'), elems:{}, selEl:null,
+  fam:'TRUTH', variant:'conic', palette:'electric', seed:42,
+  base:mkStops(PALETTES.electric), elems:{}, selEl:null,
   ratio:'16:9', cx:.5, cy:.5,
 };
 /* animation phase, applied on top of static controls */
@@ -587,39 +566,7 @@ function layout(W,H){
   else if(v==='bloom'){const N=Math.round(den*2);
     for(let i=0;i<N;i++){const ang=i/N*Math.PI*2,rad=Math.hypot(W,H)*(.18+rng()*.22);
       out.push({kind:'circle',i,cx:cx+Math.cos(ang)*W*.28,cy:cy+Math.sin(ang)*H*.28,r:rad*.5});}}
-  else if(v==='cells'){const cols=Math.max(2,Math.round(1.5+den*.35)),rows=Math.max(2,Math.round(1.5+den*.25));
-    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++)
-      out.push({kind:'rect',i:row*cols+col,x:col*(W/cols),y:row*(H/rows),w:W/cols,h:H/rows});}
-  else if(v==='scales'){const size=W/(2+den*.55),cols=Math.ceil(W/size)+3,rows=Math.ceil(H/(size*.7))+3;
-    for(let row=-1;row<rows;row++)for(let col=-1;col<cols;col++){
-      const x=col*size*.88+row*size*.42,y=row*size*.68;
-      out.push({kind:'circle',i:row*cols+col,cx:x+size*.45,cy:y+size*.35,r:size*.42});}}
   return out;
-}
-
-/* ---------- Truth style helpers ---------- */
-const warpBuf=document.createElement('canvas'),warpCtx=warpBuf.getContext('2d',{willReadFrequently:true});
-function softBlob(b,x,y,rx,ry,color,a0=.95){
-  b.save();b.translate(x,y);b.scale(rx/Math.max(ry,.001),1);
-  const gr=b.createRadialGradient(0,0,0,0,0,ry);
-  gr.addColorStop(0,hexA(color,a0));
-  gr.addColorStop(.45,hexA(color,a0*.55));
-  gr.addColorStop(1,hexA(color,0));
-  b.fillStyle=gr;b.beginPath();b.arc(0,0,ry,0,7);b.fill();b.restore();
-}
-function roundRectPath(b,x,y,w,h,r){
-  const rr=Math.min(r,w/2,h/2);
-  b.beginPath();
-  b.moveTo(x+rr,y);b.arcTo(x+w,y,x+w,y+h,rr);b.arcTo(x+w,y+h,x,y+h,rr);
-  b.arcTo(x,y+h,x,y,rr);b.arcTo(x,y,x+w,y,rr);b.closePath();
-}
-function applyTruthPalette(variant){
-  const key=FAM.TRUTH.pal&&FAM.TRUTH.pal[variant];
-  if(!key||!PALETTES[key])return;
-  state.palette=key;
-  state.base=mkStops(PALETTES[key],key);
-  state.elems={};state.selEl=null;
-  if($('pals')){buildPals();syncStops();}
 }
 
 /* ---------- base render ---------- */
@@ -673,160 +620,6 @@ function drawBase(b,W,H){
       const gr=b.createRadialGradient(x,y-r*.3,r*.05,x,y,r);
       gr.addColorStop(0,mix(c,'#fff',.3));gr.addColorStop(.7,c);gr.addColorStop(1,hexA(c,0));
       b.fillStyle=gr;b.beginPath();b.arc(x,y,r,0,7);b.fill();}
-  }
-  else if(v==='cells'){
-    const cycles=Math.max(2,Math.round(1.2+den*.15)); /* den 5 → 2 cycles like ref */
-    const mw=Math.min(720,W)|0,mh=Math.max(2,Math.round(mw*H/W));
-    const img=b.createImageData(mw,mh),d=img.data;
-    const rgbAt=t=>hexToRgb(sampleStops(state.base,cl(t)));
-    for(let y=0;y<mh;y++){
-      const vv=y/(mh-1),row=vv*2,rowL=row-Math.floor(row);
-      const pill=Math.sin(rowL*Math.PI);
-      for(let x=0;x<mw;x++){
-        const u=x/(mw-1);
-        let phase=(u*cycles)%1,t;
-        if(phase<.48)t=phase/.48*.25;           /* wide pink */
-        else if(phase<.68)t=.25+(phase-.48)/.2*.28; /* warm → coral */
-        else t=.53+(phase-.68)/.32*.47;          /* → blue valley */
-        t=t*pill+(1-pill)*.85;
-        const{r,g,b:bv}=rgbAt(t);
-        const i=(y*mw+x)*4;d[i]=r;d[i+1]=g;d[i+2]=bv;d[i+3]=255;
-      }
-    }
-    warpBuf.width=mw;warpBuf.height=mh;
-    warpCtx.putImageData(img,0,0);
-    b.imageSmoothingEnabled=true;
-    b.drawImage(warpBuf,0,0,W,H);
-  }
-  else if(v==='warp'){
-    warpBuf.width=W;warpBuf.height=H;
-    const tx=warpCtx;
-    const reps=Math.max(1,Math.round(1+den*.35));
-    const gr=tx.createLinearGradient(0,0,W,0);
-    const stops=sortSt(shifted(state.base));
-    for(let r=0;r<reps;r++){
-      stops.forEach(o=>{try{gr.addColorStop(cl((r+o.t)/reps),o.color);}catch(_){}});
-    }
-    tx.fillStyle=gr;tx.fillRect(0,0,W,H);
-    for(let i=0;i<reps*stops.length;i++){
-      const x=((i+.5)/(reps*stops.length))*W;
-      const c=sampleStops(state.base,(i%(stops.length))/(stops.length-1||1));
-      const g2=tx.createLinearGradient(x-W*.04,0,x+W*.04,0);
-      g2.addColorStop(0,hexA(c,0));g2.addColorStop(.5,hexA(c,.35));g2.addColorStop(1,hexA(c,0));
-      tx.fillStyle=g2;tx.fillRect(x-W*.05,0,W*.1,H);
-    }
-    const amp=W*(.07+den*.01);
-    for(let y=0;y<H;y++){
-      const t=y/H;
-      const mid=Math.pow(Math.sin(Math.PI*t),2.6);
-      const ox=Math.sin(t*Math.PI*3+a)*amp*mid*.4 + Math.sign(t-.5||1)*amp*mid*.65*Math.sin(t*Math.PI);
-      b.drawImage(warpBuf,0,y,W,1,ox,y,W,1);
-      if(ox>0)b.drawImage(warpBuf,W-ox,y,ox,1,0,y,ox,1);
-      else if(ox<0)b.drawImage(warpBuf,0,y,-ox,1,W+ox,y,-ox,1);
-    }
-  }
-  else if(v==='bands'){
-    /* span gradient to canvas edges so stop 0/1 hit the frame */
-    const dx=Math.cos(a),dy=Math.sin(a);
-    let minT=Infinity,maxT=-Infinity;
-    for(const [px,py] of [[0,0],[W,0],[0,H],[W,H]]){
-      const t=(px-cx)*dx+(py-cy)*dy;
-      if(t<minT)minT=t;if(t>maxT)maxT=t;
-    }
-    const gr=b.createLinearGradient(cx+dx*minT,cy+dy*minT,cx+dx*maxT,cy+dy*maxT);
-    rampSeg(gr,state.base);
-    b.fillStyle=gr;b.fillRect(0,0,W,H);
-  }
-  else if(v==='scales'){
-    const bg=sampleStops(state.base,0);
-    b.fillStyle=bg;b.fillRect(0,0,W,H);
-    const size=W/(1.7+den*.4);
-    const cols=Math.ceil(W/(size*.98))+3;
-    const rows=Math.ceil(H/(size*.74))+3;
-    const hi=sampleStops(state.base,.18);
-    const midC=sampleStops(state.base,.4);
-    const deep=sampleStops(state.base,.72);
-    for(let row=-2;row<rows;row++){
-      for(let col=-2;col<cols;col++){
-        const x=col*size*.98+row*size*.5;
-        const y=row*size*.74;
-        const w=size*1.0,h=size*.86;
-        const idx=row*cols+col;
-        const st=rampFor(idx);
-        const cHi=hasOv(idx)?sampleStops(st,.15):hi;
-        const cMid=hasOv(idx)?sampleStops(st,.45):midC;
-        const cDeep=hasOv(idx)?sampleStops(st,.85):deep;
-        b.save();
-        b.translate(x+w*.5,y+h*.5);b.rotate(-.38);
-        roundRectPath(b,-w*.5,-h*.5,w,h,h*.5);
-        b.clip();
-        const gr=b.createLinearGradient(-w*.5,-h*.5,w*.45,h*.55);
-        gr.addColorStop(0,mix(cHi,'#e8d0ff',.3));
-        gr.addColorStop(.3,cHi);
-        gr.addColorStop(.55,cMid);
-        gr.addColorStop(.82,cDeep);
-        gr.addColorStop(1,mix(cDeep,'#000',.45));
-        b.fillStyle=gr;b.fillRect(-w,-h,w*2,h*2);
-        b.restore();
-      }
-    }
-  }
-  else if(v==='streaks'){
-    b.fillStyle=mix(sampleStops(state.base,.55),'#000',.88);b.fillRect(0,0,W,H);
-    const N=Math.round(6+den*1.1);
-    for(let i=0;i<N;i++){
-      const x=((i+.5)/N)*W+(rng()-.5)*W*.025;
-      const c=sampleStops(state.base,i/(N-1||1));
-      const glow=mix(c,'#fff7ec',.3+rng()*.25);
-      const bw=W*(.055+rng()*.055);
-      const gr=b.createLinearGradient(x-bw,0,x+bw,0);
-      gr.addColorStop(0,hexA(c,0));
-      gr.addColorStop(.3,hexA(c,.5));
-      gr.addColorStop(.5,hexA(glow,.95));
-      gr.addColorStop(.7,hexA(c,.5));
-      gr.addColorStop(1,hexA(c,0));
-      b.fillStyle=gr;b.fillRect(x-bw*1.3,-H*.1,bw*2.6,H*1.2);
-    }
-    b.save();b.translate(W/2,H/2);b.rotate(-.22);
-    const dark=b.createLinearGradient(0,-H*.14,0,H*.14);
-    dark.addColorStop(0,hexA('#000',0));
-    dark.addColorStop(.5,hexA('#050308',.72));
-    dark.addColorStop(1,hexA('#000',0));
-    b.fillStyle=dark;b.fillRect(-W*1.2,-H*.12,W*2.4,H*.24);
-    b.restore();
-  }
-  else if(v==='split'){
-    const pick=t=>sampleStops(state.base,t);
-    const blue=pick(0),black=pick(.18),orange=pick(.35),pink=pick(.5),magenta=pick(.62),red=pick(.78),purple=pick(1);
-    const yCut=Math.round(cy);
-    /* UI angle 90 (Truth default) → noon start, matching refs */
-    const rot=a-Math.PI;
-    b.save();
-    b.beginPath();b.rect(0,0,W,yCut);b.clip();
-    const top=b.createConicGradient(rot,cx,cy);
-    top.addColorStop(0,blue);
-    top.addColorStop(.08,mix(blue,'#4da6ff',.4));
-    top.addColorStop(.18,black);
-    top.addColorStop(.3,orange);
-    top.addColorStop(.4,mix(orange,pink,.6));
-    top.addColorStop(.5,mix(pink,black,.5));
-    top.addColorStop(.7,mix(blue,black,.6));
-    top.addColorStop(.85,mix(blue,'#001040',.3));
-    top.addColorStop(1,blue);
-    b.fillStyle=top;b.fillRect(0,0,W,H);
-    b.restore();
-    b.save();
-    b.beginPath();b.rect(0,yCut,W,H);b.clip();
-    const bot=b.createConicGradient(rot,cx,cy);
-    bot.addColorStop(0,magenta);
-    bot.addColorStop(.15,pink);
-    bot.addColorStop(.35,mix(pink,magenta,.2));
-    bot.addColorStop(.5,red);
-    bot.addColorStop(.68,mix(red,purple,.4));
-    bot.addColorStop(.85,purple);
-    bot.addColorStop(1,magenta);
-    b.fillStyle=bot;b.fillRect(0,0,W,H);
-    b.restore();
   }
   else if(v==='conic'){
     const gr=b.createConicGradient(a,cx,cy);rampSeg(gr,state.base);b.fillStyle=gr;b.fillRect(0,0,W,H);
@@ -891,15 +684,10 @@ function renderGrad(target,W,H,refW){
   buf.width=W;buf.height=H;drawBase(bx,W,H);
   const t=target.getContext('2d',{willReadFrequently:true});
   target.width=W;target.height=H;t.clearRect(0,0,W,H);
-  const hard=state.variant==='split';
-  const blur=hard?0:(+$('soft').value/100)*refW*.04*(FAM[state.fam].blur[state.variant]||1);
+  const blur=(+$('soft').value/100)*refW*.04*(FAM[state.fam].blur[state.variant]||1);
   t.filter=blur>.4?`blur(${blur}px)`:'none';
-  if(hard){
-    t.drawImage(buf,0,0);
-  }else{
-    const ox=W*.06,oy=H*.06;
-    t.drawImage(buf,-ox,-oy,W+ox*2,H+oy*2);
-  }
+  const ox=W*.06,oy=H*.06;
+  t.drawImage(buf,-ox,-oy,W+ox*2,H+oy*2);
   t.filter='none';
   addGrain(t,W,H,refW);
 }
@@ -1038,7 +826,7 @@ function buildPals(){
     `<option value="${k}" ${k===state.palette?'selected':''}>${sentence(k)}</option>`).join('');
   sel.onchange=()=>{
     state.palette=sel.value;
-    const st=mkStops(PALETTES[sel.value],sel.value);
+    const st=mkStops(PALETTES[sel.value]);
     if(state.selEl!=null)state.elems[state.selEl]=st;else{state.base=st;state.elems={}}
     syncStops();draw();
   };
@@ -1059,9 +847,7 @@ function buildVars(){
     `<option value="${v}" ${v===state.variant?'selected':''}>${sentence(v)}</option>`).join('');
   sel.onchange=()=>{
     state.variant=sel.value;state.selEl=null;state.elems={};
-    if(state.fam==='TRUTH')applyTruthPalette(state.variant);
-    else{syncStops();}
-    draw();
+    syncStops();draw();
   };
 }
 function buildRatios(){
@@ -1076,12 +862,7 @@ document.querySelectorAll('.modes button').forEach(b=>b.onclick=()=>{
   b.classList.add('on');
   state.fam=b.dataset.m;state.variant=FAM[state.fam].vars[0];
   state.selEl=null;state.elems={};
-  if(state.fam==='TRUTH')applyTruthPalette(state.variant);
-  else{
-    if(!PALETTES[state.palette]){state.palette='electric';state.base=mkStops(PALETTES.electric);}
-    buildPals();syncStops();
-  }
-  buildVars();draw();
+  buildVars();syncStops();draw();
 });
 function syncRange(el){
   const min=+el.min||0, max=+el.max||100, val=+el.value;
