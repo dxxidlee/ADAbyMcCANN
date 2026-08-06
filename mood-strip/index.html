@@ -15,6 +15,16 @@
 <style>
 
 /* Mood-strip — suite language (same shell as Multi-export / Mesh-gradient) */
+/* Bundled Inter so Float / pop-out windows keep the face (they only inherit
+   copied <style> / <link> nodes — not the opener’s loaded font set). */
+@font-face{
+  font-family:'Inter';
+  font-style:normal;
+  font-weight:400 600;
+  font-display:swap;
+  src:url('fonts/inter-latin.woff2') format('woff2');
+}
+
 .ms{
   --ms-fs:var(--suite-fs);
   --ms-track:-1px;
@@ -1480,9 +1490,25 @@ let pipWin = null, stripHome = null;
 if(!PIP_OK || window.__TAURI__) floatBtn.style.display = "none";
 
 function copyStylesInto(doc, from){
-  (from || document).querySelectorAll("style").forEach(s => {
+  from = from || document;
+  /* Absolute hrefs so about:blank pop-outs and Document PiP both get Inter
+     (relative urls inside a copied <style> resolve against the child doc). */
+  from.querySelectorAll('link[rel="stylesheet"]').forEach(l => {
+    const el = doc.createElement("link");
+    el.rel = "stylesheet";
+    el.href = l.href;
+    if(l.media) el.media = l.media;
+    doc.head.appendChild(el);
+  });
+  from.querySelectorAll("style").forEach(s => {
+    let css = s.textContent;
+    /* Rewrite relative font urls to absolute against the opener. */
+    css = css.replace(
+      /url\(\s*(['"]?)(fonts\/[^'")]+)\1\s*\)/g,
+      (_, q, path) => "url(" + (q || "") + new URL(path, location.href).href + (q || "") + ")"
+    );
     const el = doc.createElement("style");
-    el.textContent = s.textContent;
+    el.textContent = css;
     doc.head.appendChild(el);
   });
 }
