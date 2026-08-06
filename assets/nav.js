@@ -10,7 +10,8 @@
     { id: 'mesh-gradient', label: 'Mesh-gradient' },
     { id: 'logo-variant', label: 'Logo-variant' },
     { id: 'color-swap',   label: 'Color-swap' },
-    { id: 'glyph-trace',  label: 'Glyph-trace' }
+    { id: 'glyph-trace',  label: 'Glyph-trace' },
+    { id: 'mood-strip',   label: 'Mood-strip' }
   ];
 
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
